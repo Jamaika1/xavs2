@@ -59,16 +59,16 @@ typedef void *(*memcpy_t)(void *dst, const void *src, size_t n);
  */
 typedef void(*block_copy_t   )(pel_t *dst, intptr_t i_dst, pel_t *src, intptr_t i_src, int w, int h);
 typedef void(*plane_copy_di_t)(pel_t *dstu, intptr_t i_dstu, pel_t *dstv, intptr_t i_dstv, pel_t *src, intptr_t i_src, int w, int h);
-typedef void(*intpl_t        )(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
-typedef void(*intpl_ext_t    )(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_x, const int8_t *coeff_y);
+typedef void(*intpl_t        )(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+typedef void(*intpl_ext_t    )(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_x, const int8_t *coeff_y);
 
-typedef void(*intpl_luma_hor_t)(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
-typedef void(*intpl_luma_ext_t)(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff);
-typedef void(*intpl_luma_ver_t)(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff);
+typedef void(*intpl_luma_hor_t)(xavs2_t *h, pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+typedef void(*intpl_luma_ext_t)(xavs2_t *h, pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff);
+typedef void(*intpl_luma_ver_t)(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff);
 
-typedef void(*intpl_luma_ver_x3_t)(pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, int8_t const **coeff);
-typedef void(*intpl_luma_hor_x3_t)(pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
-typedef void(*intpl_luma_ext_x3_t)(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff);
+typedef void(*intpl_luma_ver_x3_t)(xavs2_t *h, pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, int8_t const **coeff);
+typedef void(*intpl_luma_hor_x3_t)(xavs2_t *h, pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
+typedef void(*intpl_luma_ext_x3_t)(xavs2_t *h, pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff);
 
 typedef void (*filter_pp_t)    (const pel_t   *src, intptr_t srcStride, pel_t   *dst, intptr_t dstStride, int coeffIdx);
 typedef void (*filter_hps_t)   (const pel_t   *src, intptr_t srcStride, int16_t *dst, intptr_t dstStride, int coeffIdx, int isRowExt);
@@ -81,15 +81,15 @@ typedef void (*filter_p2s_t)   (const pel_t   *src, intptr_t srcStride, int16_t 
 /* ---------------------------------------------------------------------------
  * intra prediction
  */
-typedef void(*intra_pred_t)(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
-typedef void(*fill_edge_t) (const pel_t *p_topleft, int i_topleft, const pel_t *p_lcu_ep, pel_t *ep, uint32_t i_avail, int bsx, int bsy);
+typedef void(*intra_pred_t)(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+typedef void(*fill_edge_t) (xavs2_t *h, const pel_t *p_topleft, int i_topleft, const pel_t *p_lcu_ep, pel_t *ep, uint32_t i_avail, int bsx, int bsy);
 typedef void(*fill_ref_samples_t)(xavs2_t *h, cu_t *p_cu, int img_x, int img_y, int block_x, int block_y, int bsx, int bsy);
 
 
 /* ---------------------------------------------------------------------------
  * transform and quantization functions
  */
-typedef void(*dct_t)(const coeff_t *src, coeff_t *dst, int i_src);
+typedef void(*dct_t)(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 
 /* ---------------------------------------------------------------------------
  * coefficient scan
@@ -102,11 +102,11 @@ typedef struct {
     /* dct */
     dct_t         dct[NUM_PU_SIZES];
     dct_t        idct[NUM_PU_SIZES];
-    dct_t        dct_half[NUM_PU_SIZES];   // ÷ª«ÛΩ‚DCTæÿ’ÛµƒµÕ∆µœµ ˝
+    dct_t        dct_half[NUM_PU_SIZES];   // Âè™Ê±ÇËß£DCTÁü©ÈòµÁöÑ‰ΩéÈ¢ëÁ≥ªÊï∞
 
     /* 2nd transform */
-    void(*transform_4x4_2nd)    (coeff_t *coeff, int i_coeff);
-    void(*inv_transform_4x4_2nd)(coeff_t *coeff, int i_coeff);
+    void(*transform_4x4_2nd)    (xavs2_t *h, coeff_t *coeff, int i_coeff);
+    void(*inv_transform_4x4_2nd)(xavs2_t *h, coeff_t *coeff, int i_coeff);
     void(*transform_2nd)        (coeff_t *coeff, int i_coeff, int i_mode, int b_top, int b_left);
     void(*inv_transform_2nd)    (coeff_t *coeff, int i_coeff, int i_mode, int b_top, int b_left);
 
@@ -120,7 +120,7 @@ typedef struct {
 
 
 /* SAO filter function */
-typedef void(*sao_flt_t)(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+typedef void(*sao_flt_t)(xavs2_t* h,pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                          int i_block_w, int i_block_h,
                          int *lcu_avail, SAOBlkParam *sao_param);
 
@@ -208,7 +208,7 @@ typedef struct intrinsic_func_t {
     sao_flt_t       sao_block;          /* filter for SAO */
 
     /* function handles */
-    void(*alf_flt[2])(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+    void(*alf_flt[2])(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                       int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                       int *alf_coeff, int b_top_avail, int b_down_avail);
 
