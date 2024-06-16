@@ -48,6 +48,7 @@ void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                               int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                               int *alf_coeff, int b_top_avail, int b_down_avail)
 {
+    xavs2_t *h;
     pel_t *p_src1, *p_src2, *p_src3, *p_src4, *p_src5, *p_src6;
 
     __m128i T00, T01, T10, T11, T20, T21, T30, T31, T40, T41, T50, T51;
@@ -58,7 +59,7 @@ void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
     __m128i mSwitch1, mSwitch2, mSwitch3, mSwitch4, mSwitch5;
     __m128i mAddOffset;
     __m128i mZero = _mm_set1_epi16(0);
-    __m128i mMax = _mm_set1_epi16((short)(max_pel_value));
+    __m128i mMax = _mm_set1_epi16((short)((1 << h->param->input_sample_bit_depth) - 1));
     __m128i mask;
 
     int i, j;
@@ -113,15 +114,15 @@ void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
             T01 = _mm_loadu_si128((__m128i*)&p_src5[j]);
             E00 = _mm_unpacklo_epi8(T00, T01);
             E01 = _mm_unpackhi_epi8(T00, T01);
-            S00 = _mm_maddubs_epi16(E00, C0);//Ç°8¸öÏñËØËùÓĞC0*P0µÄ½á¹û
-            S01 = _mm_maddubs_epi16(E01, C0);//ºó8¸öÏñËØËùÓĞC0*P0µÄ½á¹û
+            S00 = _mm_maddubs_epi16(E00, C0);//å‰8ä¸ªåƒç´ æ‰€æœ‰C0*P0çš„ç»“æœ
+            S01 = _mm_maddubs_epi16(E01, C0);//å8ä¸ªåƒç´ æ‰€æœ‰C0*P0çš„ç»“æœ
 
             T10 = _mm_loadu_si128((__m128i*)&p_src4[j]);
             T11 = _mm_loadu_si128((__m128i*)&p_src3[j]);
             E10 = _mm_unpacklo_epi8(T10, T11);
             E11 = _mm_unpackhi_epi8(T10, T11);
-            S10 = _mm_maddubs_epi16(E10, C1);//Ç°8¸öÏñËØËùÓĞC1*P1µÄ½á¹û
-            S11 = _mm_maddubs_epi16(E11, C1);//ºó8¸öÏñËØËùÓĞC1*P1µÄ½á¹û
+            S10 = _mm_maddubs_epi16(E10, C1);//å‰8ä¸ªåƒç´ æ‰€æœ‰C1*P1çš„ç»“æœ
+            S11 = _mm_maddubs_epi16(E11, C1);//å8ä¸ªåƒç´ æ‰€æœ‰C1*P1çš„ç»“æœ
 
             T20 = _mm_loadu_si128((__m128i*)&p_src2[j - 1]);
             T21 = _mm_loadu_si128((__m128i*)&p_src1[j + 1]);
@@ -161,26 +162,26 @@ void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
             S8 = _mm_maddubs_epi16(T4, C33);
             S50 = _mm_hadds_epi16(S5, S6);
             S51 = _mm_hadds_epi16(S7, S8);
-            S5 = _mm_hadds_epi16(S50, S51);//Ç°8¸ö
+            S5 = _mm_hadds_epi16(S50, S51);//å‰8ä¸ª
             S4 = _mm_maddubs_epi16(T5, C33);
             S6 = _mm_maddubs_epi16(T6, C33);
             S7 = _mm_maddubs_epi16(T7, C33);
             S8 = _mm_maddubs_epi16(T8, C33);
             S60 = _mm_hadds_epi16(S4, S6);
             S61 = _mm_hadds_epi16(S7, S8);
-            S6 = _mm_hadds_epi16(S60, S61);//ºó8¸ö
+            S6 = _mm_hadds_epi16(S60, S61);//å8ä¸ª
 
             S0 = _mm_adds_epi16(S00, S10);
             S1 = _mm_adds_epi16(S30, S20);
             S2 = _mm_adds_epi16(S40, S5);
             S3 = _mm_adds_epi16(S1, S0);
-            SS1 = _mm_adds_epi16(S2, S3);//Ç°8¸ö
+            SS1 = _mm_adds_epi16(S2, S3);//å‰8ä¸ª
 
             S0 = _mm_adds_epi16(S01, S11);
             S1 = _mm_adds_epi16(S31, S21);
             S2 = _mm_adds_epi16(S41, S6);
             S3 = _mm_adds_epi16(S1, S0);
-            SS2 = _mm_adds_epi16(S2, S3);//ºó8¸ö
+            SS2 = _mm_adds_epi16(S2, S3);//å8ä¸ª
 
 
             SS1 = _mm_adds_epi16(SS1, mAddOffset);
