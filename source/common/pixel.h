@@ -133,7 +133,7 @@ typedef void(*copy_ps_t)(coeff_t* dst, intptr_t dstStride, const pel_t* src, int
 typedef void(*copy_ss_t)(coeff_t* dst, intptr_t dstStride, const coeff_t* src, intptr_t srcStride);
 
 typedef void(*pixel_sub_ps_t)(coeff_t* dst, intptr_t dstride, const pel_t* src0, const pel_t* src1, intptr_t sstride0, intptr_t sstride1);
-typedef void(*pixel_add_ps_t)(pel_t* a, intptr_t dstride, const pel_t* b0, const coeff_t* b1, intptr_t sstride0, intptr_t sstride1);
+typedef void(*pixel_add_ps_t)(xavs2_t *h, pel_t* a, intptr_t dstride, const pel_t* b0, const coeff_t* b1, intptr_t sstride0, intptr_t sstride1);
 typedef void(*pixel_avg_pp_t)(pel_t* dst, intptr_t dstride, const pel_t* src0, intptr_t sstride0, const pel_t* src1, intptr_t sstride1, int weight);
 
 typedef int(*mad_funcs_t)(pel_t *p_src, int i_src, int cu_size);
