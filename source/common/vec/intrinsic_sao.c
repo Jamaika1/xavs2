@@ -50,6 +50,7 @@
 void SAO_on_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src, int i_block_w, int i_block_h,
                          int *lcu_avail, SAOBlkParam *sao_param)
 {
+    xavs2_t *h;
     int start_x, end_x, start_y, end_y;
     int start_x_r0, end_x_r0, start_x_r, end_x_r, start_x_rn, end_x_rn;
     int x, y;
@@ -631,7 +632,7 @@ void SAO_on_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src, int i
         __m128i t0, t1, t2, t3, t4, src0, src1;
         __m128i mask ;
         __m128i shift_mask = _mm_set1_epi8(31);
-        int shift_bo = g_bit_depth - NUM_SAO_BO_CLASSES_IN_BIT;
+        int shift_bo = h->param->input_sample_bit_depth - NUM_SAO_BO_CLASSES_IN_BIT;
         int end_x_16 = i_block_w - 15;
 
         r0 = _mm_set1_epi8((int8_t)(sao_param->startBand));
