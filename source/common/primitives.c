@@ -55,8 +55,8 @@ void xavs2_init_all_primitives(xavs2_param_t* param, intrinsic_func_t *p_funcs)
     uint32_t cpuid = p_funcs->cpuid;
 
     if (param != NULL) {
-        if (param->sample_bit_depth != g_bit_depth) {
-            xavs2_log(NULL, XAVS2_LOG_ERROR, "init primitives error: only %d bit-depth is supported\n", g_bit_depth);
+        if (param->sample_bit_depth != param->input_sample_bit_depth) {
+            xavs2_log(NULL, XAVS2_LOG_ERROR, "init primitives error: only %d bit-depth is supported\n", param->input_sample_bit_depth);
         }
     }
 
