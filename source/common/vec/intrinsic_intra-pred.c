@@ -36,6 +36,7 @@
 
 #include "../avs2_defs.h"
 #include "../basic_types.h"
+#include "../common.h"
 #include "intrinsic.h"
 #include <string.h>
 #include <mmintrin.h>
@@ -181,6 +182,7 @@ void intra_pred_hor_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int 
  */
 void intra_pred_dc_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
+    xavs2_t *bb;
     int avail_above = dir_mode >> 8;
     int avail_left = dir_mode & 0xFF;
     int dc_value;
@@ -251,7 +253,7 @@ void intra_pred_dc_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int b
     } else if (avail_above) {
         dc_value = (sum_above + (bsx >> 1)) >> xavs2_log2u(bsx);
     } else {
-        dc_value = g_dc_value;
+        dc_value = ((1 << bb->param->input_sample_bit_depth) >> 1);
     }
 
     p00 = _mm_set1_epi8((pel_t)dc_value);
@@ -6453,7 +6455,7 @@ void intra_pred_ang_xy_14_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
             ((int*)&pfirst[3][i])[0] = _mm_cvtsi128_si32(p00);
         }
 
-        if (i < left_size) { //Ê¹ÓÃcÓïÑÔ¿ÉÄÜ»á¸üÓÅ
+        if (i < left_size) { //ä½¿ç”¨cè¯­è¨€å¯èƒ½ä¼šæ›´ä¼˜
             __m128i p00, p01, p10;
             __m128i p20, p30;
             __m128i S0 = _mm_loadu_si128((__m128i*)(src - 1));
