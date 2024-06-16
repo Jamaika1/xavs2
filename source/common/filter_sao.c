@@ -48,14 +48,14 @@
 
 /* ---------------------------------------------------------------------------
 */
-static void sao_block_c(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+static void sao_block_c(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                         int i_block_w, int i_block_h,
                         int *lcu_avail, SAOBlkParam *sao_param)
 {
     int8_t SIGN_BUF[MAX_CU_SIZE + 32];  // sign of top line
     int8_t *UPROW_S = SIGN_BUF + 16;
     int  *sao_offset = sao_param->offset;
-    const int max_pel_val = (1 << g_bit_depth) - 1;
+    const int max_pel_val = (1 << h->param->input_sample_bit_depth) - 1;
     int reg = 0;
     int sx, sy, ex, ey;               // start/end (x, y)
     int sx_0, ex_0, sx_n, ex_n;       // start/end x for first and last row
@@ -211,7 +211,7 @@ static void sao_block_c(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
         }
         break;
     case SAO_TYPE_BO:
-        pel_diff = g_bit_depth - NUM_SAO_BO_CLASSES_IN_BIT;
+        pel_diff = h->param->input_sample_bit_depth - NUM_SAO_BO_CLASSES_IN_BIT;
         for (y = 0; y < i_block_h; y++) {
             for (x = 0; x < i_block_w; x++) {
                 edge_type = p_src[x] >> pel_diff;
