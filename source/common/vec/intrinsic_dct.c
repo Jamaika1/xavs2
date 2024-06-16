@@ -42,6 +42,7 @@
 
 #include "../basic_types.h"
 #include "../avs2_defs.h"
+#include "../common.h"
 #include "intrinsic.h"
 
 void *xavs2_fast_memzero_mmx(void *dst, size_t n);
@@ -398,7 +399,8 @@ ALIGN16(static const int16_t g_2TC_V[8 * (2 * SEC_TR_SIZE)]) = {
 futl change 2016.12.19*/
 void dct_c_4x4_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int SHIFT1 = B4X4_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT;
+    xavs2_t *bb;
+    const int SHIFT1 = B4X4_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT;
     const int SHIFT2 = B4X4_IN_BIT + FACTO_BIT;
     const int ADD1 = (1 << SHIFT1) >> 1;
     const int ADD2 = (1 << SHIFT2) >> 1;
@@ -486,7 +488,8 @@ void dct_c_4x4_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 futl change 2016.12.19*/
 void dct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int SHIFT1 = B8X8_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT;
+    xavs2_t *bb;
+    const int SHIFT1 = B8X8_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT;
     const int SHIFT2 = B8X8_IN_BIT + FACTO_BIT;
     const int ADD1 = (1 << SHIFT1) >> 1;
     const int ADD2 = (1 << SHIFT2) >> 1;
@@ -687,7 +690,8 @@ void dct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_src)
  */
 void dct_c_16x4_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int shift1 = B16X16_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT;
+    xavs2_t *bb;
+    const int shift1 = B16X16_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT;
     const int shift2 = B16X16_IN_BIT + FACTO_BIT - 2;
     const int ADD1 = (1 << shift1) >> 1;
     const int ADD2 = (1 << shift2) >> 1;
@@ -975,7 +979,8 @@ void dct_c_16x4_sse128(const coeff_t *src, coeff_t *dst, int i_src)
  */
 void dct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int SHIFT1 = B16X16_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT - 2;
+    xavs2_t *bb;
+    const int SHIFT1 = B16X16_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT - 2;
     const int ADD1 = (1 << SHIFT1) >> 1;
     const int SHIFT2 = B16X16_IN_BIT + FACTO_BIT;
     const int ADD2 = (1 << SHIFT2) >> 1;
@@ -1037,7 +1042,7 @@ void dct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     u11 = _mm_madd_epi16(t2, k_p17_p42);
     u13 = _mm_madd_epi16(t2, k_m42_p17);
 
-    //��λ����
+    //ÒÆÎ»²¹³¥
     u10 = _mm_srai_epi32(_mm_add_epi32(u10, c_add1), SHIFT1);
     u11 = _mm_srai_epi32(_mm_add_epi32(u11, c_add1), SHIFT1);
     u12 = _mm_srai_epi32(_mm_add_epi32(u12, c_add1), SHIFT1);
@@ -1061,7 +1066,7 @@ void dct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     u21 = _mm_madd_epi16(t2, k_p17_p42);
     u23 = _mm_madd_epi16(t2, k_m42_p17);
 
-    //��λ����
+    //ÒÆÎ»²¹³¥
     u20 = _mm_srai_epi32(_mm_add_epi32(u20, c_add1), SHIFT1);
     u21 = _mm_srai_epi32(_mm_add_epi32(u21, c_add1), SHIFT1);
     u22 = _mm_srai_epi32(_mm_add_epi32(u22, c_add1), SHIFT1);
@@ -1089,7 +1094,7 @@ void dct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     u11 = _mm_madd_epi16(t2, k_p17_p42);
     u13 = _mm_madd_epi16(t2, k_m42_p17);
 
-    //��λ����
+    //ÒÆÎ»²¹³¥
     u10 = _mm_srai_epi32(_mm_add_epi32(u10, c_add1), SHIFT1);
     u11 = _mm_srai_epi32(_mm_add_epi32(u11, c_add1), SHIFT1);
     u12 = _mm_srai_epi32(_mm_add_epi32(u12, c_add1), SHIFT1);
@@ -1111,7 +1116,7 @@ void dct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     u22 = _mm_madd_epi16(t0, k_p32_m32);
     u21 = _mm_madd_epi16(t2, k_p17_p42);
     u23 = _mm_madd_epi16(t2, k_m42_p17);
-    //��λ����
+    //ÒÆÎ»²¹³¥
     u20 = _mm_srai_epi32(_mm_add_epi32(u20, c_add1), SHIFT1);
     u21 = _mm_srai_epi32(_mm_add_epi32(u21, c_add1), SHIFT1);
     u22 = _mm_srai_epi32(_mm_add_epi32(u22, c_add1), SHIFT1);
@@ -1345,7 +1350,8 @@ void dct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
  */
 void dct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int SHIFT1 = B16X16_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT;
+    xavs2_t *bb;
+    const int SHIFT1 = B16X16_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT;
     const int SHIFT2 = B16X16_IN_BIT + FACTO_BIT;
     const int ADD1 = (1 << SHIFT1) >> 1;
     const int ADD2 = (1 << SHIFT2) >> 1;
@@ -1767,8 +1773,9 @@ void dct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_src)
  */
 void dct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
+    xavs2_t *bb;
     int i;
-    int shift1 = B32X32_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT - 2 + (i_src & 0x01);
+    int shift1 = B32X32_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT - 2 + (i_src & 0x01);
     int shift2 = B32X32_IN_BIT + FACTO_BIT;
     const int ADD1 = (1 << shift1) >> 1;
     const int ADD2 = (1 << shift2) >> 1;
@@ -1853,7 +1860,7 @@ void dct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     I5 = _mm_unpackhi_epi64(tr1_1, tr1_5); \
     I6 = _mm_unpacklo_epi64(tr1_3, tr1_7); \
     I7 = _mm_unpackhi_epi64(tr1_3, tr1_7); \
- 
+
         TRANSPOSE_8x8(in0, in1, in2, in3, in4, in5, in6, in7)
 #undef TRANSPOSE_8x8
 
@@ -2131,7 +2138,7 @@ void dct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     \
     tResult = _mm_packs_epi32(T60, TT60); \
     _mm_storeu_si128((__m128i*)&dst[(dstPos)* 8], tResult); \
- 
+
     MAKE_ODD(44, 44, 44, 44, 0);
     MAKE_ODD(45, 45, 45, 45, 16);
     MAKE_ODD(46, 47, 46, 47, 8);
@@ -2175,8 +2182,9 @@ void dct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
  */
 void dct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
+    xavs2_t *bb;
     int i;
-    int shift1 = B32X32_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT;
+    int shift1 = B32X32_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT;
     int shift2 = B32X32_IN_BIT + FACTO_BIT - 2 - (i_src & 0x01);
     const int ADD1 = (1 << shift1) >> 1;
     const int ADD2 = (1 << shift2) >> 1;
@@ -2537,7 +2545,8 @@ void dct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_src)
  */
 void dct_c_32x32_half_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int shift1 = B32X32_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT + (i_src & 0x01);
+    xavs2_t *bb;
+    const int shift1 = B32X32_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT + (i_src & 0x01);
     const int SHIFT2 = B32X32_IN_BIT + FACTO_BIT;
     const int ADD1 = (1 << shift1) >> 1;
     const int ADD2 = (1 << SHIFT2) >> 1;
@@ -2809,7 +2818,7 @@ void dct_c_32x32_half_sse128(const coeff_t *src, coeff_t *dst, int i_src)
     /* clear result buffer */
     xavs2_fast_memzero_mmx(dst, 32 * 32 * sizeof(coeff_t));
 
-    // DCT2, ֻ����ǰ16�к�ǰ16��
+    // DCT2, Ö»±£ÁôÇ°16ÐÐºÍÇ°16ÁÐ
     for (i = 0; i < 16 / 4; i++) {
         // OPT_ME: to avoid register spill, I use matrix multiply, have other way?
         T00A = im[i * 4 + 0][0];    // [07 06 05 04 03 02 01 00]
@@ -2922,7 +2931,8 @@ void dct_c_32x32_half_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 //optimize 32x32 size transform
 void dct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
 {
-    const int shift1 = B32X32_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT + (i_src & 0x01);
+    xavs2_t *bb;
+    const int shift1 = B32X32_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT + (i_src & 0x01);
     const int SHIFT2 = B32X32_IN_BIT + FACTO_BIT;
     const int ADD1 = (1 << shift1) >> 1;
     const int ADD2 = (1 << SHIFT2) >> 1;
@@ -2990,7 +3000,7 @@ void dct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
         T07D = _mm_load_si128((__m128i*)(src + 24));
         src += i_src;
 
-        //_mm_load_si128((__m128i)tab_dct_16_0[1]) ���� *((__m128i*)tab_dct_16_0[1])
+        //_mm_load_si128((__m128i)tab_dct_16_0[1]) »»³É *((__m128i*)tab_dct_16_0[1])
         T00A = _mm_shuffle_epi8(T00A, *((__m128i*)tab_dct_16_0[1]));   // [05 02 06 01 04 03 07 00]
         T00B = _mm_shuffle_epi8(T00B, *((__m128i*)tab_dct_32_0[0]));   // [10 13 09 14 11 12 08 15]
         T00C = _mm_shuffle_epi8(T00C, *((__m128i*)tab_dct_16_0[1]));   // [21 18 22 17 20 19 23 16]
@@ -3087,7 +3097,7 @@ void dct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_src)
         T50 = _mm_srai_epi32(_mm_add_epi32(T50, c_add1), shift1);
         T51 = _mm_srai_epi32(_mm_add_epi32(T51, c_add1), shift1);
         T60 = _mm_packs_epi32(T50, T51);
-        im[0][i] = T60;//16��0��8�м�������ı任ϵ��(16 bit per bit width)
+        im[0][i] = T60;//16¸ö0µ½8ÐÐ¼ÆËã³öÀ´µÄ±ä»»ÏµÊý(16 bit per bit width)
 
         T50 = _mm_hsub_epi32(T40, T41);
         T51 = _mm_hsub_epi32(T42, T43);
@@ -3892,7 +3902,8 @@ void transform_2nd_sse128(coeff_t *coeff, int i_coeff, int i_mode, int b_top, in
  */
 void transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff)
 {
-    const int SHIFT1 = B4X4_IN_BIT + FACTO_BIT + g_bit_depth + 1 - LIMIT_BIT + 1;
+    xavs2_t *bb;
+    const int SHIFT1 = B4X4_IN_BIT + FACTO_BIT + bb->param->input_sample_bit_depth + 1 - LIMIT_BIT + 1;
     const int SHIFT2 = B4X4_IN_BIT + FACTO_BIT + 1;
     const int ADD1 = 1 << (SHIFT1 - 1);
     const int ADD2 = 1 << (SHIFT2 - 1);
@@ -3998,7 +4009,7 @@ void transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff)
 
 
 
-// transpose 8x8 & transpose 16x16(����ת��)
+// transpose 8x8 & transpose 16x16(¾ØÕó×ªÖÃ)
 #define TRANSPOSE_8x8_16BIT(I0, I1, I2, I3, I4, I5, I6, I7, O0, O1, O2, O3, O4, O5, O6, O7) \
     tr0_0 = _mm_unpacklo_epi16(I0, I1); \
     tr0_1 = _mm_unpacklo_epi16(I2, I3); \
@@ -4024,22 +4035,22 @@ void transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff)
     O5 = _mm_unpackhi_epi64(tr1_1, tr1_5); \
     O6 = _mm_unpacklo_epi64(tr1_3, tr1_7); \
     O7 = _mm_unpackhi_epi64(tr1_3, tr1_7); \
- 
+
 #define TRANSPOSE_16x16_16BIT(A0_0, A1_0, A2_0, A3_0, A4_0, A5_0, A6_0, A7_0, A8_0, A9_0, A10_0, A11_0, A12_0, A13_0, A14_0, A15_0, A0_1, A1_1, A2_1, A3_1, A4_1, A5_1, A6_1, A7_1, A8_1, A9_1, A10_1, A11_1, A12_1, A13_1, A14_1, A15_1, B0_0, B1_0, B2_0, B3_0, B4_0, B5_0, B6_0, B7_0, B8_0, B9_0, B10_0, B11_0, B12_0, B13_0, B14_0, B15_0, B0_1, B1_1, B2_1, B3_1, B4_1, B5_1, B6_1, B7_1, B8_1, B9_1, B10_1, B11_1, B12_1, B13_1, B14_1, B15_1) \
         TRANSPOSE_8x8_16BIT(A0_0, A1_0, A2_0, A3_0, A4_0, A5_0, A6_0, A7_0, B0_0, B1_0, B2_0, B3_0, B4_0, B5_0, B6_0, B7_0); \
         TRANSPOSE_8x8_16BIT(A8_0, A9_0, A10_0, A11_0, A12_0, A13_0, A14_0, A15_0, B0_1, B1_1, B2_1, B3_1, B4_1, B5_1, B6_1, B7_1); \
         TRANSPOSE_8x8_16BIT(A0_1, A1_1, A2_1, A3_1, A4_1, A5_1, A6_1, A7_1, B8_0, B9_0, B10_0, B11_0, B12_0, B13_0, B14_0, B15_0); \
         TRANSPOSE_8x8_16BIT(A8_1, A9_1, A10_1, A11_1, A12_1, A13_1, A14_1, A15_1, B8_1, B9_1, B10_1, B11_1, B12_1, B13_1, B14_1, B15_1); \
- 
+
 void wavelet_16x64_sse128(coeff_t *coeff)
 {
-    //���� 16*64
+    //ï¿½ï¿½ï¿½ï¿½ 16*64
     __m128i V00[2], V01[2], V02[2], V03[2], V04[2], V05[2], V06[2], V07[2], V08[2], V09[2], V10[2], V11[2], V12[2], V13[2], V14[2], V15[2], V16[2], V17[2], V18[2], V19[2], V20[2], V21[2], V22[2], V23[2], V24[2], V25[2], V26[2], V27[2], V28[2], V29[2], V30[2], V31[2], V32[2], V33[2], V34[2], V35[2], V36[2], V37[2], V38[2], V39[2], V40[2], V41[2], V42[2], V43[2], V44[2], V45[2], V46[2], V47[2], V48[2], V49[2], V50[2], V51[2], V52[2], V53[2], V54[2], V55[2], V56[2], V57[2], V58[2], V59[2], V60[2], V61[2], V62[2], V63[2];
 
-    //���� 64*16
+    //ï¿½ï¿½ï¿½ï¿½ 64*16
     __m128i T00[8], T01[8], T02[8], T03[8], T04[8], T05[8], T06[8], T07[8], T08[8], T09[8], T10[8], T11[8], T12[8], T13[8], T14[8], T15[8];
 
-    //��ʱ
+    //ï¿½ï¿½Ê±
     __m128i B00, B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B11, B12, B13, B14, B15, B16, B17, B18, B19, B20, B21, B22, B23, B24, B25, B26, B27, B28, B29, B30, B31;
     __m128i B32, B33, B34, B35, B36, B37, B38, B39, B40, B41, B42, B43, B44, B45, B46, B47, B48, B49, B50, B51, B52, B53, B54, B55, B56, B57, B58, B59, B60, B61, B62, B63;
 
@@ -4166,7 +4177,7 @@ void wavelet_16x64_sse128(coeff_t *coeff)
     }
 
     /* step 2: vertical transform */
-    /* copy ת��*/
+    /* copy ×ªï¿½ï¿½*/
     TRANSPOSE_8x8_16BIT(T00[0], T02[0], T04[0], T06[0], T08[0], T10[0], T12[0], T14[0], B00, B01, B02, B03, B04, B05, B06, B07);
     TRANSPOSE_8x8_16BIT(T00[1], T02[1], T04[1], T06[1], T08[1], T10[1], T12[1], T14[1], B08, B09, B10, B11, B12, B13, B14, B15);
     TRANSPOSE_8x8_16BIT(T00[2], T02[2], T04[2], T06[2], T08[2], T10[2], T12[2], T14[2], B16, B17, B18, B19, B20, B21, B22, B23);
@@ -4290,16 +4301,16 @@ void wavelet_16x64_sse128(coeff_t *coeff)
 
 void wavelet_64x16_sse128(coeff_t *coeff)
 {
-    //���� 16*64
+    //ï¿½ï¿½ï¿½ï¿½ 16*64
     __m128i V00[2], V01[2], V02[2], V03[2], V04[2], V05[2], V06[2], V07[2], V08[2], V09[2], V10[2], V11[2], V12[2], V13[2], V14[2], V15[2], V16[2], V17[2], V18[2], V19[2], V20[2], V21[2], V22[2], V23[2], V24[2], V25[2], V26[2], V27[2], V28[2], V29[2], V30[2], V31[2], V32[2], V33[2], V34[2], V35[2], V36[2], V37[2], V38[2], V39[2], V40[2], V41[2], V42[2], V43[2], V44[2], V45[2], V46[2], V47[2], V48[2], V49[2], V50[2], V51[2], V52[2], V53[2], V54[2], V55[2], V56[2], V57[2], V58[2], V59[2], V60[2], V61[2], V62[2], V63[2];
 
-    //���� 64*16
+    //ï¿½ï¿½ï¿½ï¿½ 64*16
     __m128i T00[8], T01[8], T02[8], T03[8], T04[8], T05[8], T06[8], T07[8], T08[8], T09[8], T10[8], T11[8], T12[8], T13[8], T14[8], T15[8];
 
-    //��ʱ 64*16
+    //ï¿½ï¿½Ê± 64*16
     __m128i A00[4], A01[4], A02[4], A03[4], A04[4], A05[4], A06[4], A07[4], A08[4], A09[4], A10[4], A11[4], A12[4], A13[4], A14[4], A15[4];
 
-    //��ʱ
+    //ÁÙÊ±
     __m128i tr0_0, tr0_1, tr0_2, tr0_3, tr0_4, tr0_5, tr0_6, tr0_7;
     __m128i tr1_0, tr1_1, tr1_2, tr1_3, tr1_4, tr1_5, tr1_6, tr1_7;
     int i;
@@ -4497,7 +4508,7 @@ void wavelet_64x16_sse128(coeff_t *coeff)
     V62[1] = _mm_add_epi16(V62[1], _mm_srai_epi16(_mm_add_epi16(_mm_add_epi16(V61[1], V63[1]), mAddOffset2), 2));
 
     /* step 2: vertical transform */
-    //ת��
+    //×ªï¿½ï¿½
     TRANSPOSE_8x8_16BIT(V00[0], V02[0], V04[0], V06[0], V08[0], V10[0], V12[0], V14[0], A00[0], A01[0], A02[0], A03[0], A04[0], A05[0], A06[0], A07[0]);
     TRANSPOSE_8x8_16BIT(V16[0], V18[0], V20[0], V22[0], V24[0], V26[0], V28[0], V30[0], A00[1], A01[1], A02[1], A03[1], A04[1], A05[1], A06[1], A07[1]);
     TRANSPOSE_8x8_16BIT(V32[0], V34[0], V36[0], V38[0], V40[0], V42[0], V44[0], V46[0], A00[2], A01[2], A02[2], A03[2], A04[2], A05[2], A06[2], A07[2]);
@@ -4547,13 +4558,13 @@ void wavelet_64x16_sse128(coeff_t *coeff)
 
 void wavelet_64x64_sse128(coeff_t *coeff)
 {
-    //���� 16*64
+    //ï¿½ï¿½ï¿½ï¿½ 16*64
     __m128i V00[8], V01[8], V02[8], V03[8], V04[8], V05[8], V06[8], V07[8], V08[8], V09[8], V10[8], V11[8], V12[8], V13[8], V14[8], V15[8], V16[8], V17[8], V18[8], V19[8], V20[8], V21[8], V22[8], V23[8], V24[8], V25[8], V26[8], V27[8], V28[8], V29[8], V30[8], V31[8], V32[8], V33[8], V34[8], V35[8], V36[8], V37[8], V38[8], V39[8], V40[8], V41[8], V42[8], V43[8], V44[8], V45[8], V46[8], V47[8], V48[8], V49[8], V50[8], V51[8], V52[8], V53[8], V54[8], V55[8], V56[8], V57[8], V58[8], V59[8], V60[8], V61[8], V62[8], V63[8];
 
-    //���� 64*64
+    //ï¿½ï¿½ï¿½ï¿½ 64*64
     __m128i T00[8], T01[8], T02[8], T03[8], T04[8], T05[8], T06[8], T07[8], T08[8], T09[8], T10[8], T11[8], T12[8], T13[8], T14[8], T15[8], T16[8], T17[8], T18[8], T19[8], T20[8], T21[8], T22[8], T23[8], T24[8], T25[8], T26[8], T27[8], T28[8], T29[8], T30[8], T31[8], T32[8], T33[8], T34[8], T35[8], T36[8], T37[8], T38[8], T39[8], T40[8], T41[8], T42[8], T43[8], T44[8], T45[8], T46[8], T47[8], T48[8], T49[8], T50[8], T51[8], T52[8], T53[8], T54[8], T55[8], T56[8], T57[8], T58[8], T59[8], T60[8], T61[8], T62[8], T63[8];
 
-    //��ʱ 32*64
+    //ÁÙÊ± 32*64
     __m128i A00[4], A01[4], A02[4], A03[4], A04[4], A05[4], A06[4], A07[4], A08[4], A09[4], A10[4], A11[4], A12[4], A13[4], A14[4], A15[4], A16[4], A17[4], A18[4], A19[4], A20[4], A21[4], A22[4], A23[4], A24[4], A25[4], A26[4], A27[4], A28[4], A29[4], A30[4], A31[4], A32[4], A33[4], A34[4], A35[4], A36[4], A37[4], A38[4], A39[4], A40[4], A41[4], A42[4], A43[4], A44[4], A45[4], A46[4], A47[4], A48[4], A49[4], A50[4], A51[4], A52[4], A53[4], A54[4], A55[4], A56[4], A57[4], A58[4], A59[4], A60[4], A61[4], A62[4], A63[4];
 
     __m128i tr0_0, tr0_1, tr0_2, tr0_3, tr0_4, tr0_5, tr0_6, tr0_7;
@@ -4636,7 +4647,7 @@ void wavelet_64x64_sse128(coeff_t *coeff)
         T62[i] = _mm_load_si128((__m128i*)&coeff[8 * i + 64 * 62]);
         T63[i] = _mm_load_si128((__m128i*)&coeff[8 * i + 64 * 63]);
     }
-    //0-15��ת��
+    //0-15ï¿½ï¿½×ªï¿½ï¿½
     TRANSPOSE_16x16_16BIT(
         T00[0], T01[0], T02[0], T03[0], T04[0], T05[0], T06[0], T07[0], T08[0], T09[0], T10[0], T11[0], T12[0], T13[0], T14[0], T15[0],
         T00[1], T01[1], T02[1], T03[1], T04[1], T05[1], T06[1], T07[1], T08[1], T09[1], T10[1], T11[1], T12[1], T13[1], T14[1], T15[1],
@@ -4661,7 +4672,7 @@ void wavelet_64x64_sse128(coeff_t *coeff)
         V48[0], V49[0], V50[0], V51[0], V52[0], V53[0], V54[0], V55[0], V56[0], V57[0], V58[0], V59[0], V60[0], V61[0], V62[0], V63[0],
         V48[1], V49[1], V50[1], V51[1], V52[1], V53[1], V54[1], V55[1], V56[1], V57[1], V58[1], V59[1], V60[1], V61[1], V62[1], V63[1]
     );
-    //16-31��ת��
+    //16-31ï¿½ï¿½×ªï¿½ï¿½
     TRANSPOSE_16x16_16BIT(
         T16[0], T17[0], T18[0], T19[0], T20[0], T21[0], T22[0], T23[0], T24[0], T25[0], T26[0], T27[0], T28[0], T29[0], T30[0], T31[0],
         T16[1], T17[1], T18[1], T19[1], T20[1], T21[1], T22[1], T23[1], T24[1], T25[1], T26[1], T27[1], T28[1], T29[1], T30[1], T31[1],
@@ -4686,7 +4697,7 @@ void wavelet_64x64_sse128(coeff_t *coeff)
         V48[2], V49[2], V50[2], V51[2], V52[2], V53[2], V54[2], V55[2], V56[2], V57[2], V58[2], V59[2], V60[2], V61[2], V62[2], V63[2],
         V48[3], V49[3], V50[3], V51[3], V52[3], V53[3], V54[3], V55[3], V56[3], V57[3], V58[3], V59[3], V60[3], V61[3], V62[3], V63[3]
     );
-    //32-47��ת��
+    //32-47ï¿½ï¿½×ªï¿½ï¿½
     TRANSPOSE_16x16_16BIT(
         T32[0], T33[0], T34[0], T35[0], T36[0], T37[0], T38[0], T39[0], T40[0], T41[0], T42[0], T43[0], T44[0], T45[0], T46[0], T47[0],
         T32[1], T33[1], T34[1], T35[1], T36[1], T37[1], T38[1], T39[1], T40[1], T41[1], T42[1], T43[1], T44[1], T45[1], T46[1], T47[1],
@@ -4711,7 +4722,7 @@ void wavelet_64x64_sse128(coeff_t *coeff)
         V48[4], V49[4], V50[4], V51[4], V52[4], V53[4], V54[4], V55[4], V56[4], V57[4], V58[4], V59[4], V60[4], V61[4], V62[4], V63[4],
         V48[5], V49[5], V50[5], V51[5], V52[5], V53[5], V54[5], V55[5], V56[5], V57[5], V58[5], V59[5], V60[5], V61[5], V62[5], V63[5]
     );
-    //48-63��ת��
+    //48-63ï¿½ï¿½×ªï¿½ï¿½
     TRANSPOSE_16x16_16BIT(
         T48[0], T49[0], T50[0], T51[0], T52[0], T53[0], T54[0], T55[0], T56[0], T57[0], T58[0], T59[0], T60[0], T61[0], T62[0], T63[0],
         T48[1], T49[1], T50[1], T51[1], T52[1], T53[1], T54[1], T55[1], T56[1], T57[1], T58[1], T59[1], T60[1], T61[1], T62[1], T63[1],
@@ -4840,7 +4851,7 @@ void wavelet_64x64_sse128(coeff_t *coeff)
         A48[0], A49[0], A50[0], A51[0], A52[0], A53[0], A54[0], A55[0], A56[0], A57[0], A58[0], A59[0], A60[0], A61[0], A62[0], A63[0],
         A48[1], A49[1], A50[1], A51[1], A52[1], A53[1], A54[1], A55[1], A56[1], A57[1], A58[1], A59[1], A60[1], A61[1], A62[1], A63[1]
     );
-    //16-31��
+    //16-31ï¿½ï¿½
     TRANSPOSE_16x16_16BIT(
         V32[0], V34[0], V36[0], V38[0], V40[0], V42[0], V44[0], V46[0], V48[0], V50[0], V52[0], V54[0], V56[0], V58[0], V60[0], V62[0],
         V32[1], V34[1], V36[1], V38[1], V40[1], V42[1], V44[1], V46[1], V48[1], V50[1], V52[1], V54[1], V56[1], V58[1], V60[1], V62[1],
