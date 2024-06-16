@@ -125,7 +125,7 @@ static int8_t GRID[24][2] = {
 };
 
 /* ---------------------------------------------------------------------------
- * ÓÃÓÚ·ÖÏñËØËÑË÷µÄÕı·½ĞÎËÑË÷ */
+ * ç”¨äºåˆ†åƒç´ æœç´¢çš„æ­£æ–¹å½¢æœç´¢ */
 static const int8_t Spiral[9][2] = {
     {  0,  0 }, {  0, -1 }, {  0, 1 },
     { -1, -1 }, {  1, -1 }, { -1, 0 },
@@ -405,9 +405,9 @@ static const int i_org = FENC_STRIDE;
  */
 
 /* ---------------------------------------------------------------------------
- * ÈôcandMV³¬¹ı1/4¾«¶ÈµÄãĞÖµ£¬ÔòĞÂµÄMVÓ¦²ÉÓÃ2±¶²½³¤£¬Èô´ËÊ±ĞÂµÄMVÔÚãĞÖµ·¶Î§ÄÚ£¬Ôò·µ»Ø1£¬±íÊ¾ĞÂµÄMV²»Ó¦¼ÌĞøËÑË÷
- * ÈôcandMVÔÚ1/4¾«¶ÈãĞÖµ·¶Î§ÄÚ£¬ÔòĞÂµÄMV²ÉÓÃµ¥±¶²½³¤£¬´ËÊ±ÈôĞÂMV³¬¹ıãĞÖµ·¶Î§£¬Ôò·µ»Ø1£¬±íÊ¾ĞÂµÄMV²»Ó¦¼ÌĞøËÑË÷
- * ·ñÔò£¬·µ»Ø0Öµ±íÊ¾ĞÂµÄMVÓ¦¸Ã¼ÌĞø±»ËÑË÷
+ * è‹¥candMVè¶…è¿‡1/4ç²¾åº¦çš„é˜ˆå€¼ï¼Œåˆ™æ–°çš„MVåº”é‡‡ç”¨2å€æ­¥é•¿ï¼Œè‹¥æ­¤æ—¶æ–°çš„MVåœ¨é˜ˆå€¼èŒƒå›´å†…ï¼Œåˆ™è¿”å›1ï¼Œè¡¨ç¤ºæ–°çš„MVä¸åº”ç»§ç»­æœç´¢
+ * è‹¥candMVåœ¨1/4ç²¾åº¦é˜ˆå€¼èŒƒå›´å†…ï¼Œåˆ™æ–°çš„MVé‡‡ç”¨å•å€æ­¥é•¿ï¼Œæ­¤æ—¶è‹¥æ–°MVè¶…è¿‡é˜ˆå€¼èŒƒå›´ï¼Œåˆ™è¿”å›1ï¼Œè¡¨ç¤ºæ–°çš„MVä¸åº”ç»§ç»­æœç´¢
+ * å¦åˆ™ï¼Œè¿”å›0å€¼è¡¨ç¤ºæ–°çš„MVåº”è¯¥ç»§ç»­è¢«æœç´¢
  */
 static int pmvr_adapt_mv(int *mx, int *my, int ctr_x, int ctr_y,
                          int mv_x, int mv_y, int step_x, int step_y)
@@ -1028,7 +1028,7 @@ dist_t xavs2_me_search(xavs2_t *h, xavs2_me_t *p_me, int16_t(*mvc)[2], int i_mvc
     }
     case XAVS2_ME_UMH:        /* UMH */
         /* http://www.cnblogs.com/TaigaCon/archive/2014/06/16/3788984.html
-         * 0. ³õÊ¼µãËÑË÷ */
+         * 0. åˆå§‹ç‚¹æœç´¢ */
         DIA_ITER(mvc[0][0], mvc[0][1]);
         if (pmv && (bmx != mvc[0][0] || bmy != mvc[0][1])) {
             DIA_ITER(bmx, bmy);
@@ -1052,7 +1052,7 @@ dist_t xavs2_me_search(xavs2_t *h, xavs2_me_t *p_me, int16_t(*mvc)[2], int i_mvc
             ME_COST_IPEL(IPEL(p_me->mvp3.x), IPEL(p_me->mvp3.y));
         }
 
-        /* µ±Ç°×îÓÅMV²»ÊÇ MVP£¬ËÑË÷ÆäÖÜÎ§Ò»¸öĞ¡´°¿Ú */
+        /* å½“å‰æœ€ä¼˜MVä¸æ˜¯ MVPï¼Œæœç´¢å…¶å‘¨å›´ä¸€ä¸ªå°çª—å£ */
         if (pmv != (uint32_t)MAKEDWORD(bmx, bmy)) {
             DIA_ITER(bmx, bmy);
         }
@@ -1061,7 +1061,7 @@ dist_t xavs2_me_search(xavs2_t *h, xavs2_me_t *p_me, int16_t(*mvc)[2], int i_mvc
         EARLY_TERMINATION(p_me->pred_sad);
 
         // umh_step_1:
-        /* UMH 1. Unsymmetrical-cross search £¨·Ç¶Ô³ÆÊ®×ÖËÑË÷£© */
+        /* UMH 1. Unsymmetrical-cross search ï¼ˆéå¯¹ç§°åå­—æœç´¢ï¼‰ */
         // g_me_time[2]++;
         omx = bmx;
         omy = bmy;
@@ -1077,7 +1077,7 @@ dist_t xavs2_me_search(xavs2_t *h, xavs2_me_t *p_me, int16_t(*mvc)[2], int i_mvc
         // early termination algorithm
         EARLY_TERMINATION(p_me->pred_sad);
 
-        /* UMH 2. Spiral search £¨ÂİĞıËÑË÷£© */
+        /* UMH 2. Spiral search ï¼ˆèºæ—‹æœç´¢ï¼‰ */
         omx = bmx;
         omy = bmy;
         for (i = 0; i < 24; i++) {
@@ -1102,7 +1102,7 @@ dist_t xavs2_me_search(xavs2_t *h, xavs2_me_t *p_me, int16_t(*mvc)[2], int i_mvc
         }
         /* !!! NO break statement here */
     case XAVS2_ME_HEX:        /* hexagon search */
-umh_step_2 :                  /* UMH 3. Uneven Multi-Hexagon-grid Search £¨²»¹æÂÉÁù±ßĞÎÄ£°åËÑË÷£© */
+umh_step_2 :                  /* UMH 3. Uneven Multi-Hexagon-grid Search ï¼ˆä¸è§„å¾‹å…­è¾¹å½¢æ¨¡æ¿æœç´¢ï¼‰ */
         // g_me_time[3]++;
         dir = 0;                                        /*   6   5   */
         omx = bmx;                                      /*           */
@@ -1112,7 +1112,7 @@ umh_step_2 :                  /* UMH 3. Uneven Multi-Hexagon-grid Search £¨²»¹æÂ
 
         if (dir) {
             const int8_t (*hex)[2];
-            /* UMH 4. Extended Hexagon-based Search £¨Áù±ßĞÎÄ£°å·´¸´ËÑË÷£© */
+            /* UMH 4. Extended Hexagon-based Search ï¼ˆå…­è¾¹å½¢æ¨¡æ¿åå¤æœç´¢ï¼‰ */
             idx = dir - 1;      /* start array index */
             /* half hexagon, not overlapping the previous iteration */
             for (i = 0; i < me_range && CHECK_MV_RANGE(bmx, bmy); i++) {
@@ -1129,7 +1129,7 @@ umh_step_2 :                  /* UMH 3. Uneven Multi-Hexagon-grid Search £¨²»¹æÂ
         }
         /* !!! NO break statement here */
     case XAVS2_ME_DIA:        /* diamond search */
-umh_step_3:                   /* UMH 5. the third step with a small search pattern £¨Ğ¡ÁâĞÎÄ£°å·´¸´ËÑË÷£© */
+umh_step_3:                   /* UMH 5. the third step with a small search pattern ï¼ˆå°è±å½¢æ¨¡æ¿åå¤æœç´¢ï¼‰ */
         dir = 0;
         if (CHECK_MV_RANGE(bmx, bmy)) {
             omx = bmx;                                          /*    4    */
@@ -1314,7 +1314,7 @@ dist_t xavs2_me_search_bid(xavs2_t *h, xavs2_me_t *p_me, pel_t *buf_pixel_temp, 
     mx_bid = bwd_mv->x;
     my_bid = bwd_mv->y;
 
-    //ÔÚÕâÀï°Ñ±àÂëÖµÓëÔ¤²âÖµµÄ¼ÆËã¹«Ê½»»ËãÎª2±¶±àÂëÖµ-ºóÏòÔ¤²âÖµ
+    //åœ¨è¿™é‡ŒæŠŠç¼–ç å€¼ä¸é¢„æµ‹å€¼çš„è®¡ç®—å…¬å¼æ¢ç®—ä¸º2å€ç¼–ç å€¼-åå‘é¢„æµ‹å€¼
     xx2 = mx_bid >> 2;
     yy2 = my_bid >> 2;
     mv_bid_bit = MV_COST_FPEL_BID(mx_bid, my_bid);
@@ -1331,10 +1331,10 @@ dist_t xavs2_me_search_bid(xavs2_t *h, xavs2_me_t *p_me, pel_t *buf_pixel_temp, 
             mvt.x = (int16_t)mx_bid;
             mvt.y = (int16_t)my_bid;
             get_mv_for_mc(h, &mvt, p_me->i_pix_x, p_me->i_pix_y, block_w, p_me->i_block_h);
-            mc_luma(tmp_pred, MAX_CU_SIZE, mvt.x, mvt.y, block_w, p_me->i_block_h, p_me->p_fref_2nd);
+            mc_luma(h, tmp_pred, MAX_CU_SIZE, mvt.x, mvt.y, block_w, p_me->i_block_h, p_me->p_fref_2nd);
             g_funcs.pixf.sub_ps[i_pixel](cur_blk, block_w, p_org, tmp_pred, FENC_STRIDE, MAX_CU_SIZE);//M-A
         }
-        g_funcs.pixf.add_ps[i_pixel](buf_pixel_temp, MAX_CU_SIZE, p_org, cur_blk, FENC_STRIDE, block_w);//M-A+M
+        g_funcs.pixf.add_ps[i_pixel](h, buf_pixel_temp, MAX_CU_SIZE, p_org, cur_blk, FENC_STRIDE, block_w);//M-A+M
     }
 
     if (!h->use_fractional_me) {
