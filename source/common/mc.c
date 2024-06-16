@@ -272,8 +272,10 @@ void mem_repeat_8i_c(void *dst, int val, size_t count)
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_chroma_block_hor_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+intpl_chroma_block_hor_c(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y, v;
 
     for (y = 0; y < height; y++) {
@@ -284,13 +286,16 @@ intpl_chroma_block_hor_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width
         src += i_src;
         dst += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_chroma_block_ver_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+intpl_chroma_block_ver_c(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y, v;
 
     for (y = 0; y < height; y++) {
@@ -301,19 +306,22 @@ intpl_chroma_block_ver_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width
         src += i_src;
         dst += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_chroma_block_ext_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v)
+intpl_chroma_block_ext_c(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     ALIGN16(int32_t tmp_res[(32 + 3) * 32]);
     int32_t *tmp = tmp_res;
-    const int shift1 = g_bit_depth - 8;
+    const int shift1 = h->param->input_sample_bit_depth - 8;
     const int add1   = (1 << shift1) >> 1;
-    const int shift2 = 20 - g_bit_depth;
-    const int add2   = 1 << (shift2 - 1); // 1<<(19-g_bit_depth)
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
+    const int add2   = 1 << (shift2 - 1); // 1<<(19-h->param->input_sample_bit_depth)
     int x, y, v;
 
     src -= i_src;
@@ -334,13 +342,16 @@ intpl_chroma_block_ext_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width
         dst += i_dst;
         tmp += 32;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_block_hor_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+intpl_luma_block_hor_c(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y, v;
 
     for (y = 0; y < height; y++) {
@@ -351,6 +362,7 @@ intpl_luma_block_hor_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, 
         src += i_src;
         dst += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
@@ -360,14 +372,15 @@ intpl_luma_block_hor_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_block_ext_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v)
+intpl_luma_block_ext_c(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
 #define TMP_STRIDE      64
 
-    const int shift1 = g_bit_depth - 8;
+    const int shift1 = h->param->input_sample_bit_depth - 8;
     const int add1   = (1 << shift1) >> 1;
-    const int shift2 = 20 - g_bit_depth;
-    const int add2   = 1 << (shift2 - 1);//1<<(19-bit_depth)
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
+    const int add2   = 1 << (shift2 - 1);//1<<(19-h->input_sample_bit_depth)
 
     ALIGN16(mct_t tmp_buf[(64 + 7) * TMP_STRIDE]);
     mct_t *tmp = tmp_buf;
@@ -395,13 +408,16 @@ intpl_luma_block_ext_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, 
     }
 
 #undef TMP_STRIDE
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_hor_c(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+intpl_luma_hor_c(xavs2_t *h, pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y, v;
 
     for (y = 0; y < height; y++) {
@@ -414,13 +430,16 @@ intpl_luma_hor_c(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i
         tmp += i_tmp;
         dst += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_ver_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+intpl_luma_ver_c(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y;
 
     for (y = 0; y < height; y++) {
@@ -432,13 +451,16 @@ intpl_luma_ver_c(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int he
         src += i_src;
         dst += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_ver_x3_c(pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, int8_t const **coeff)
+intpl_luma_ver_x3_c(xavs2_t *h, pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, int8_t const **coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y, v;
     pel_t *dst0 = dst[0];
     pel_t *dst1 = dst[1];
@@ -458,13 +480,16 @@ intpl_luma_ver_x3_c(pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int w
         dst1 += i_dst;
         dst2 += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_hor_x3_c(pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff)
+intpl_luma_hor_x3_c(xavs2_t *h, pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     int x, y, v;
     pel_t *dst0 = dst[0];
     pel_t *dst1 = dst[1];
@@ -493,15 +518,18 @@ intpl_luma_hor_x3_c(pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_t
         dst1 += i_dst;
         dst2 += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static void
-intpl_luma_ext_c(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff)
+intpl_luma_ext_c(xavs2_t *h, pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff)
 {
-    const int MC_SHIFT = 20 - g_bit_depth;
-    const int MC_ADD = 1 << (MC_SHIFT - 1);   // (1 << (19-g_bit_depth))
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
+    const int MC_SHIFT = 20 - h->param->input_sample_bit_depth;
+    const int MC_ADD = 1 << (MC_SHIFT - 1);   // (1 << (19-h->param->input_sample_bit_depth))
     int x, y;
 
     for (y = 0; y < height; y++) {
@@ -513,13 +541,16 @@ intpl_luma_ext_c(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int he
         dst += i_dst;
         tmp += i_tmp;
     }
+#undef XAVS2_CLIP1
 }
 
 static void
-intpl_luma_ext_x3_c(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff)
+intpl_luma_ext_x3_c(xavs2_t *h, pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff)
 {
-    const int MC_SHIFT = 20 - g_bit_depth;
-    const int MC_ADD = 1 << (MC_SHIFT - 1);   // (1 << (19-g_bit_depth))
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
+    const int MC_SHIFT = 20 - h->param->input_sample_bit_depth;
+    const int MC_ADD = 1 << (MC_SHIFT - 1);   // (1 << (19-h->param->input_sample_bit_depth))
     int x, y;
 
     pel_t *dst0 = dst[0];
@@ -544,6 +575,7 @@ intpl_luma_ext_x3_c(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int w
         dst2 += i_dst;
         tmp  += i_tmp;
     }
+#undef XAVS2_CLIP1
 }
 
 /**
@@ -556,7 +588,7 @@ intpl_luma_ext_x3_c(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int w
  * predict one component of a luma block
  *   ref_idx - reference frame (0.. / -1:backward)
  */
-void mc_luma(pel_t *p_pred, int i_pred, int pix_quad_x, int pix_quad_y,
+void mc_luma(xavs2_t *h, pel_t *p_pred, int i_pred, int pix_quad_x, int pix_quad_y,
              int width, int height, const xavs2_frame_t *p_ref_frm)
 {
     int x = (pix_quad_x >> 2);
@@ -577,11 +609,11 @@ void mc_luma(pel_t *p_pred, int i_pred, int pix_quad_x, int pix_quad_y,
         if (dx == 0 && dy == 0) {
             g_funcs.pixf.copy_pp[PART_INDEX(width, height)](p_pred, i_pred, src, i_src);
         } else if (dy == 0) {
-            g_funcs.intpl_luma_block_hor(p_pred, i_pred, src, i_src, width, height, INTPL_FILTERS[dx]);
+            g_funcs.intpl_luma_block_hor(h, p_pred, i_pred, src, i_src, width, height, INTPL_FILTERS[dx]);
         } else if (dx == 0) {
-            g_funcs.intpl_luma_block_ver(p_pred, i_pred, src, i_src, width, height, INTPL_FILTERS[dy]);
+            g_funcs.intpl_luma_block_ver(h, p_pred, i_pred, src, i_src, width, height, INTPL_FILTERS[dy]);
         } else {
-            g_funcs.intpl_luma_block_ext(p_pred, i_pred, src, i_src, width, height, INTPL_FILTERS[dx], INTPL_FILTERS[dy]);
+            g_funcs.intpl_luma_block_ext(h, p_pred, i_pred, src, i_src, width, height, INTPL_FILTERS[dx], INTPL_FILTERS[dy]);
         }
 #if ENABLE_FRAME_SUBPEL_INTPL
     }
@@ -634,7 +666,7 @@ void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int he
     /* -------------------------------------------------------------
      * interpolate horizontal positions: a.b,c */
     {
-        const int shift_h = 4;   // ÍùÉÏÆ«ÒÆ4ÐÐÖØÐÂ²åÖµÒÔ²¢ÐÐ
+        const int shift_h = 4;   // å¾€ä¸Šåç§»4è¡Œé‡æ–°æ’å€¼ä»¥å¹¶è¡Œ
         intpl_tmp[0] -= shift_h * i_tmp;
         intpl_tmp[1] -= shift_h * i_tmp;
         intpl_tmp[2] -= shift_h * i_tmp;
@@ -649,11 +681,11 @@ void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int he
             p_dst[2] = frm->filtered[INTPL_POS_C] + off_dst - shift_h * stride;  // c
             p_coeffs[2] = INTPL_FILTERS[INTPL_POS_C];         // c
 
-            g_funcs.intpl_luma_hor_x3(p_dst, stride, intpl_tmp, i_tmp, src, stride, width, height + 4 + shift_h, p_coeffs);
+            g_funcs.intpl_luma_hor_x3(h, p_dst, stride, intpl_tmp, i_tmp, src, stride, width, height + 4 + shift_h, p_coeffs);
         } else {
             // b
             dst = frm->filtered[INTPL_POS_B] + off_dst - 4 * stride;
-            g_funcs.intpl_luma_hor(dst, stride, intpl_tmp[1], i_tmp, src, stride, width, height + 4 + shift_h, INTPL_FILTERS[INTPL_POS_B]);
+            g_funcs.intpl_luma_hor(h, dst, stride, intpl_tmp[1], i_tmp, src, stride, width, height + 4 + shift_h, INTPL_FILTERS[INTPL_POS_B]);
         }
         src          += shift_h * stride;
         intpl_tmp[0] += shift_h * i_tmp;
@@ -673,10 +705,10 @@ void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int he
         p_dst[2] = frm->filtered[INTPL_POS_N] + off_dst;  // n
         p_coeffs[2] = INTPL_FILTERS[INTPL_POS_N >> 2];    // n
 
-        g_funcs.intpl_luma_ver_x3(p_dst, stride, src, stride, width, height, p_coeffs);
+        g_funcs.intpl_luma_ver_x3(h, p_dst, stride, src, stride, width, height, p_coeffs);
     } else {
         p_dst[1] = frm->filtered[INTPL_POS_H] + off_dst;  // h
-        g_funcs.intpl_luma_ver(p_dst[1], stride, src, stride, width, height, INTPL_FILTERS[INTPL_POS_H >> 2]);
+        g_funcs.intpl_luma_ver(h, p_dst[1], stride, src, stride, width, height, INTPL_FILTERS[INTPL_POS_H >> 2]);
     }
 
     /* -------------------------------------------------------------
@@ -692,7 +724,7 @@ void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int he
         p_dst[2] = frm->filtered[INTPL_POS_P] + off_dst;  // p
         p_coeffs[2] = INTPL_FILTERS[INTPL_POS_P >> 2];    // p
 
-        g_funcs.intpl_luma_ext_x3(p_dst, stride, intpl_tmp[0], i_tmp, width, height, p_coeffs);
+        g_funcs.intpl_luma_ext_x3(h, p_dst, stride, intpl_tmp[0], i_tmp, width, height, p_coeffs);
 
         // --- for f,j,q ---
         p_dst[0] = frm->filtered[INTPL_POS_F] + off_dst;  // f
@@ -704,7 +736,7 @@ void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int he
         p_dst[2] = frm->filtered[INTPL_POS_Q] + off_dst;  // q
         p_coeffs[2] = INTPL_FILTERS[INTPL_POS_Q >> 2];    // q
 
-        g_funcs.intpl_luma_ext_x3(p_dst, stride, intpl_tmp[1], i_tmp, width, height, p_coeffs);
+        g_funcs.intpl_luma_ext_x3(h, p_dst, stride, intpl_tmp[1], i_tmp, width, height, p_coeffs);
 
         // --- for g,k,r ---
         p_dst[0] = frm->filtered[INTPL_POS_G] + off_dst;  // g
@@ -716,11 +748,11 @@ void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int he
         p_dst[2] = frm->filtered[INTPL_POS_R] + off_dst;  // r
         p_coeffs[2] = INTPL_FILTERS[INTPL_POS_R >> 2];    // r
 
-        g_funcs.intpl_luma_ext_x3(p_dst, stride, intpl_tmp[2], i_tmp, width, height, p_coeffs);
+        g_funcs.intpl_luma_ext_x3(h, p_dst, stride, intpl_tmp[2], i_tmp, width, height, p_coeffs);
     } else {
         // j
         dst = frm->filtered[INTPL_POS_J] + off_dst;
-        g_funcs.intpl_luma_ext(dst, stride, intpl_tmp[1], i_tmp, width, height, INTPL_FILTERS[INTPL_POS_J >> 2]);
+        g_funcs.intpl_luma_ext(h, dst, stride, intpl_tmp[1], i_tmp, width, height, INTPL_FILTERS[INTPL_POS_J >> 2]);
     }
 
     /* ---------------------------------------------------------------------------
@@ -754,7 +786,7 @@ void interpolate_lcu_row(xavs2_t *h, xavs2_frame_t* frm, int i_lcu_y)
     int height;
     slice_t *slice = h->slices[h->i_slice_index];
 
-    /* ÓÐÐ§²åÖµÏñËØÇøÓòµÄÆðÊ¼ºÍ½áÊøÐÐºÅ */
+    /* æœ‰æ•ˆæ’å€¼åƒç´ åŒºåŸŸçš„èµ·å§‹å’Œç»“æŸè¡Œå· */
     if (b_start) {
         y_start -= PAD_OFFSET;
     } else {
@@ -766,14 +798,14 @@ void interpolate_lcu_row(xavs2_t *h, xavs2_frame_t* frm, int i_lcu_y)
         y_end -= MC_OFFSET;
     }
 
-    /* ¶àsliceÊ±¼õÉÙÈßÓàÔËËã */
+    /* å¤šsliceæ—¶å‡å°‘å†—ä½™è¿ç®— */
     if (h->param->slice_num > 1 && !b_start && !b_end) {
         if (slice->i_first_lcu_y == i_lcu_y) {
-            /* SliceµÄÉÏ±ß½ç */
+            /* Sliceçš„ä¸Šè¾¹ç•Œ */
             y_start += (MC_OFFSET + PAD_OFFSET);
         }
         if (slice->i_last_lcu_y == i_lcu_y) {
-            /* SliceµÄÏÂ±ß½ç */
+            /* Sliceçš„ä¸‹è¾¹ç•Œ */
             y_end += PAD_OFFSET;
         }
     }
@@ -794,7 +826,7 @@ void interpolate_lcu_row(xavs2_t *h, xavs2_frame_t* frm, int i_lcu_y)
 /* ---------------------------------------------------------------------------
  * predict one component of a chroma block
  */
-void mc_chroma(pel_t *p_pred_u, pel_t *p_pred_v, int i_pred,
+void mc_chroma(xavs2_t *h, pel_t *p_pred_u, pel_t *p_pred_v, int i_pred,
                int pix_quad_x, int pix_quad_y, int width, int height,
                const xavs2_frame_t *p_ref_frm)
 {
@@ -817,14 +849,14 @@ void mc_chroma(pel_t *p_pred_u, pel_t *p_pred_v, int i_pred,
             g_funcs.align_copy(p_pred_v, i_pred, p_src_v, i_src, width, height);
         }
     } else if (posy == 0) {
-        g_funcs.intpl_chroma_block_hor(p_pred_u, i_pred, p_src_u, i_src, width, height, INTPL_FILTERS_C[posx]);
-        g_funcs.intpl_chroma_block_hor(p_pred_v, i_pred, p_src_v, i_src, width, height, INTPL_FILTERS_C[posx]);
+        g_funcs.intpl_chroma_block_hor(h, p_pred_u, i_pred, p_src_u, i_src, width, height, INTPL_FILTERS_C[posx]);
+        g_funcs.intpl_chroma_block_hor(h, p_pred_v, i_pred, p_src_v, i_src, width, height, INTPL_FILTERS_C[posx]);
     } else if (posx == 0) {
-        g_funcs.intpl_chroma_block_ver(p_pred_u, i_pred, p_src_u, i_src, width, height, INTPL_FILTERS_C[posy]);
-        g_funcs.intpl_chroma_block_ver(p_pred_v, i_pred, p_src_v, i_src, width, height, INTPL_FILTERS_C[posy]);
+        g_funcs.intpl_chroma_block_ver(h, p_pred_u, i_pred, p_src_u, i_src, width, height, INTPL_FILTERS_C[posy]);
+        g_funcs.intpl_chroma_block_ver(h, p_pred_v, i_pred, p_src_v, i_src, width, height, INTPL_FILTERS_C[posy]);
     } else {
-        g_funcs.intpl_chroma_block_ext(p_pred_u, i_pred, p_src_u, i_src, width, height, INTPL_FILTERS_C[posx], INTPL_FILTERS_C[posy]);
-        g_funcs.intpl_chroma_block_ext(p_pred_v, i_pred, p_src_v, i_src, width, height, INTPL_FILTERS_C[posx], INTPL_FILTERS_C[posy]);
+        g_funcs.intpl_chroma_block_ext(h, p_pred_u, i_pred, p_src_u, i_src, width, height, INTPL_FILTERS_C[posx], INTPL_FILTERS_C[posy]);
+        g_funcs.intpl_chroma_block_ext(h, p_pred_v, i_pred, p_src_v, i_src, width, height, INTPL_FILTERS_C[posx], INTPL_FILTERS_C[posy]);
     }
 }
 
@@ -877,7 +909,7 @@ void xavs2_mem_oper_init(uint32_t cpuid, intrinsic_func_t *pf)
     pf->lowres_filter   = lowres_filter_core_c;
 
 #if ARCH_X86_64
-    pf->mem_repeat_i    = mem_repeat_8i_c;  // x64¼Ü¹¹ÏÂ£¬¼õÉÙÑ­»·´ÎÊýÍ¬Ê±Ê¹ÓÃ64Î»´ò°ü¸³Öµ
+    pf->mem_repeat_i    = mem_repeat_8i_c;  // x64æž¶æž„ä¸‹ï¼Œå‡å°‘å¾ªçŽ¯æ¬¡æ•°åŒæ—¶ä½¿ç”¨64ä½æ‰“åŒ…èµ‹å€¼
 #endif
 
 #if HAVE_MMX
@@ -901,18 +933,19 @@ void xavs2_mem_oper_init(uint32_t cpuid, intrinsic_func_t *pf)
         pf->memzero_aligned = xavs2_memzero_aligned_c_sse2;
         // pf->memcpy_aligned  = xavs2_memcpy_aligned_c_sse2;
         pf->lowres_filter  = xavs2_lowres_filter_core_sse2;
-        // pf->mem_repeat_i  = xavs2_mem_repeat_i_c_sse2;  // TODO: ±ÈC°æ±¾Âý£¬½ûÓÃ
+        // pf->mem_repeat_i  = xavs2_mem_repeat_i_c_sse2;  // TODO: æ¯”Cç‰ˆæœ¬æ…¢ï¼Œç¦ç”¨
     }
 
     if (cpuid & XAVS2_CPU_SSSE3) {
         pf->lowres_filter = xavs2_lowres_filter_core_ssse3;
     }
-
+#if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
         pf->memzero_aligned = xavs2_memzero_aligned_c_avx;
-        // pf->mem_repeat_i    = xavs2_mem_repeat_i_c_avx;  // TODO: ±ÈC°æ±¾Âý£¬½ûÓÃ
+        // pf->mem_repeat_i    = xavs2_mem_repeat_i_c_avx;  // TODO: æ¯”Cç‰ˆæœ¬æ…¢ï¼Œç¦ç”¨
         pf->lowres_filter   = xavs2_lowres_filter_core_avx;
     }
+#endif
 #else
     UNUSED_PARAMETER(cpuid);
 #endif
@@ -967,7 +1000,7 @@ void xavs2_mc_init(uint32_t cpuid, intrinsic_func_t *pf)
         pf->intpl_chroma_block_ver = intpl_chroma_block_ver_sse128;
         pf->intpl_chroma_block_ext = intpl_chroma_block_ext_sse128;
     }
-
+#if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
         pf->intpl_luma_hor = intpl_luma_hor_avx2;
         pf->intpl_luma_ver = intpl_luma_ver_avx2;
@@ -985,6 +1018,7 @@ void xavs2_mc_init(uint32_t cpuid, intrinsic_func_t *pf)
         pf->intpl_chroma_block_hor = intpl_chroma_block_hor_avx2;
         pf->intpl_chroma_block_ext = intpl_chroma_block_ext_avx2;
     }
+#endif
 #else
     UNUSED_PARAMETER(cpuid);
 #endif
