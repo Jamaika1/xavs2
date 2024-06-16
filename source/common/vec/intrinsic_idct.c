@@ -36,6 +36,7 @@
 
 #include "../basic_types.h"
 #include "../avs2_defs.h"
+#include "../common.h"
 #include "intrinsic.h"
 
 #include <mmintrin.h>
@@ -67,10 +68,11 @@ extern ALIGN16(const int16_t g_2T_C[SEC_TR_SIZE * SEC_TR_SIZE]);
  */
 void idct_c_4x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - g_bit_depth;
+    const int shift2 = 20 - bb->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = g_bit_depth + 1;
+    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p17_p42 = _mm_set1_epi32(0x0011002A);
     const __m128i c16_n42_p17 = _mm_set1_epi32(0xFFD60011);
@@ -147,10 +149,11 @@ void idct_c_4x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - g_bit_depth;
+    const int shift2 = 20 - bb->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = g_bit_depth + 1;
+    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p43_p45 = _mm_set1_epi32(0x002B002D);   //row0 87high - 90low address
     const __m128i c16_p35_p40 = _mm_set1_epi32(0x00230028);
@@ -451,10 +454,11 @@ void idct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_16x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - g_bit_depth;
+    const int shift2 = 20 - bb->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = g_bit_depth + 1;
+    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p43_p45 = _mm_set1_epi32(0x002B002D);   //row0 87high - 90low address
     const __m128i c16_p35_p40 = _mm_set1_epi32(0x00230028);
@@ -719,10 +723,11 @@ void idct_c_16x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     // const int shift1 = 5;
-    const int shift2 = 20 - g_bit_depth;
+    const int shift2 = 20 - bb->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = g_bit_depth + 1;
+    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
 
     __m128i S0, S1, S2, S3, S4, S5, S6, S7;
     __m128i mAdd, T0, T1, T2, T3;
@@ -815,7 +820,7 @@ void idct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
     E2l = _mm_add_epi32(E2l, mAdd);
     E2h = _mm_sub_epi32(EE1h, E01h);
     E2h = _mm_add_epi32(E2h, mAdd);
-    S0 = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E0l, O0l), 5), _mm_srai_epi32(_mm_add_epi32(E0h, O0h), 5));  // 首次反变换移位数
+    S0 = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E0l, O0l), 5), _mm_srai_epi32(_mm_add_epi32(E0h, O0h), 5));  // 棣栨鍙嶅彉鎹㈢Щ浣嶆暟
     S7 = _mm_packs_epi32(_mm_srai_epi32(_mm_sub_epi32(E0l, O0l), 5), _mm_srai_epi32(_mm_sub_epi32(E0h, O0h), 5));
     S1 = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E1l, O1l), 5), _mm_srai_epi32(_mm_add_epi32(E1h, O1h), 5));
     S6 = _mm_packs_epi32(_mm_srai_epi32(_mm_sub_epi32(E1l, O1l), 5), _mm_srai_epi32(_mm_sub_epi32(E1h, O1h), 5));
@@ -989,10 +994,11 @@ void idct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - g_bit_depth;
+    const int shift2 = 20 - bb->param->input_sample_bit_depth;
     //const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = g_bit_depth + 1;
+    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p43_p45 = _mm_set1_epi32(0x002B002D);   //row0 87high - 90low address
     const __m128i c16_p35_p40 = _mm_set1_epi32(0x00230028);
@@ -1311,7 +1317,7 @@ void idct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
     O5 = _mm_unpackhi_epi64(tr1_1, tr1_5); \
     O6 = _mm_unpacklo_epi64(tr1_3, tr1_7); \
     O7 = _mm_unpackhi_epi64(tr1_3, tr1_7); \
- 
+
             TRANSPOSE_8x8_16BIT(res00[0], res01[0], res02[0], res03[0], res04[0], res05[0], res06[0], res07[0], in00[0], in01[0], in02[0], in03[0], in04[0], in05[0], in06[0], in07[0])
             TRANSPOSE_8x8_16BIT(res08[0], res09[0], res10[0], res11[0], res12[0], res13[0], res14[0], res15[0], in00[1], in01[1], in02[1], in03[1], in04[1], in05[1], in06[1], in07[1])
             TRANSPOSE_8x8_16BIT(res00[1], res01[1], res02[1], res03[1], res04[1], res05[1], res06[1], res07[1], in08[0], in09[0], in10[0], in11[0], in12[0], in13[0], in14[0], in15[0])
@@ -1417,11 +1423,12 @@ void idct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     int a_flag = i_dst & 0x01;
     //int shift1 = 5;
-    int shift2 = 20 - g_bit_depth - a_flag;
+    int shift2 = 20 - bb->param->input_sample_bit_depth - a_flag;
     //int clip_depth1 = LIMIT_BIT;
-    int clip_depth2 = g_bit_depth + 1 + a_flag;
+    int clip_depth2 = bb->param->input_sample_bit_depth + 1 + a_flag;
 
     const __m128i c16_p45_p45 = _mm_set1_epi32(0x002D002D);
     const __m128i c16_p43_p44 = _mm_set1_epi32(0x002B002C);
@@ -2208,15 +2215,16 @@ void idct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     __m128i m128iS0[4], m128iS1[4], m128iS2[4], m128iS3[4], m128iS4[4], m128iS5[4], m128iS6[4], m128iS7[4];
     __m128i m128iAdd, m128Tmp0, m128Tmp1, m128Tmp2, m128Tmp3;
     __m128i E0h, E1h, E2h, E3h, E0l, E1l, E2l, E3l;
     __m128i O0h, O1h, O2h, O3h, O0l, O1l, O2l, O3l;
     __m128i EE0l, EE1l, E00l, E01l, EE0h, EE1h, E00h, E01h;
     //int shift1 = 5;
-    int shift2 = 20 - g_bit_depth - (i_dst & 0x01);
+    int shift2 = 20 - bb->param->input_sample_bit_depth - (i_dst & 0x01);
     //int clip_depth1 = LIMIT_BIT;
-    int clip_depth2 = g_bit_depth + 1 + (i_dst & 0x01);
+    int clip_depth2 = bb->param->input_sample_bit_depth + 1 + (i_dst & 0x01);
     int i, pass;
 
     i_dst &= 0xFE;    /* remember to remove the flag bit */
@@ -2305,7 +2313,7 @@ void idct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
         E2h = _mm_sub_epi32(EE1h, E01h);
         E2h = _mm_add_epi32(E2h,  m128iAdd);
 
-        m128iS0[pass] = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E0l, O0l), 5), _mm_srai_epi32(_mm_add_epi32(E0h, O0h), 5));    // 首次反变换移位数
+        m128iS0[pass] = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E0l, O0l), 5), _mm_srai_epi32(_mm_add_epi32(E0h, O0h), 5));    // 棣栨鍙嶅彉鎹㈢Щ浣嶆暟
         m128iS7[pass] = _mm_packs_epi32(_mm_srai_epi32(_mm_sub_epi32(E0l, O0l), 5), _mm_srai_epi32(_mm_sub_epi32(E0h, O0h), 5));
         m128iS1[pass] = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E1l, O1l), 5), _mm_srai_epi32(_mm_add_epi32(E1h, O1h), 5));
         m128iS6[pass] = _mm_packs_epi32(_mm_srai_epi32(_mm_sub_epi32(E1l, O1l), 5), _mm_srai_epi32(_mm_sub_epi32(E1h, O1h), 5));
@@ -3046,6 +3054,7 @@ void idct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
  */
 void idct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 {
+    xavs2_t *bb;
     const __m128i c16_p45_p45 = _mm_set1_epi32(0x002D002D);
     const __m128i c16_p43_p44 = _mm_set1_epi32(0x002B002C);
     const __m128i c16_p39_p41 = _mm_set1_epi32(0x00270029);
@@ -3228,9 +3237,9 @@ void idct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
     int nShift = 5, pass;
     //int shift1 = 5;
-    int shift2 = 20 - g_bit_depth - (i_dst & 0x01);
+    int shift2 = 20 - bb->param->input_sample_bit_depth - (i_dst & 0x01);
     //int clip_depth1 = LIMIT_BIT;
-    int clip_depth2 = g_bit_depth + 1 + (i_dst & 0x01);
+    int clip_depth2 = bb->param->input_sample_bit_depth + 1 + (i_dst & 0x01);
 
     // DCT1
     __m128i in00, in01, in02, in03, in04, in05, in06, in07, in08, in09, in10, in11, in12, in13, in14, in15;
@@ -3805,7 +3814,7 @@ void idct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
             E2l = _mm_add_epi32(E2l, c32_rnd);
             E2h = _mm_sub_epi32(EE1h, E01h);
             E2h = _mm_add_epi32(E2h, c32_rnd);
-            in00 = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E0l, O0l), nShift), _mm_srai_epi32(_mm_add_epi32(E0h, O0h), nShift));     // 首次反变换移位数
+            in00 = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E0l, O0l), nShift), _mm_srai_epi32(_mm_add_epi32(E0h, O0h), nShift));     // 棣栨鍙嶅彉鎹㈢Щ浣嶆暟
             in07 = _mm_packs_epi32(_mm_srai_epi32(_mm_sub_epi32(E0l, O0l), nShift), _mm_srai_epi32(_mm_sub_epi32(E0h, O0h), nShift));
             in01 = _mm_packs_epi32(_mm_srai_epi32(_mm_add_epi32(E1l, O1l), nShift), _mm_srai_epi32(_mm_add_epi32(E1h, O1h), nShift));
             in06 = _mm_packs_epi32(_mm_srai_epi32(_mm_sub_epi32(E1l, O1l), nShift), _mm_srai_epi32(_mm_sub_epi32(E1h, O1h), nShift));
@@ -3968,9 +3977,10 @@ void inv_transform_2nd_sse128(coeff_t *coeff, int i_coeff, int i_mode, int b_top
  */
 void inv_transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff)
 {
+    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - g_bit_depth + 2;
-    const int clip_depth2 = g_bit_depth + 1;
+    const int shift2 = 20 - bb->param->input_sample_bit_depth + 2;
+    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
 
     /*---vertical transform first---*/
     __m128i factor = _mm_set1_epi32(1 << (shift1 - 1));         // add1
@@ -4062,23 +4072,23 @@ void inv_transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff)
     O5 = _mm_unpackhi_epi64(tr1_1, tr1_5); \
     O6 = _mm_unpacklo_epi64(tr1_3, tr1_7); \
     O7 = _mm_unpackhi_epi64(tr1_3, tr1_7); \
- 
+
 #define TRANSPOSE_16x16_16BIT(A0_0, A1_0, A2_0, A3_0, A4_0, A5_0, A6_0, A7_0, A8_0, A9_0, A10_0, A11_0, A12_0, A13_0, A14_0, A15_0, A0_1, A1_1, A2_1, A3_1, A4_1, A5_1, A6_1, A7_1, A8_1, A9_1, A10_1, A11_1, A12_1, A13_1, A14_1, A15_1, B0_0, B1_0, B2_0, B3_0, B4_0, B5_0, B6_0, B7_0, B8_0, B9_0, B10_0, B11_0, B12_0, B13_0, B14_0, B15_0, B0_1, B1_1, B2_1, B3_1, B4_1, B5_1, B6_1, B7_1, B8_1, B9_1, B10_1, B11_1, B12_1, B13_1, B14_1, B15_1) \
     TRANSPOSE_8x8_16BIT(A0_0, A1_0, A2_0, A3_0, A4_0, A5_0, A6_0, A7_0, B0_0, B1_0, B2_0, B3_0, B4_0, B5_0, B6_0, B7_0); \
     TRANSPOSE_8x8_16BIT(A8_0, A9_0, A10_0, A11_0, A12_0, A13_0, A14_0, A15_0, B0_1, B1_1, B2_1, B3_1, B4_1, B5_1, B6_1, B7_1); \
     TRANSPOSE_8x8_16BIT(A0_1, A1_1, A2_1, A3_1, A4_1, A5_1, A6_1, A7_1, B8_0, B9_0, B10_0, B11_0, B12_0, B13_0, B14_0, B15_0); \
     TRANSPOSE_8x8_16BIT(A8_1, A9_1, A10_1, A11_1, A12_1, A13_1, A14_1, A15_1, B8_1, B9_1, B10_1, B11_1, B12_1, B13_1, B14_1, B15_1); \
- 
+
 
 /* ---------------------------------------------------------------------------
  */
 static void inv_wavelet_64x64_sse128(coeff_t *coeff)
 {
     int i;
-    //按行 64*64
+    //鎸夎 64*64
     __m128i T00[8], T01[8], T02[8], T03[8], T04[8], T05[8], T06[8], T07[8], T08[8], T09[8], T10[8], T11[8], T12[8], T13[8], T14[8], T15[8], T16[8], T17[8], T18[8], T19[8], T20[8], T21[8], T22[8], T23[8], T24[8], T25[8], T26[8], T27[8], T28[8], T29[8], T30[8], T31[8], T32[8], T33[8], T34[8], T35[8], T36[8], T37[8], T38[8], T39[8], T40[8], T41[8], T42[8], T43[8], T44[8], T45[8], T46[8], T47[8], T48[8], T49[8], T50[8], T51[8], T52[8], T53[8], T54[8], T55[8], T56[8], T57[8], T58[8], T59[8], T60[8], T61[8], T62[8], T63[8];
 
-    //按列 16*64
+    //鎸夊垪 16*64
     __m128i V00[8], V01[8], V02[8], V03[8], V04[8], V05[8], V06[8], V07[8], V08[8], V09[8], V10[8], V11[8], V12[8], V13[8], V14[8], V15[8], V16[8], V17[8], V18[8], V19[8], V20[8], V21[8], V22[8], V23[8], V24[8], V25[8], V26[8], V27[8], V28[8], V29[8], V30[8], V31[8], V32[8], V33[8], V34[8], V35[8], V36[8], V37[8], V38[8], V39[8], V40[8], V41[8], V42[8], V43[8], V44[8], V45[8], V46[8], V47[8], V48[8], V49[8], V50[8], V51[8], V52[8], V53[8], V54[8], V55[8], V56[8], V57[8], V58[8], V59[8], V60[8], V61[8], V62[8], V63[8];
 
     __m128i tr0_0, tr0_1, tr0_2, tr0_3, tr0_4, tr0_5, tr0_6, tr0_7;
@@ -4357,10 +4367,10 @@ static void inv_wavelet_64x64_sse128(coeff_t *coeff)
 static void inv_wavelet_64x16_sse128(coeff_t *coeff)
 {
     int i;
-    //按行 64*16
+    //鎸夎 64*16
     __m128i T00[8], T01[8], T02[8], T03[8], T04[8], T05[8], T06[8], T07[8], T08[8], T09[8], T10[8], T11[8], T12[8], T13[8], T14[8], T15[8];
 
-    //按列 16*64
+    //鎸夊垪 16*64
     __m128i V00[2], V01[2], V02[2], V03[2], V04[2], V05[2], V06[2], V07[2], V08[2], V09[2], V10[2], V11[2], V12[2], V13[2], V14[2], V15[2], V16[2], V17[2], V18[2], V19[2], V20[2], V21[2], V22[2], V23[2], V24[2], V25[2], V26[2], V27[2], V28[2], V29[2], V30[2], V31[2], V32[2], V33[2], V34[2], V35[2], V36[2], V37[2], V38[2], V39[2], V40[2], V41[2], V42[2], V43[2], V44[2], V45[2], V46[2], V47[2], V48[2], V49[2], V50[2], V51[2], V52[2], V53[2], V54[2], V55[2], V56[2], V57[2], V58[2], V59[2], V60[2], V61[2], V62[2], V63[2];
 
     __m128i tr0_0, tr0_1, tr0_2, tr0_3, tr0_4, tr0_5, tr0_6, tr0_7;
@@ -4573,10 +4583,10 @@ static void inv_wavelet_16x64_sse128(coeff_t *coeff)
     __m128i S00, S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, S22, S23, S24, S25, S26, S27, S28, S29, S30, S31;
     __m128i S32, S33, S34, S35, S36, S37, S38, S39, S40, S41, S42, S43, S44, S45, S46, S47, S48, S49, S50, S51, S52, S53, S54, S55, S56, S57, S58, S59, S60, S61, S62, S63;
 
-    //按行 64*16
+    //鎸夎 64*16
     __m128i T00[8], T01[8], T02[8], T03[8], T04[8], T05[8], T06[8], T07[8], T08[8], T09[8], T10[8], T11[8], T12[8], T13[8], T14[8], T15[8];
 
-    //按列 16*64
+    //鎸夊垪 16*64
     __m128i V00[2], V01[2], V02[2], V03[2], V04[2], V05[2], V06[2], V07[2], V08[2], V09[2], V10[2], V11[2], V12[2], V13[2], V14[2], V15[2], V16[2], V17[2], V18[2], V19[2], V20[2], V21[2], V22[2], V23[2], V24[2], V25[2], V26[2], V27[2], V28[2], V29[2], V30[2], V31[2], V32[2], V33[2], V34[2], V35[2], V36[2], V37[2], V38[2], V39[2], V40[2], V41[2], V42[2], V43[2], V44[2], V45[2], V46[2], V47[2], V48[2], V49[2], V50[2], V51[2], V52[2], V53[2], V54[2], V55[2], V56[2], V57[2], V58[2], V59[2], V60[2], V61[2], V62[2], V63[2];
 
     __m128i tr0_0, tr0_1, tr0_2, tr0_3, tr0_4, tr0_5, tr0_6, tr0_7;
