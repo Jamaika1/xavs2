@@ -62,14 +62,14 @@ uint32_t get_intra_neighbors(xavs2_t *h, int x_4x4, int y_4x4, int bsx, int bsy,
     const int lcu_mask = (1 << (h->i_lcu_level - 2)) - 1;
     int leftdown, topright;
 
-    /* 1. ¼ì²éÏàÁÚ¿éÊÇ·ñÊôÓÚÍ¬Ò»¸öSlice */
+    /* 1. æ£€æŸ¥ç›¸é‚»å—æ˜¯å¦å±äºåŒä¸€ä¸ªSlice */
     uint32_t b_LEFT      = is_block_available(h, x_4x4, y_4x4, -1,  0, cur_slice_idx);
     uint32_t b_TOP       = is_block_available(h, x_4x4, y_4x4,  0, -1, cur_slice_idx);
     uint32_t b_TOP_LEFT  = is_block_available(h, x_4x4, y_4x4, -1, -1, cur_slice_idx);
     uint32_t b_TOP_RIGHT = is_block_available(h, x_4x4, y_4x4, (bsx >> 1) - 1, -1, cur_slice_idx);   // (bsx >> MIN_PU_SIZE_IN_BIT << 1)
     uint32_t b_LEFT_DOWN = is_block_available(h, x_4x4, y_4x4, -1, (bsy >> 1) - 1, cur_slice_idx);   // (bsy >> MIN_PU_SIZE_IN_BIT << 1)
 
-    /* 2. ¼ì²éÏàÁÚ¿éÊÇ·ñÔÚµ±Ç°¿éÖ®Ç°ÖØ¹¹ */
+    /* 2. æ£€æŸ¥ç›¸é‚»å—æ˜¯å¦åœ¨å½“å‰å—ä¹‹å‰é‡æ„ */
     x_4x4   &= lcu_mask;
     y_4x4   &= lcu_mask;
     leftdown = h->tab_avail_DL[((y_4x4 + (bsy >> 2) - 1) << (h->i_lcu_level - B4X4_IN_BIT)) + (x_4x4)];
@@ -101,29 +101,29 @@ uint32_t get_intra_pu_avail(cu_t *p_cu, int block_x, int block_y, int bsx, int b
             avail = (avail & (~(1 << MD_I_LEFT_DOWN))) | (!!IS_NEIGHBOR_AVAIL(cu_avail, MD_I_LEFT) << MD_I_LEFT_DOWN);
         }
     } else if (block_y == 0) {
-        avail = (cu_avail & (1 << MD_I_TOP));  // ÉÏ±ß½çÓÉCUµÄÉÏ±ß½ç¾ö¶¨£»×óÏÂ¾ù²»¿ÉÓÃ
-        avail |= (1 << MD_I_LEFT);             // ×ó±ß½ç¾ù¿ÉÓÃ
-        avail |= ((cu_avail >> MD_I_TOP) & 1) << MD_I_TOP_LEFT;  // ×óÉÏÓÉCUÉÏ±ß½ç¿ÉÓÃĞÔ¾ö¶¨
-        if (block_x + bsx < cu_size) {  // ÓÒÉÏÓÉCUÉÏ±ß½çºÍÓÒÉÏ±ß½ç¾ö¶¨
+        avail = (cu_avail & (1 << MD_I_TOP));  // ä¸Šè¾¹ç•Œç”±CUçš„ä¸Šè¾¹ç•Œå†³å®šï¼›å·¦ä¸‹å‡ä¸å¯ç”¨
+        avail |= (1 << MD_I_LEFT);             // å·¦è¾¹ç•Œå‡å¯ç”¨
+        avail |= ((cu_avail >> MD_I_TOP) & 1) << MD_I_TOP_LEFT;  // å·¦ä¸Šç”±CUä¸Šè¾¹ç•Œå¯ç”¨æ€§å†³å®š
+        if (block_x + bsx < cu_size) {  // å³ä¸Šç”±CUä¸Šè¾¹ç•Œå’Œå³ä¸Šè¾¹ç•Œå†³å®š
             avail |= (!!IS_NEIGHBOR_AVAIL(cu_avail, MD_I_TOP)) << MD_I_TOP_RIGHT;
         } else {
             avail |= cu_avail & (1 << MD_I_TOP_RIGHT);
         }
     } else if (block_x == 0) {
-        avail = (cu_avail & (1 << MD_I_LEFT)); // ×ó±ß½çÓÉCUµÄ×ó±ß½ç¾ö¶¨
-        avail |= (1 << MD_I_TOP);              // ÉÏ±ß½ç¾ù¿ÉÓÃ
-        avail |= ((cu_avail >> MD_I_LEFT) & 1) << MD_I_TOP_LEFT;  // ×óÉÏÓÉCUÉÏ±ß½ç¿ÉÓÃĞÔ¾ö¶¨
-        if (bsx < cu_size && bsy < cu_size) {  // ÓÒÉÏ
+        avail = (cu_avail & (1 << MD_I_LEFT)); // å·¦è¾¹ç•Œç”±CUçš„å·¦è¾¹ç•Œå†³å®š
+        avail |= (1 << MD_I_TOP);              // ä¸Šè¾¹ç•Œå‡å¯ç”¨
+        avail |= ((cu_avail >> MD_I_LEFT) & 1) << MD_I_TOP_LEFT;  // å·¦ä¸Šç”±CUä¸Šè¾¹ç•Œå¯ç”¨æ€§å†³å®š
+        if (bsx < cu_size && bsy < cu_size) {  // å³ä¸Š
             avail |= 1 << MD_I_TOP_RIGHT;
         }
-        // ×óÏÂ
+        // å·¦ä¸‹
         if (block_y + bsy < cu_size) {
             avail |= (!!IS_NEIGHBOR_AVAIL(cu_avail, MD_I_LEFT)) << MD_I_LEFT_DOWN;
         } else {
             avail |= cu_avail & (1 << MD_I_LEFT_DOWN);
         }
     } else {
-        // ÓÒÉÏ¡¢×óÏÂ²»¿ÉÓÃ
+        // å³ä¸Šã€å·¦ä¸‹ä¸å¯ç”¨
         avail = (1 << MD_I_LEFT) | (1 << MD_I_TOP) | (1 << MD_I_TOP_LEFT);
     }
 
@@ -145,9 +145,9 @@ void fill_ref_samples_luma(xavs2_t *h, cu_t *p_cu, pel_t *EP,
     int xy = (((pos_y + 1) != 0) << 1) + ((pos_x + 1) != 0);
     uint32_t avail;
 
-    /* 1, ¼ì²é²Î¿¼±ß½çÓĞĞ§ĞÔ */
+    /* 1, æ£€æŸ¥å‚è€ƒè¾¹ç•Œæœ‰æ•ˆæ€§ */
     if (img_x + 2 * bsx <= h->i_width && img_y + 2 * bsy <= h->i_height
-        && 0) {  // TODO: ¸ßµµ´ÎÏÂ²»Æ¥Åä£¬ÈÔ²ÉÓÃÔ­ÏÈÄ¬ÈÏÄ£Ê½
+        && 0) {  // TODO: é«˜æ¡£æ¬¡ä¸‹ä¸åŒ¹é…ï¼Œä»é‡‡ç”¨åŸå…ˆé»˜è®¤æ¨¡å¼
         avail = get_intra_pu_avail(p_cu, block_x, block_y, bsx, bsy);
     } else {
         int cur_slice_idx = cu_get_slice_index(h, img_x >> MIN_CU_SIZE_IN_BIT, img_y >> MIN_CU_SIZE_IN_BIT);
@@ -159,8 +159,8 @@ void fill_ref_samples_luma(xavs2_t *h, cu_t *p_cu, pel_t *EP,
 
     p_cu->block_avail = (uint8_t)avail;
 
-    /* 2, Íê³É²Î¿¼±ß½çÏñËØµÄÌî³ä */
-    g_funcs.fill_edge_f[xy](pTL, FDEC_STRIDE, h->lcu.ctu_border[0].rec_top + pos_x - pos_y, EP, avail, bsx, bsy);
+    /* 2, å®Œæˆå‚è€ƒè¾¹ç•Œåƒç´ çš„å¡«å…… */
+    g_funcs.fill_edge_f[xy](h, pTL, FDEC_STRIDE, h->lcu.ctu_border[0].rec_top + pos_x - pos_y, EP, avail, bsx, bsy);
 }
 
 /* ---------------------------------------------------------------------------
@@ -174,13 +174,13 @@ void xavs2_intra_prediction(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int d
     UNUSED_PARAMETER(h);
 
     if (dir_mode != DC_PRED) {
-        g_funcs.intraf[dir_mode](src, dst, i_dst, dir_mode, bsx, bsy);
+        g_funcs.intraf[dir_mode](h, src, dst, i_dst, dir_mode, bsx, bsy);
     } else {
         int b_top  = !!IS_NEIGHBOR_AVAIL(i_avail, MD_I_TOP);
         int b_left = !!IS_NEIGHBOR_AVAIL(i_avail, MD_I_LEFT);
         int mode_ex = ((b_top << 8) + b_left);
 
-        g_funcs.intraf[dir_mode](src, dst, i_dst, mode_ex, bsx, bsy);
+        g_funcs.intraf[dir_mode](h, src, dst, i_dst, mode_ex, bsx, bsy);
     }
 }
 
@@ -277,19 +277,19 @@ int rdo_get_pred_intra_luma_rmd(xavs2_t *h, cu_t *p_cu, intra_candidate_t *p_can
 
     UNUSED_PARAMETER(blockidx);
 
-    /* 1, ±éÀú»ù´¡Ä£Ê½£¬
-     * (1.1) ¼¸¸ö¹Ø¼üµÄ½Ç¶È */
+    /* 1, éå†åŸºç¡€æ¨¡å¼ï¼Œ
+     * (1.1) å‡ ä¸ªå…³é”®çš„è§’åº¦ */
     for (mode = 0; mode < 3; mode++) {
         PREDICT_ADD_LUMA(mode);
         visited[mode] = 1;
     }
-    /* (1.2) ½Ç¶ÈÔ¤²âÄ£Ê½ */
+    /* (1.2) è§’åº¦é¢„æµ‹æ¨¡å¼ */
     for (mode = 4; mode < NUM_INTRA_MODE; mode += 4) {
         PREDICT_ADD_LUMA(mode);
         visited[mode] = 1;
     }
 
-    /* 2, ±éÀúN¸ö×îÓÅµÄÄ£Ê½µÄ¾àÀëÎª¶şµÄÄ£Ê½£¬Èç¹û½ÏÓÅÔò·Åµ½CandModeListÖĞ */
+    /* 2, éå†Nä¸ªæœ€ä¼˜çš„æ¨¡å¼çš„è·ç¦»ä¸ºäºŒçš„æ¨¡å¼ï¼Œå¦‚æœè¾ƒä¼˜åˆ™æ”¾åˆ°CandModeListä¸­ */
     num_to_add = h->num_intra_rmd_dist2;
     for (i = 0; i < num_to_add; i++) {
         mode = p_candidates[i].mode;
@@ -310,7 +310,7 @@ int rdo_get_pred_intra_luma_rmd(xavs2_t *h, cu_t *p_cu, intra_candidate_t *p_can
         }
     }
 
-    /* 3, °ÑÒÔÉÏµÃµ½µÄ×î¼ÑµÄÁ½¸öÄ£Ê½µÄ¾àÀëÎªÒ»µÄÄ£Ê½·ÅÔÚCandModeListÖĞ */
+    /* 3, æŠŠä»¥ä¸Šå¾—åˆ°çš„æœ€ä½³çš„ä¸¤ä¸ªæ¨¡å¼çš„è·ç¦»ä¸ºä¸€çš„æ¨¡å¼æ”¾åœ¨CandModeListä¸­ */
     num_to_add = h->num_intra_rmd_dist1;
     for (i = 0, num_angle = 0; num_angle < num_to_add && i < INTRA_MODE_NUM_FOR_RDO; i++) {
         mode = p_candidates[i].mode;
@@ -333,7 +333,7 @@ int rdo_get_pred_intra_luma_rmd(xavs2_t *h, cu_t *p_cu, intra_candidate_t *p_can
         }
     }
 
-    /* 4, ²éÕÒ×îÓÅÁĞ±íÖĞÊÇ·ñÓĞMPMs£¬ÈôÃ»ÓĞ£¬Ôò¼ÓÈë£¬ÈôÓĞÔò²»ÓÃ¼ÓÈë */
+    /* 4, æŸ¥æ‰¾æœ€ä¼˜åˆ—è¡¨ä¸­æ˜¯å¦æœ‰MPMsï¼Œè‹¥æ²¡æœ‰ï¼Œåˆ™åŠ å…¥ï¼Œè‹¥æœ‰åˆ™ä¸ç”¨åŠ å…¥ */
     if (!visited[mpm[0]]) {
         mode = mpm[0];
         PREDICT_ADD_LUMA(mode);
@@ -348,14 +348,14 @@ int rdo_get_pred_intra_luma_rmd(xavs2_t *h, cu_t *p_cu, intra_candidate_t *p_can
 
     num_for_rdo = h->tab_num_intra_rdo[p_cu->cu_info.i_level - (p_cu->cu_info.i_tu_split != TU_SPLIT_NON)];
 
-    /* Èôµ±Ç°¾Ö²¿×îÓÅµÄÁ½¸öÄ£Ê½ÊÇMPMÖ®Ò»£¬Ôò¼õÉÙRDOÄ£Ê½ÊıÁ¿ */
+    /* è‹¥å½“å‰å±€éƒ¨æœ€ä¼˜çš„ä¸¤ä¸ªæ¨¡å¼æ˜¯MPMä¹‹ä¸€ï¼Œåˆ™å‡å°‘RDOæ¨¡å¼æ•°é‡ */
     if (p_candidates[0].mode == mpm[0] || p_candidates[0].mode == mpm[1] ||
         p_candidates[1].mode == mpm[0] || p_candidates[1].mode == mpm[1]) {
         num_for_rdo = XAVS2_MIN(num_for_rdo, 3);
         return num_for_rdo;
     }
 
-    /* ´ÓM¸ö×îÓÅÄ£Ê½ÖĞÑ¡¶¨×îÖÕ²Î¼ÓRDOµÄÄ£Ê½£¬¼´È¥ÖØ */
+    /* ä»Mä¸ªæœ€ä¼˜æ¨¡å¼ä¸­é€‰å®šæœ€ç»ˆå‚åŠ RDOçš„æ¨¡å¼ï¼Œå³å»é‡ */
     visited[p_candidates[0].mode] = 2;
     visited[p_candidates[1].mode] = 2;
 
@@ -441,28 +441,28 @@ int rdo_get_pred_intra_chroma_fast(xavs2_t *h, cu_t *p_cu, int i_level, int pix_
     pel_t *EP_v = EP_u + (MAX_CU_SIZE << 2);
     int xy = p_cu->in_lcu_edge;
 
-    /* ¼ÆËãU¡¢V·ÖÁ¿µÄ×óÉÏ½ÇÏñËØµãµÄÎ»ÖÃ */
+    /* è®¡ç®—Uã€Våˆ†é‡çš„å·¦ä¸Šè§’åƒç´ ç‚¹çš„ä½ç½® */
     pel_t *pTL_u = h->lcu.p_fdec[1] + (pix_y_c - 1) * FDEC_STRIDE + pix_x_c - 1;
     pel_t *pTL_v = h->lcu.p_fdec[2] + (pix_y_c - 1) * FDEC_STRIDE + pix_x_c - 1;
     int offset = (FREC_CSTRIDE >> 1);
     int m;
 
-    /* ¼ì²é±ß½çÓĞĞ§ĞÔ */
+    /* æ£€æŸ¥è¾¹ç•Œæœ‰æ•ˆæ€§ */
     uint32_t avail = p_cu->intra_avail;
 
-    /* ¼ÆËãÃ¿¸öÄ£Ê½ºÅ¶ÔÓ¦µÄÔ¤²âÄ£Ê½ */
+    /* è®¡ç®—æ¯ä¸ªæ¨¡å¼å·å¯¹åº”çš„é¢„æµ‹æ¨¡å¼ */
     LUMA_MODE[0] = p_cu->cu_info.real_intra_modes[0];
 
-    /* 2.1, »ñÈ¡²Î¿¼±ß½çÏñËØ */
-    g_funcs.fill_edge_f[xy](pTL_u, FDEC_STRIDE, h->lcu.ctu_border[1].rec_top + pix_x_c - pix_y_c, EP_u, avail, blksize, blksize);
-    g_funcs.fill_edge_f[xy](pTL_v, FDEC_STRIDE, h->lcu.ctu_border[2].rec_top + pix_x_c - pix_y_c, EP_v, avail, blksize, blksize);
+    /* 2.1, è·å–å‚è€ƒè¾¹ç•Œåƒç´  */
+    g_funcs.fill_edge_f[xy](h, pTL_u, FDEC_STRIDE, h->lcu.ctu_border[1].rec_top + pix_x_c - pix_y_c, EP_u, avail, blksize, blksize);
+    g_funcs.fill_edge_f[xy](h, pTL_v, FDEC_STRIDE, h->lcu.ctu_border[2].rec_top + pix_x_c - pix_y_c, EP_v, avail, blksize, blksize);
 
     for (m = 0; m < NUM_INTRA_MODE_CHROMA; m++) {
         p_candidate_list[m].mode = DM_PRED_C;
         p_candidate_list[m].cost = MAX_COST;
     }
 
-    /* 2.2, Ö´ĞĞÔ¤²â */
+    /* 2.2, æ‰§è¡Œé¢„æµ‹ */
     for (m = 0; m < NUM_INTRA_MODE_CHROMA; m++) {
         pel_t *p_pred_u = p_enc->intra_pred_c[m];
         pel_t *p_pred_v = p_enc->intra_pred_c[m] + offset;
@@ -511,23 +511,23 @@ int rdo_get_pred_intra_chroma(xavs2_t *h, cu_t *p_cu, int i_level_c, int pix_y_c
     int bsize   = 1 << i_level_c;
     int xy = p_cu->in_lcu_edge;
 
-    /* ¼ÆËãU¡¢V·ÖÁ¿µÄ×óÉÏ½ÇÏñËØµãµÄÎ»ÖÃ */
+    /* è®¡ç®—Uã€Våˆ†é‡çš„å·¦ä¸Šè§’åƒç´ ç‚¹çš„ä½ç½® */
     pel_t *pTL_u = h->lcu.p_fdec[1] + (pix_y_c - 1) * FDEC_STRIDE + pix_x_c - 1;
     pel_t *pTL_v = h->lcu.p_fdec[2] + (pix_y_c - 1) * FDEC_STRIDE + pix_x_c - 1;
     int offset = (FREC_CSTRIDE >> 1);
     int m;
 
-    /* ¼ì²é±ß½çÓĞĞ§ĞÔ */
+    /* æ£€æŸ¥è¾¹ç•Œæœ‰æ•ˆæ€§ */
     uint32_t avail = p_cu->intra_avail;
 
-    /* ¼ÆËãÃ¿¸öÄ£Ê½ºÅ¶ÔÓ¦µÄÔ¤²âÄ£Ê½ */
+    /* è®¡ç®—æ¯ä¸ªæ¨¡å¼å·å¯¹åº”çš„é¢„æµ‹æ¨¡å¼ */
     LUMA_MODE[0] = p_cu->cu_info.real_intra_modes[0];
 
-    /* 2.1, »ñÈ¡²Î¿¼±ß½çÏñËØ */
-    g_funcs.fill_edge_f[xy](pTL_u, FDEC_STRIDE, h->lcu.ctu_border[1].rec_top + pix_x_c - pix_y_c, EP_u, avail, bsize, bsize);
-    g_funcs.fill_edge_f[xy](pTL_v, FDEC_STRIDE, h->lcu.ctu_border[2].rec_top + pix_x_c - pix_y_c, EP_v, avail, bsize, bsize);
+    /* 2.1, è·å–å‚è€ƒè¾¹ç•Œåƒç´  */
+    g_funcs.fill_edge_f[xy](h, pTL_u, FDEC_STRIDE, h->lcu.ctu_border[1].rec_top + pix_x_c - pix_y_c, EP_u, avail, bsize, bsize);
+    g_funcs.fill_edge_f[xy](h, pTL_v, FDEC_STRIDE, h->lcu.ctu_border[2].rec_top + pix_x_c - pix_y_c, EP_v, avail, bsize, bsize);
 
-    /* 2.2, Ö´ĞĞÔ¤²â */
+    /* 2.2, æ‰§è¡Œé¢„æµ‹ */
     for (m = 0; m < NUM_INTRA_MODE_CHROMA; m++) {
         xavs2_intra_prediction(h, EP_u, p_enc->intra_pred_c[m] + 0,      FREC_CSTRIDE, LUMA_MODE[m], avail, bsize, bsize);
         xavs2_intra_prediction(h, EP_v, p_enc->intra_pred_c[m] + offset, FREC_CSTRIDE, LUMA_MODE[m], avail, bsize, bsize);
