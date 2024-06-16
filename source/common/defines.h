@@ -57,7 +57,7 @@
  * ===========================================================================
  */
 
-/* ����㷨�Ƿ��� */
+/* 检查算法是否开启 */
 #define IS_ALG_ENABLE(alg)  ((h->i_fast_algs >> alg) & 1)
 
 /* ---------------------------------------------------------------------------
@@ -65,66 +65,66 @@
  */
 enum xavs2_fast_algorithms_e {
     /* fast inter */
-    OPT_EARLY_SKIP           ,        /* ����ʱ������ԵĿ���SKIP���� */
-    OPT_PSC_MD               ,        /* ����ʱ������ԵĿ���ģʽ���� (prediction size correlation based mode decision) */
-    OPT_FAST_CBF_MODE        ,        /* �������Ż���ģʽ��CBF��������ʣ��Ļ���ģʽ */
-    OPT_FAST_PU_SEL          ,        /* OPT_FAST_CBF_MODE�ļ��㷨��cbf=0ʱ����2Nx2N������SKIP��������ʣ��֡��ģʽ��֡��ģʽ */
-    OPT_BYPASS_AMP           ,        /* ���PRED_2NxNδ������ţ�ֱ��������ͬ���ַ����PRED_2NxnU/PRED_2NxnD; PRED_Nx2Nͬ�� */
-    OPT_DMH_CANDIDATE        ,        /* ���ھ���DMHģʽ�µ�RDO���� */
-    OPT_BYPASS_MODE_FPIC     ,        /* F֡�е�֡��ģʽ��DMHģʽ���� */
-    OPT_ADVANCE_CHROMA_AEC   ,        /* ��ǰɫ�ȿ�ı任ϵ��������� */
+    OPT_EARLY_SKIP           ,        /* 基于时空相关性的快速SKIP决策 */
+    OPT_PSC_MD               ,        /* 基于时空相关性的快速模式决策 (prediction size correlation based mode decision) */
+    OPT_FAST_CBF_MODE        ,        /* 基于最优划分模式的CBF快速跳过剩余的划分模式 */
+    OPT_FAST_PU_SEL          ,        /* OPT_FAST_CBF_MODE的简化算法，cbf=0时，若2Nx2N不优于SKIP，则跳过剩余帧间模式和帧内模式 */
+    OPT_BYPASS_AMP           ,        /* 如果PRED_2NxN未获得最优，直接跳过相同划分方向的PRED_2NxnU/PRED_2NxnD; PRED_Nx2N同理 */
+    OPT_DMH_CANDIDATE        ,        /* 用于精简DMH模式下的RDO次数 */
+    OPT_BYPASS_MODE_FPIC     ,        /* F帧中的帧内模式与DMH模式跳过 */
+    OPT_ADVANCE_CHROMA_AEC   ,        /* 提前色度块的变换系数编码过程 */
     OPT_ROUGH_MODE_SKIP      ,        /* */
-    OPT_CMS_ETMD             ,        /* ��������֡�ڻ��ַ�ʽ��
-                                       * ��1����I_2Nx2N������֡��Ԥ��ģʽ���򲻱���֡���������֣�
-                                       * ��2��֡������ģʽ��CBPΪ��ʱ����֡�ڻ��ַ�ʽ��*/
-    OPT_ROUGH_PU_SEL         ,        /* ���Ե�PU����ģʽ���� */
-    OPT_CBP_DIRECT           ,        /* ����directģʽ�²в��Ƿ�Ϊȫ��飬����PU���ֺ�CU�ݹ黮�� */
-    OPT_SKIP_DMH_THRES       ,        /* ͨ��Distortion����ֵ��������DMHģʽ�ı��� */
-    OPT_ROUGH_SKIP_SEL       ,        /* ͨ��distortion�Ա�ֻ�Ը���skip/directģʽ��RDO */
+    OPT_CMS_ETMD             ,        /* 条件跳过帧内划分方式：
+                                       * （1）若I_2Nx2N不优于帧间预测模式，则不遍历帧内其他划分；
+                                       * （2）帧间最优模式的CBP为零时跳过帧内划分方式。*/
+    OPT_ROUGH_PU_SEL         ,        /* 粗略的PU划分模式搜索 */
+    OPT_CBP_DIRECT           ,        /* 根据direct模式下残差是否为全零块，跳过PU划分和CU递归划分 */
+    OPT_SKIP_DMH_THRES       ,        /* 通过Distortion的阈值决定跳过DMH模式的遍历 */
+    OPT_ROUGH_SKIP_SEL       ,        /* 通过distortion对比只对个别skip/direct模式做RDO */
 
     /* fast intra */
-    OPT_BYPASS_SDIP          ,        /* ���PRED_I_2Nxn�ѻ����ţ�ֱ������PRED_I_nx2N */
-    OPT_FAST_INTRA_MODE      ,        /* ֡��ģʽ���پ��� */
-    OPT_FAST_RDO_INTRA_C     ,        /* ����֡��ChromaԤ��ģʽ�Ż�������ɫ�ȷ����������� */
-    OPT_ET_RDO_INTRA_L       ,        /* Luma RDO������ǰ�˳����� */
-    OPT_ET_INTRA_DEPTH       ,        /* ����MADֵ��I֡depth������ǰ��ֹ */
-    OPT_BYPASS_INTRA_BPIC    ,        /* B֡����֡��Ԥ��ģʽ��CBPΪ�㣬������֡��Ԥ��ģʽ���� */
-    OPT_FAST_INTRA_IN_INTER  ,        /* ������CU������ģʽ�Ƿ�֡�ڼ���ǰCU��֡��ģʽRDCost����֡���֡��ģʽ */
+    OPT_BYPASS_SDIP          ,        /* 如果PRED_I_2Nxn已获最优，直接跳过PRED_I_nx2N */
+    OPT_FAST_INTRA_MODE      ,        /* 帧内模式快速决策 */
+    OPT_FAST_RDO_INTRA_C     ,        /* 快速帧内Chroma预测模式优化，减少色度分量决策数量 */
+    OPT_ET_RDO_INTRA_L       ,        /* Luma RDO过程提前退出策略 */
+    OPT_ET_INTRA_DEPTH       ,        /* 基于MAD值的I帧depth划分提前终止 */
+    OPT_BYPASS_INTRA_BPIC    ,        /* B帧中若帧间预测模式的CBP为零，则跳过帧内预测模式决策 */
+    OPT_FAST_INTRA_IN_INTER  ,        /* 依据子CU的最优模式是否帧内及当前CU的帧间模式RDCost禁用帧间的帧内模式 */
 
     /* fast CU depth */
-    OPT_ECU                  ,        /* HM��ȫ��SKIPģʽ��ֹ�²㻮�� */
+    OPT_ECU                  ,        /* HM中全零SKIP模式终止下层划分 */
     OPT_ET_HOMO_MV           ,        /* */
     OPT_CU_CSET              ,        /* CSET of uAVS2, Only for inter frames that are not referenced by others */
-    OPT_CU_DEPTH_CTRL        ,        /* ����ʱ������Ե�Depth���ƣ������ϡ������ϡ����Ϻ�ʱ��ο���level����DEPTH��Χ��ȫI֡Ҳ���� */
+    OPT_CU_DEPTH_CTRL        ,        /* 基于时空相关性的Depth估计，依据上、左、左上、右上和时域参考块level调整DEPTH范围，全I帧也适用 */
     OPT_CU_QSFD              ,        /* CU splitting termination based on RD-Cost:
                                          Z. Wang, R. Wang, K. Fan, H. Sun, and W. Gao,
-                                         ��uAVS2��Fast encoder for the 2nd generation IEEE 1857 video coding standard,��
-                                         Signal Process. Image Commun., vol. 53, no. October 2016, pp. 13�C23, 2017. */
+                                         “uAVS2—Fast encoder for the 2nd generation IEEE 1857 video coding standard,”
+                                         Signal Process. Image Commun., vol. 53, no. October 2016, pp. 13–23, 2017. */
 
     /* fast transform and Quant */
-    OPT_BYPASS_INTRA_RDOQ    ,        /* ����B֡֡������е�֡��ģʽ��RDOQ */
-    OPT_RDOQ_AZPC            ,        /* ͨ���Ա任ϵ������ֵ�жϼ��ȫ������RDOQԤ����������ɫ�ȷ�����RDOQ����*/
+    OPT_BYPASS_INTRA_RDOQ    ,        /* 跳过B帧帧间编码中的帧内模式的RDOQ */
+    OPT_RDOQ_AZPC            ,        /* 通过对变换系数的阈值判断检测全零块进行RDOQ预处理，跳过色度分量的RDOQ过程*/
 
     /* others */
-    OPT_FAST_ZBLOCK          ,        /* ���������� */
-    OPT_TR_KEY_FRAME_MD      ,        /* �Ը�����������ǹؼ�֡�Ĳ���ģʽ���ܽ�ʡ5%����ʱ�� */
-    OPT_CODE_OPTIMZATION     ,        /* OPT_CU_SUBCU_COST: �ȱ����CU���ٱ���СCUʱ��ǰ����СCU��RDCost������CU��һ����������������CU
-                                       * OPT_RDOQ_SKIP:     ͨ����RDOQ֮ǰ�Ա任ϵ������ֵ�жϼ��ȫ��飬����RDOQ����
+    OPT_FAST_ZBLOCK          ,        /* 快速零块估计 */
+    OPT_TR_KEY_FRAME_MD      ,        /* 以更大概率跳过非关键帧的部分模式，能节省5%以上时间 */
+    OPT_CODE_OPTIMZATION     ,        /* OPT_CU_SUBCU_COST: 先编码大CU，再编码小CU时若前几个小CU的RDCost超过大CU的一定比率则跳过后续CU
+                                       * OPT_RDOQ_SKIP:     通过在RDOQ之前对变换系数的阈值判断检测全零块，跳过RDOQ过程
                                        */
-    OPT_BIT_EST_PSZT         ,        /* ����TU���ع��ƣ���33x32������TU�ٶ�ֻ�е�Ƶ��16x16�����з���ϵ�� */
-    OPT_TU_LEVEL_DEC         ,        /* TU���㻮�־��ߣ��Ե�һ��TU����ѡ�����ţ����������ڶ���TU���֣������Ƿ���Ҫ����TU���� */
-    OPT_FAST_ALF             ,        /* ALF�����㷨���ڶ���B֡����������֡�ο�������ALF��������ALF��Э����������ʱ������step=2���²��� */
-    OPT_FAST_SAO             ,        /* SAO�����㷨���ڶ���B֡����������֡�ο�������SAO */
-    OPT_SUBCU_SPLIT          ,        /* ���ݻ����ӿ����Ŀ���߸����Ƿ�Է�SKIPģʽ��RDO */
-    OPT_PU_RMS               ,        /* �ر�С�飨8x8,16x16)���ֵ�Ԥ�ⵥԪ��������2Nx2N��֡�ڣ�֡���Լ�SKIPģʽ*/
-    NUM_FAST_ALGS                     /* �ܵĿ����㷨���� */
+    OPT_BIT_EST_PSZT         ,        /* 快速TU比特估计：对33x32的亮度TU假定只有低频的16x16部分有非零系数 */
+    OPT_TU_LEVEL_DEC         ,        /* TU两层划分决策：对第一层TU划分选出最优，对最优做第二层TU划分，决策是否需要两层TU划分 */
+    OPT_FAST_ALF             ,        /* ALF快速算法，在顶层B帧（不被其余帧参考）禁用ALF，在所有ALF的协方差矩阵计算时，进行step=2的下采样 */
+    OPT_FAST_SAO             ,        /* SAO快速算法，在顶层B帧（不被其余帧参考）禁用SAO */
+    OPT_SUBCU_SPLIT          ,        /* 根据划分子块的数目决策父块是否对非SKIP模式做RDO */
+    OPT_PU_RMS               ,        /* 关闭小块（8x8,16x16)划分的预测单元，仅保留2Nx2N的帧内，帧间以及SKIP模式*/
+    NUM_FAST_ALGS                     /* 总的快速算法数量 */
 };
 
 
 /* ---------------------------------------------------------------------------
  * const defines related with fast algorithms
  */
-#define SAVE_CU_INFO            1     /* ����ο�֡�������ÿһ֡��cu type��cu bitsize�����ڻ�ȡʱ���cuģʽ��cu�ߴ� */
+#define SAVE_CU_INFO            1     /* 保存参考帧队列里的每一帧的cu type和cu bitsize，用于获取时域的cu模式和cu尺寸 */
 #define NUM_INTRA_C_FULL_RD     4
 
 /* ---------------------------------------------------------------------------
@@ -144,7 +144,7 @@ enum xavs2_fast_algorithms_e {
  */
 #define ENABLE_RATE_CONTROL_CU  0     /* Enable Rate-Control on CU level: 1: enable, 0: disable */
 
-#define ENABLE_AUTO_INIT_QP     1     /* ����Ŀ�������Զ����ó�ʼQPֵ */
+#define ENABLE_AUTO_INIT_QP     1     /* 根据目标码率自动设置初始QP值 */
 
 
 /**
@@ -224,16 +224,16 @@ enum xavs2_fast_algorithms_e {
 #define LAM_2Level_TU           0.8
 #define DMH_MODE_NUM            5     /* number of DMH mode */
 #define WPM_NUM                 3     /* number of WPM */
-#define TH_PMVR                 2     /* PMVR���ķ�֮һ���ؾ���MV�Ŀ��÷�Χ */
+#define TH_PMVR                 2     /* PMVR中四分之一像素精度MV的可用范围 */
 
 
 /* ---------------------------------------------------------------------------
  * coefficient coding
  */
-#define MAX_TU_SIZE             32    /* ���任���С���ر���ʱ��ϵ������ */
-#define MAX_TU_SIZE_IN_BIT      5     /* ���任���С���ر���ʱ��ϵ������ */
-#define SIZE_CG                 4     /* CG ��С 4x4 */
-#define SIZE_CG_IN_BIT          2     /* CG ��С 4x4 */
+#define MAX_TU_SIZE             32    /* 最大变换块大小，熵编码时的系数矩阵 */
+#define MAX_TU_SIZE_IN_BIT      5     /* 最大变换块大小，熵编码时的系数矩阵 */
+#define SIZE_CG                 4     /* CG 大小 4x4 */
+#define SIZE_CG_IN_BIT          2     /* CG 大小 4x4 */
 #define MAX_CG_NUM_IN_TU        (1 << ((MAX_TU_SIZE_IN_BIT - SIZE_CG_IN_BIT) << 1))
 
 /* ---------------------------------------------------------------------------
@@ -247,14 +247,14 @@ enum xavs2_fast_algorithms_e {
 /* ---------------------------------------------------------------------------
  * SAO (Sample Adaptive Offset)
  */
-#define NUM_BO_OFFSET                 32                            /*BOģʽ��offset�������������4������*/
-#define MAX_NUM_SAO_CLASSES           32                            /*���offset����*/
+#define NUM_BO_OFFSET                 32                            /*BO模式下offset数量，其中最多4个非零*/
+#define MAX_NUM_SAO_CLASSES           32                            /*最大offset数量*/
 #define NUM_SAO_BO_CLASSES_LOG2       5                             /**/
 #define NUM_SAO_BO_CLASSES_IN_BIT     5                             /**/
-#define NUM_SAO_BO_CLASSES           (1 << NUM_SAO_BO_CLASSES_LOG2) /*BOģʽ��startband��Ŀ*/
-#define SAO_RATE_THR                  1.0                          /*���ȷ���������RDO����*/
-#define SAO_RATE_CHROMA_THR           1.0                          /*ɫ�ȷ���������RDO����*/
-#define SAO_SHIFT_PIX_NUM             4                             /*SAO������ƫ�Ƶ����ص���*/
+#define NUM_SAO_BO_CLASSES           (1 << NUM_SAO_BO_CLASSES_LOG2) /*BO模式下startband数目*/
+#define SAO_RATE_THR                  1.0                          /*亮度分量，用于RDO决策*/
+#define SAO_RATE_CHROMA_THR           1.0                          /*色度分量，用于RDO决策*/
+#define SAO_SHIFT_PIX_NUM             4                             /*SAO向左上偏移的像素点数*/
 
 
 #define MAX_DOUBLE              1.7e+308
@@ -302,7 +302,7 @@ enum xavs2_fast_algorithms_e {
 #define MAX_SLICES                8   /* max number of slices in one picture */
 #define MAX_PARALLEL_FRAMES       8   /* max number of parallel encoding frames */
 #define MAX_COI_VALUE   ((1<<8) - 1)  /* max COI value (unsigned char) */
-#define PIXEL_MAX ((1<<BIT_DEPTH)-1)  /* max value of a pixel */
+//#define PIXEL_MAX ((1<<BIT_DEPTH)-1)  /* max value of a pixel */
 
 
 /* ---------------------------------------------------------------------------
