@@ -58,8 +58,8 @@
 /* ---------------------------------------------------------------------------
  */
 static const float SUBCU_COST_RATE[2][4] = {
-    {0.50f, 0.75f, 0.97f, 1.0f},   /* Ö¡ÄÚCUµÄCostÒ»°ã¶¼½Ï´ó */
-    {0.75f, 0.90f, 0.99f, 1.0f},   /* Ö¡¼äÇé¿öÏÂ£¬Skip¿éCostºÜĞ¡ */
+    {0.50f, 0.75f, 0.97f, 1.0f},   /* å¸§å†…CUçš„Costä¸€èˆ¬éƒ½è¾ƒå¤§ */
+    {0.75f, 0.90f, 0.99f, 1.0f},   /* å¸§é—´æƒ…å†µä¸‹ï¼ŒSkipå—Costå¾ˆå° */
 };
 
 static const int tab_pdir_bskip[DS_MAX_NUM] = {
@@ -124,7 +124,7 @@ static const int8_t headerbits_skipmode[8] = { 2, 3, 4, 4, 3, 4, 5, 5 };//tempor
  */
 
 /* ---------------------------------------------------------------------------
- * ÒÀ¾İCU»®·ÖÄ£Ê½È·¶¨µ±Ç°CU°üº¬µÄPUÊıÁ¿ºÍ´óĞ¡£¨Ö¡¼ä»®·Ö£©
+ * ä¾æ®CUåˆ’åˆ†æ¨¡å¼ç¡®å®šå½“å‰CUåŒ…å«çš„PUæ•°é‡å’Œå¤§å°ï¼ˆå¸§é—´åˆ’åˆ†ï¼‰
  */
 static ALWAYS_INLINE
 void cu_init_pu_inter(xavs2_t *h, cu_info_t *p_cu_info, int i_level, int i_mode)
@@ -137,7 +137,7 @@ void cu_init_pu_inter(xavs2_t *h, cu_info_t *p_cu_info, int i_level, int i_mode)
 
     // set for each block
     if (i_mode == PRED_SKIP) {
-        ///! Ò»Ğ©ÌØÊâµÄSkip/DirectÄ£Ê½ÏÂÈç¹ûCU³¬¹ı8x8£¬ÔòPU»®·Ö³É4¸ö
+        ///! ä¸€äº›ç‰¹æ®Šçš„Skip/Directæ¨¡å¼ä¸‹å¦‚æœCUè¶…è¿‡8x8ï¼Œåˆ™PUåˆ’åˆ†æˆ4ä¸ª
         if (i_level > 3 && (h->i_type == SLICE_TYPE_P || (h->i_type == SLICE_TYPE_F && ds_mode == DS_NONE)
                             || (h->i_type == SLICE_TYPE_B && ds_mode == DS_NONE))) {
             p_cu_info->num_pu = 4;
@@ -158,7 +158,7 @@ void cu_init_pu_inter(xavs2_t *h, cu_info_t *p_cu_info, int i_level, int i_mode)
 }
 
 /* ---------------------------------------------------------------------------
- * ÒÀ¾İCU»®·ÖÄ£Ê½È·¶¨µ±Ç°CU°üº¬µÄPUÊıÁ¿ºÍ´óĞ¡£¨Ö¡ÄÚ»®·Ö£©
+ * ä¾æ®CUåˆ’åˆ†æ¨¡å¼ç¡®å®šå½“å‰CUåŒ…å«çš„PUæ•°é‡å’Œå¤§å°ï¼ˆå¸§å†…åˆ’åˆ†ï¼‰
  */
 static ALWAYS_INLINE
 void cu_init_pu_intra(xavs2_t *h, cu_info_t *p_cu_info, int i_level, int i_mode)
@@ -255,7 +255,7 @@ void cu_init(xavs2_t *h, cu_t *p_cu, cu_info_t *best, int i_level)
     }
 #endif
 
-    /* ref_idx_1st[], ref_idx_2nd[] ÄÚ´æÁ¬Ğø */
+    /* ref_idx_1st[], ref_idx_2nd[] å†…å­˜è¿ç»­ */
     memset(p_cu->cu_info.ref_idx_1st, INVALID_REF, sizeof(p_cu->cu_info.ref_idx_1st) + sizeof(p_cu->cu_info.ref_idx_2nd));
 
     /* init position for 4 sub-CUs */
@@ -560,11 +560,11 @@ void cu_get_neighbors(xavs2_t *h, cu_t *p_cu, cb_t *p_cb)
     int b_available_TR  = h->tab_avail_TR[(y_TR_4x4_in_lcu << (h->i_lcu_level - B4X4_IN_BIT)) + x_TR_4x4_in_lcu];
 
     /* 2. get neighboring blocks */
-    /* ×óÉÏ */
+    /* å·¦ä¸Š */
     cu_get_neighbor_spatial(h, cur_slice_idx, &neighbors[BLK_TOPLEFT ], xx0 - 1, yy0 - 1);
 
-    /* ×óÁÚµÄPUĞÅÏ¢ */
-    if (IS_VER_PU_PART(p_cu->cu_info.i_mode) && p_cb->x != 0) {  // CU´¹Ö±»®·ÖÎªÁ½¸öPU£¬ÇÒµ±Ç°PUÎªÓÒ±ßÒ»¸ö
+    /* å·¦é‚»çš„PUä¿¡æ¯ */
+    if (IS_VER_PU_PART(p_cu->cu_info.i_mode) && p_cb->x != 0) {  // CUå‚ç›´åˆ’åˆ†ä¸ºä¸¤ä¸ªPUï¼Œä¸”å½“å‰PUä¸ºå³è¾¹ä¸€ä¸ª
         neighbor_inter_t *p_neighbor = neighbors + BLK_LEFT;
         p_neighbor->is_available = 1;
         // cu_get_neighbor_spatial(h, cur_slice_idx, &neighbors[BLK_LEFT], xx0 - 1, yy0);
@@ -579,8 +579,8 @@ void cu_get_neighbors(xavs2_t *h, cu_t *p_cu, cb_t *p_cb)
         cu_get_neighbor_spatial(h, cur_slice_idx, &neighbors[BLK_LEFT2], xx0 - 1, yy1);
     }
 
-    /* ÉÏÁÚµÄPUĞÅÏ¢ */
-    if (IS_HOR_PU_PART(p_cu->cu_info.i_mode) && p_cb->y != 0) {  // CUË®Æ½»®·ÖÎªÁ½¸öPU£¬ÇÒµ±Ç°PUÎªÏÂ±ßÒ»¸ö
+    /* ä¸Šé‚»çš„PUä¿¡æ¯ */
+    if (IS_HOR_PU_PART(p_cu->cu_info.i_mode) && p_cb->y != 0) {  // CUæ°´å¹³åˆ’åˆ†ä¸ºä¸¤ä¸ªPUï¼Œä¸”å½“å‰PUä¸ºä¸‹è¾¹ä¸€ä¸ª
         neighbor_inter_t *p_neighbor = neighbors + BLK_TOP;
         p_neighbor->is_available = 1;
         // cu_get_neighbor_spatial(h, cur_slice_idx, &neighbors[BLK_LEFT], xx0 - 1, yy0);
@@ -595,7 +595,7 @@ void cu_get_neighbors(xavs2_t *h, cu_t *p_cu, cb_t *p_cb)
         cu_get_neighbor_spatial(h, cur_slice_idx, &neighbors[BLK_TOP2], xx1, yy0 - 1);
     }
 
-    /* ÓÒÉÏ */
+    /* å³ä¸Š */
     cu_get_neighbor_spatial(h, cur_slice_idx, &neighbors[BLK_TOPRIGHT], b_available_TR ? xx1 + 1 : -1, yy0 - 1);
 
     cu_get_neighbor_temporal(h, &neighbors[BLK_COL], xx0, yy0);
@@ -612,9 +612,9 @@ int cu_get_mvs_for_mc(xavs2_t *h, cu_t *p_cu, int pu_idx,
 {
     int num_ref;            // number of reference frames
     int dmh_mode = p_cu->cu_info.dmh_mode;
-    int ref_1st = p_cu->cu_info.ref_idx_1st[pu_idx]; // µÚÒ»£¨Ç°Ïò»òÕßBÖ¡µ¥ÏòÔ¤²â£©ÔË¶¯Ê¸Á¿
-    int ref_2nd = p_cu->cu_info.ref_idx_2nd[pu_idx]; // µÚ¶ş£¨BÖ¡Ë«ÏòµÄºóÏò£©
-    mv_t mv_1st, mv_2nd;    // µÚÒ»£¨Ç°Ïò»òÕßBÖ¡µ¥ÏòÔ¤²â£©ºÍµÚ¶ş£¨ºóÏò£©ÔË¶¯Ê¸Á¿
+    int ref_1st = p_cu->cu_info.ref_idx_1st[pu_idx]; // ç¬¬ä¸€ï¼ˆå‰å‘æˆ–è€…Bå¸§å•å‘é¢„æµ‹ï¼‰è¿åŠ¨çŸ¢é‡
+    int ref_2nd = p_cu->cu_info.ref_idx_2nd[pu_idx]; // ç¬¬äºŒï¼ˆBå¸§åŒå‘çš„åå‘ï¼‰
+    mv_t mv_1st, mv_2nd;    // ç¬¬ä¸€ï¼ˆå‰å‘æˆ–è€…Bå¸§å•å‘é¢„æµ‹ï¼‰å’Œç¬¬äºŒï¼ˆåå‘ï¼‰è¿åŠ¨çŸ¢é‡
 
     if (h->i_type != SLICE_TYPE_B) {
         num_ref = (ref_1st != INVALID_REF) + (ref_2nd != INVALID_REF);
@@ -764,9 +764,9 @@ static INLINE
 void tu_get_dct_coeff(xavs2_t *h, coeff_t *cur_blk, int pu_size_idx, int bsx, int bsy)
 {
     if (IS_ALG_ENABLE(OPT_BIT_EST_PSZT) && !h->lcu.b_2nd_rdcost_pass && bsx >= 32 && bsy >= 32) {
-        g_funcs.dctf.dct_half[pu_size_idx](cur_blk, cur_blk, bsx);
+        g_funcs.dctf.dct_half[pu_size_idx](h, cur_blk, cur_blk, bsx);
     } else {
-        g_funcs.dctf.dct[pu_size_idx](cur_blk, cur_blk, bsx);
+        g_funcs.dctf.dct[pu_size_idx](h, cur_blk, cur_blk, bsx);
     }
 }
 
@@ -828,9 +828,9 @@ static int cu_recon_chroma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, dist_t *distort
             g_funcs.pixf.copy_ss[partidx_c](p_cu->cu_info.p_coeff[uv + 1], bsize_c, cur_blk, bsize_c);
 
             tu_quant_inverse(h, p_cu, cur_blk, bsize_c * bsize_c, level_c, qp_c, 0);
-            g_funcs.dctf.idct[partidx_c](cur_blk, cur_blk, bsize_c);
+            g_funcs.dctf.idct[partidx_c](h, cur_blk, cur_blk, bsize_c);
 
-            g_funcs.pixf.add_ps[partidx_c](p_fdec, FREC_CSTRIDE / 2, p_pred, cur_blk, FREC_CSTRIDE, bsize_c);
+            g_funcs.pixf.add_ps[partidx_c](h, p_fdec, FREC_CSTRIDE / 2, p_pred, cur_blk, FREC_CSTRIDE, bsize_c);
         } else {
             g_funcs.pixf.copy_pp[partidx_c](p_fdec, FREC_CSTRIDE / 2, p_pred, FREC_CSTRIDE);
         }
@@ -853,9 +853,9 @@ int rdo_get_left_bits(xavs2_t *h, rdcost_t min_rdcost, dist_t distortion)
     double f_left_bits = ((min_rdcost - distortion) * h->f_lambda_1th) + 1;
     int left_bits;
 
-    left_bits = (int)XAVS2_CLIP3F(0.0f, 32766.0f, f_left_bits);    // clipµ½Ò»¸öºÏÀíµÄÇø¼äÄÚ
+    left_bits = (int)XAVS2_CLIP3F(0.0f, 32766.0f, f_left_bits);    // clipåˆ°ä¸€ä¸ªåˆç†çš„åŒºé—´å†…
     if (left_bits * f_lambda + distortion <= min_rdcost) {
-        left_bits++;    // ±ÜÃâ¸¡µãÊıÔËËãÎó²î£¬±£Ö¤±ÈÌØÊı´ïµ½¸ÃÖµÊ±rdcost´óÓÚmin_rdcost
+        left_bits++;    // é¿å…æµ®ç‚¹æ•°è¿ç®—è¯¯å·®ï¼Œä¿è¯æ¯”ç‰¹æ•°è¾¾åˆ°è¯¥å€¼æ—¶rdcostå¤§äºmin_rdcost
     }
 
     return left_bits;
@@ -899,9 +899,9 @@ int cu_recon_intra_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, pel_t *p_pred, int
     // block transform
     if (part_idx == LUMA_4x4) {
         if (b_2nd_trans) {
-            g_funcs.dctf.transform_4x4_2nd(cur_blk, w_tr);
+            g_funcs.dctf.transform_4x4_2nd(h, cur_blk, w_tr);
         } else {
-            g_funcs.dctf.dct[LUMA_4x4](cur_blk, cur_blk, 4);     /* 4x4 dct */
+            g_funcs.dctf.dct[LUMA_4x4](h, cur_blk, cur_blk, 4);     /* 4x4 dct */
         }
     } else {
         tu_get_dct_coeff(h, cur_blk, part_idx, w_tr, h_tr);
@@ -923,19 +923,19 @@ int cu_recon_intra_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, pel_t *p_pred, int
         // inverse transform
         if (part_idx == LUMA_4x4) {
             if (b_2nd_trans) {
-                g_funcs.dctf.inv_transform_4x4_2nd(cur_blk, w_tr);
+                g_funcs.dctf.inv_transform_4x4_2nd(h, cur_blk, w_tr);
             } else {
-                g_funcs.dctf.idct[LUMA_4x4](cur_blk, cur_blk, 4);    /* 4x4 idct */
+                g_funcs.dctf.idct[LUMA_4x4](h, cur_blk, cur_blk, 4);    /* 4x4 idct */
             }
         } else {
             if (b_2nd_trans) {
                 g_funcs.dctf.inv_transform_2nd(cur_blk, w_tr, intra_pred_mode, b_top, b_left);
             }
 
-            g_funcs.dctf.idct[part_idx](cur_blk, cur_blk, w_tr);
+            g_funcs.dctf.idct[part_idx](h, cur_blk, cur_blk, w_tr);
         }
 
-        g_funcs.pixf.add_ps[part_idx](p_fdec, FREC_STRIDE, p_pred, cur_blk, bsx, bsx);
+        g_funcs.pixf.add_ps[part_idx](h, p_fdec, FREC_STRIDE, p_pred, cur_blk, bsx, bsx);
     } else {
         g_funcs.pixf.copy_pp[part_idx](p_fdec, FREC_STRIDE, p_pred, bsx);
     }
@@ -992,7 +992,7 @@ void xavs2_get_mpms(xavs2_t *h, cu_t *p_cu, int blockidx, int pos_y, int pos_x, 
 
 
 /* ---------------------------------------------------------------------------
- * ¼ì²éÖ¡ÄÚPU»®·Ö·½Ê½µÄRDCost²¢¸üĞÂ×îÓÅµÄPU»®·Ö·½Ê½
+ * æ£€æŸ¥å¸§å†…PUåˆ’åˆ†æ–¹å¼çš„RDCostå¹¶æ›´æ–°æœ€ä¼˜çš„PUåˆ’åˆ†æ–¹å¼
  */
 static void cu_check_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best, int mode, rdcost_t *min_rdcost)
 {
@@ -1011,10 +1011,10 @@ static void cu_check_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
     int pix_y_c = p_cu->i_pos_y >> CHROMA_V_SHIFT;
     intra_candidate_t *p_candidates = p_layer->intra_candidates;
 
-    /* È·¶¨PU»®·ÖÀàĞÍ */
+    /* ç¡®å®šPUåˆ’åˆ†ç±»å‹ */
     cu_init_pu_intra(h, &p_cu->cu_info, level, mode);
 
-    /* È·¶¨TU»®·ÖÀàĞÍ */
+    /* ç¡®å®šTUåˆ’åˆ†ç±»å‹ */
     cu_set_tu_split_type(h, &p_cu->cu_info, mode != PRED_I_2Nx2N);
 
     h->copy_aec_state_rdo(&p_layer->cs_rdo, p_aec);
@@ -1061,8 +1061,8 @@ static void cu_check_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         /* RDO */
         for (i = 0; i < num_for_rdo; i++) {
             //rdcost_t rdcost;
-            dist_t dist_curr;     // µ±Ç°ÁÁ¶ÈÖ¡ÄÚ¿éµÄÊ§Õæ
-            int rate_curr = 0; // µ±Ç°ÁÁ¶ÈÖ¡ÄÚ¿éµÄÂëÂÊ£¨±ÈÌØÊı£©
+            dist_t dist_curr;     // å½“å‰äº®åº¦å¸§å†…å—çš„å¤±çœŸ
+            int rate_curr = 0; // å½“å‰äº®åº¦å¸§å†…å—çš„ç ç‡ï¼ˆæ¯”ç‰¹æ•°ï¼‰
             int Mode = p_candidates[i].mode;
             pel_t *p_pred = p_enc->intra_pred[Mode];
 
@@ -1140,15 +1140,15 @@ static void cu_check_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
             h->copy_aec_state_rdo(p_aec, &p_enc->cs_tu);
         }
 
-        /* ±£´æ×îÓÅÄ£Ê½µÄ×´Ì¬£ºÊ§Õæ¡¢ÁÁ¶È·ÖÁ¿±ÈÌØÊı£¨ÅÅ³ıµôÁÁ¶ÈÔ¤²âÄ£Ê½£©£¬CBP */
+        /* ä¿å­˜æœ€ä¼˜æ¨¡å¼çš„çŠ¶æ€ï¼šå¤±çœŸã€äº®åº¦åˆ†é‡æ¯”ç‰¹æ•°ï¼ˆæ’é™¤æ‰äº®åº¦é¢„æµ‹æ¨¡å¼ï¼‰ï¼ŒCBP */
         rdcost_luma += best_dist + h->f_lambda_mode * best_rate;
         p_cu->cu_info.i_cbp |= (best_cbp) << blockidx;
 
-        /* ÁÁ¶È¿éRDOµÄÌáÇ°ÖÕÖ¹ */
+        /* äº®åº¦å—RDOçš„æå‰ç»ˆæ­¢ */
         if (rdcost_luma >= *min_rdcost) {
             p_layer->mode_rdcost[mode] = MAX_COST;        /* set the cost for SDIP fast algorithm */
             h->copy_aec_state_rdo(p_aec, &p_layer->cs_rdo);
-            return;  // ÁÁ¶È¿éµÄ×îÓÅrdcostÒÑ¾­³¬¹ıµ±Ç°×îÓÅÖµ£¬Í£Ö¹ºóĞøÉ«¶È¿éµÄÄ£Ê½±éÀú
+            return;  // äº®åº¦å—çš„æœ€ä¼˜rdcostå·²ç»è¶…è¿‡å½“å‰æœ€ä¼˜å€¼ï¼Œåœæ­¢åç»­è‰²åº¦å—çš„æ¨¡å¼éå†
         }
     }
     p_cu->feature.rdcost_luma = rdcost_luma;
@@ -1177,13 +1177,13 @@ static void cu_check_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         num_rdo_chroma_mode = h->get_intra_candidates_chroma(h, p_cu, level - 1, pix_y_c, pix_x_c, p_candidates);
 
         for (idx_chroma_mode = 0; idx_chroma_mode < num_rdo_chroma_mode; idx_chroma_mode++) {
-            dist_t dist_chroma = 0;  // É«¶È¿éµÄÖ¸Õë
+            dist_t dist_chroma = 0;  // è‰²åº¦å—çš„æŒ‡é’ˆ
             int rate_chroma = 0;
             int bits_left;
             int predmode_c = p_candidates[idx_chroma_mode].mode;
             int cbp_c;
 
-            /* Ìø¹ıÉ«¶È·ÖÁ¿µÚ¶ş´Îµ÷ÓÃ¹ı³ÌÖĞµÄÄ£Ê½Ñ¡Ôñ£¬Ö±½ÓÑ¡µ½×îÓÅÄ£Ê½Íê³ÉRDOQ */
+            /* è·³è¿‡è‰²åº¦åˆ†é‡ç¬¬äºŒæ¬¡è°ƒç”¨è¿‡ç¨‹ä¸­çš„æ¨¡å¼é€‰æ‹©ï¼Œç›´æ¥é€‰åˆ°æœ€ä¼˜æ¨¡å¼å®ŒæˆRDOQ */
             if ((h->param->i_rdoq_level == RDOQ_CU_LEVEL && h->lcu.b_enable_rdoq) && predmode_c != best->i_intra_mode_c) {
                 continue;
             }
@@ -1192,7 +1192,7 @@ static void cu_check_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
             }
             p_cu->cu_info.i_intra_mode_c = (int8_t)predmode_c;
 
-            /* Íê³ÉRDO¹ı³ÌµÄÉ«¶È¿éµÄÖØ¹¹¹ı³Ì£¨±ä»»¡¢Á¿»¯¡¢·´±ä»»·´Á¿»¯¼°ÇóÖØ¹¹Öµ£© */
+            /* å®ŒæˆRDOè¿‡ç¨‹çš„è‰²åº¦å—çš„é‡æ„è¿‡ç¨‹ï¼ˆå˜æ¢ã€é‡åŒ–ã€åå˜æ¢åé‡åŒ–åŠæ±‚é‡æ„å€¼ï¼‰ */
             cbp_c = cu_recon_chroma(h, p_aec, p_cu, &dist_chroma);
 
             p_cu->cu_info.i_cbp = (int8_t)(tmp_cbp_luma + cbp_c);
@@ -1350,16 +1350,16 @@ tu_recon_inter_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu,
                                     cu_get_qp(h, &p_cu->cu_info), 0, 1, DC_PRED);
 
     if (num_non_zero != 0) {
-        *cbp |= (1 << blockidx);    // Ö¸¶¨Î»ÉèÖÃÎª 1
+        *cbp |= (1 << blockidx);    // æŒ‡å®šä½è®¾ç½®ä¸º 1
         g_funcs.pixf.copy_ss[PART_INDEX(w_tr, h_tr)](coeff_y, w_tr, cur_blk, w_tr);
 
         tu_quant_inverse(h, p_cu, cur_blk, w_tr * h_tr, i_level, cu_get_qp(h, &p_cu->cu_info), 1);
-        g_funcs.dctf.idct[part_idx](cur_blk, cur_blk, w_tr);
+        g_funcs.dctf.idct[part_idx](h, cur_blk, cur_blk, w_tr);
 
-        g_funcs.pixf.add_ps[part_idx](p_fdec, FREC_STRIDE, p_pred, cur_blk, FREC_STRIDE, w_pu);
+        g_funcs.pixf.add_ps[part_idx](h, p_fdec, FREC_STRIDE, p_pred, cur_blk, FREC_STRIDE, w_pu);
     } else {
-        /* Çå³ıCBPÖ¸¶¨Î»µÄÖµ£¬ÕâÀïCBP³õÊ¼ÖµÎª0£¬Òò¶øÎŞĞè²Ù×÷ */
-        // È«Áã¿é²»±Ø×ö·´±ä»»·´Á¿»¯£¬Ö»Ğè¿½±´Ô¤²âÖµÎªÖØ¹¹Öµ
+        /* æ¸…é™¤CBPæŒ‡å®šä½çš„å€¼ï¼Œè¿™é‡ŒCBPåˆå§‹å€¼ä¸º0ï¼Œå› è€Œæ— éœ€æ“ä½œ */
+        // å…¨é›¶å—ä¸å¿…åšåå˜æ¢åé‡åŒ–ï¼Œåªéœ€æ‹·è´é¢„æµ‹å€¼ä¸ºé‡æ„å€¼
         coeff_y[0] = 0;
         if (p_cu->cu_info.i_tu_split) {
             g_funcs.pixf.copy_pp[part_idx](p_fdec, FREC_STRIDE, p_pred, FREC_STRIDE);
@@ -1371,8 +1371,8 @@ tu_recon_inter_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu,
 
 
 /* ---------------------------------------------------------------------------
- * ÒÔÖ¸¶¨·½Ê½ÖØ¹¹Ö¡¼äÔ¤²â·½Ê½µÄCUµÄÁÁ¶È·ÖÁ¿£»
- * ·µ»Øµ±Ç°CUµØÊ§Õæ£¨¼ÓÉÏÉ«¶È¿éÊ§Õæ£©
+ * ä»¥æŒ‡å®šæ–¹å¼é‡æ„å¸§é—´é¢„æµ‹æ–¹å¼çš„CUçš„äº®åº¦åˆ†é‡ï¼›
+ * è¿”å›å½“å‰CUåœ°å¤±çœŸï¼ˆåŠ ä¸Šè‰²åº¦å—å¤±çœŸï¼‰
  */
 static
 dist_t cu_recon_inter_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu,
@@ -1468,7 +1468,7 @@ dist_t cu_recon_inter_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu,
             break;
         }
 
-        // µ±Ç°CU·ÇÁãÏµÊı²»´óÓÚ LUMA_COEFF_COST ¸ö£¬ÇÒDCÏµÊı²¢²»´óµÄÇé¿öÏÂ£¬¿ÉÈÏ¶¨ÎªÈ«Áã¿é
+        // å½“å‰CUéé›¶ç³»æ•°ä¸å¤§äº LUMA_COEFF_COST ä¸ªï¼Œä¸”DCç³»æ•°å¹¶ä¸å¤§çš„æƒ…å†µä¸‹ï¼Œå¯è®¤å®šä¸ºå…¨é›¶å—
         b_zero_block = (num_nonzero <= LUMA_COEFF_COST && sum_dc_coeff <= MAX_COEFF_QUASI_ZERO);
     } else {
         if (IS_ALG_ENABLE(OPT_FAST_ZBLOCK) && p_cu->is_zero_block) {
@@ -1476,7 +1476,7 @@ dist_t cu_recon_inter_luma(xavs2_t *h, aec_t *p_aec, cu_t *p_cu,
         } else {
             num_nonzero += tu_recon_inter_luma(h, p_aec, p_cu, level, &p_cu->cu_info.i_cbp, 0, coeff_bak, 0, 0, cu_size, cu_size);
 
-            // µ±Ç°CUµÄËùÓĞ±ä»»¿éµÄ·ÇÁãÏµÊıÊıÁ¿£¬²»´óÓÚ LUMA_COEFF_COST ¸ö£¬ÇÒDCÏµÊı²¢²»´óµÄÇé¿öÏÂ£¬¿ÉÈÏ¶¨ÎªÈ«Áã¿é
+            // å½“å‰CUçš„æ‰€æœ‰å˜æ¢å—çš„éé›¶ç³»æ•°æ•°é‡ï¼Œä¸å¤§äº LUMA_COEFF_COST ä¸ªï¼Œä¸”DCç³»æ•°å¹¶ä¸å¤§çš„æƒ…å†µä¸‹ï¼Œå¯è®¤å®šä¸ºå…¨é›¶å—
             sum_dc_coeff = XAVS2_ABS(p_cu->cu_info.p_coeff[0][0]);
             b_zero_block = (num_nonzero <= LUMA_COEFF_COST && sum_dc_coeff <= MAX_COEFF_QUASI_ZERO);
         }
@@ -1584,7 +1584,7 @@ static int tu_rdcost_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu,
 }
 
 /* ---------------------------------------------------------------------------
- * »ñÈ¡ÁÁ¶È¡¢É«¶È·ÖÁ¿µÄÔ¤²âÏñËØÖµ£¬·µ»ØMVÊÇ·ñÔÚÓĞĞ§·¶Î§ÄÚ
+ * è·å–äº®åº¦ã€è‰²åº¦åˆ†é‡çš„é¢„æµ‹åƒç´ å€¼ï¼Œè¿”å›MVæ˜¯å¦åœ¨æœ‰æ•ˆèŒƒå›´å†…
  */
 static ALWAYS_INLINE
 int rdo_get_pred_inter(xavs2_t *h, cu_t *p_cu, int cal_luma_chroma)
@@ -1603,16 +1603,16 @@ int rdo_get_pred_inter(xavs2_t *h, cu_t *p_cu, int cal_luma_chroma)
         int pix_x   = p_cu->i_pix_x + start_x;
         int pix_y   = p_cu->i_pix_y + start_y;
 
-        mv_t mv_1st, mv_2nd;   // µÚÒ»£¨Ç°Ïò»òÕßBÖ¡µ¥ÏòÔ¤²â£©ºÍµÚ¶ş£¨ºóÏò£©ÔË¶¯Ê¸Á¿
-        int ref_1st, ref_2nd;  // µÚÒ»£¨Ç°Ïò»òÕßBÖ¡µ¥ÏòÔ¤²â£©ºÍµÚ¶ş£¨ºóÏò£©²Î¿¼Ö¡ºÅ
+        mv_t mv_1st, mv_2nd;   // ç¬¬ä¸€ï¼ˆå‰å‘æˆ–è€…Bå¸§å•å‘é¢„æµ‹ï¼‰å’Œç¬¬äºŒï¼ˆåå‘ï¼‰è¿åŠ¨çŸ¢é‡
+        int ref_1st, ref_2nd;  // ç¬¬ä¸€ï¼ˆå‰å‘æˆ–è€…Bå¸§å•å‘é¢„æµ‹ï¼‰å’Œç¬¬äºŒï¼ˆåå‘ï¼‰å‚è€ƒå¸§å·
         int num_mvs;
-        int b_mv_valid;        // MVÊÇ·ñÓĞĞ§£º´óĞ¡È¡ÖµÊÇ·ñÔÚ±ê×¼¹æ¶¨µÄÓĞĞ§·¶Î§ÄÚ
+        int b_mv_valid;        // MVæ˜¯å¦æœ‰æ•ˆï¼šå¤§å°å–å€¼æ˜¯å¦åœ¨æ ‡å‡†è§„å®šçš„æœ‰æ•ˆèŒƒå›´å†…
         pel_t *p_temp = p_enc->buf_pixel_temp;
         pel_t *p_pred;
         xavs2_frame_t *p_ref1 = NULL;
         xavs2_frame_t *p_ref2 = NULL;
 
-        /* MVµÄÊıÁ¿£¬´óÓÚ1ÎªË«²Î¿¼Ö¡/DMHµÄÔ¤²â */
+        /* MVçš„æ•°é‡ï¼Œå¤§äº1ä¸ºåŒå‚è€ƒå¸§/DMHçš„é¢„æµ‹ */
         num_mvs = cu_get_mvs_for_mc(h, p_cu, blockidx, &mv_1st, &mv_2nd, &ref_1st, &ref_2nd);
         b_mv_valid = check_mv_range(h, &mv_1st, ref_1st, pix_x, pix_y, width, height);
         if (num_mvs > 1) {
@@ -1631,9 +1631,9 @@ int rdo_get_pred_inter(xavs2_t *h, cu_t *p_cu, int cal_luma_chroma)
         if (cal_luma_chroma & 1) {
             p_pred = p_layer->buf_pred_inter + start_y * FREC_STRIDE + start_x;
 
-            mc_luma(p_pred, FREC_STRIDE, mv_1st.x, mv_1st.y, width, height, p_ref1);
+            mc_luma(h, p_pred, FREC_STRIDE, mv_1st.x, mv_1st.y, width, height, p_ref1);
             if (num_mvs > 1) {
-                mc_luma(p_temp, width, mv_2nd.x, mv_2nd.y, width, height, p_ref2);
+                mc_luma(h, p_temp, width, mv_2nd.x, mv_2nd.y, width, height, p_ref2);
                 g_funcs.pixf.avg[PART_INDEX(width, height)](p_pred, FREC_STRIDE, p_pred, FREC_STRIDE, p_temp, width, 32);
             }
         }
@@ -1651,11 +1651,11 @@ int rdo_get_pred_inter(xavs2_t *h, cu_t *p_cu, int cal_luma_chroma)
             p_pred = p_enc->buf_pred_inter_c + start_y * FREC_CSTRIDE + start_x;
 
             /* u component */
-            mc_chroma(p_pred, p_pred + uvoffset, FREC_CSTRIDE,
+            mc_chroma(h, p_pred, p_pred + uvoffset, FREC_CSTRIDE,
                       mv_1st.x, mv_1st.y, width, height, p_ref1);
 
             if (num_mvs > 1) {
-                mc_chroma(p_temp, p_temp + uvoffset, FREC_CSTRIDE,
+                mc_chroma(h, p_temp, p_temp + uvoffset, FREC_CSTRIDE,
                           mv_2nd.x, mv_2nd.y, width, height, p_ref2);
 
                 if (width != 2 && width != 6 && height != 2 && height != 6) {
@@ -1699,7 +1699,7 @@ int cu_rdcost_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, rdcost_t *min_rdcost, 
     dist_t dist_split    = 0;
     dist_t dist_notsplit = 0;
     dist_t best_dist_cur = 0;
-    rdcost_t rdcost = *min_rdcost;   // ³õÊ¼»¯Îª×î´ó¿ÉÔÊĞíµÄRDCost
+    rdcost_t rdcost = *min_rdcost;   // åˆå§‹åŒ–ä¸ºæœ€å¤§å¯å…è®¸çš„RDCost
     rdcost_t rdcost_split = rdcost;
     pel_t *p_fenc = h->lcu.p_fenc[0] + p_cu->i_pos_y * FENC_STRIDE + p_cu->i_pos_x;
     cu_layer_t *p_layer  = cu_get_layer(h, p_cu->cu_info.i_level);
@@ -1840,9 +1840,9 @@ int cu_rdcost_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, rdcost_t *min_rdcost, 
     }
 
     if (IS_ALG_ENABLE(OPT_CBP_DIRECT) && IS_SKIP_MODE(mode)) {
-        /* Skip/DirectÄ£Ê½µÄ²Ğ²î¾­¹ı±ä»»Á¿»¯ºóÎªÈ«Áã¿é£º
-         * ´ËÊ±ÖÕÖ¹ÏÂ²ãCU»®·Ö¿ÉÒÔµÃµ½½Ï¶àÊ±¼ä½ÚÊ¡ÇÒËğÊ§½ÏĞ¡£¬
-         * µ«Ìø¹ıÆÕÍ¨PU»®·ÖÄ£Ê½²¢²»ÄÜ´øÀ´¸ü¶àµÄ¼ÓËÙ¡£
+        /* Skip/Directæ¨¡å¼çš„æ®‹å·®ç»è¿‡å˜æ¢é‡åŒ–åä¸ºå…¨é›¶å—ï¼š
+         * æ­¤æ—¶ç»ˆæ­¢ä¸‹å±‚CUåˆ’åˆ†å¯ä»¥å¾—åˆ°è¾ƒå¤šæ—¶é—´èŠ‚çœä¸”æŸå¤±è¾ƒå°ï¼Œ
+         * ä½†è·³è¿‡æ™®é€šPUåˆ’åˆ†æ¨¡å¼å¹¶ä¸èƒ½å¸¦æ¥æ›´å¤šçš„åŠ é€Ÿã€‚
          */
         p_cu->b_cbp_direct = (p_cu->cu_info.i_cbp == 0);
     }
@@ -1970,7 +1970,7 @@ rdcost_t cu_rdo_motion_estimation(xavs2_t *h, cu_t *p_cu, xavs2_me_t *p_me, int 
         p_cb = &p_cu->cu_info.cb[block];
         cu_get_neighbors(h, p_cu, p_cb);
 
-        /* µÚÒ»¸öPU²»ĞèÒªÖØĞÂ½øĞĞME£¨MVP²»±ä£© */
+        /* ç¬¬ä¸€ä¸ªPUä¸éœ€è¦é‡æ–°è¿›è¡ŒMEï¼ˆMVPä¸å˜ï¼‰ */
         if (dualpred_enabled < 0 && block == 0) {
             best_fwd_ref = p_mode->ref_idx_single[0];
         } else {
@@ -2064,14 +2064,14 @@ rdcost_t cu_rdo_motion_estimation(xavs2_t *h, cu_t *p_cu, xavs2_me_t *p_me, int 
         p_cu->cu_info.b8pdir[block] = (int8_t)best_pdir;
     }
 
-    cu_get_mvds(h, p_cu);  // Éú³ÉMVD
+    cu_get_mvds(h, p_cu);  // ç”ŸæˆMVD
 
-    return total_cost;  // ·µ»Ø×îĞ¡Cost
+    return total_cost;  // è¿”å›æœ€å°Cost
 }
 
 //#if OPT_DMH_CANDIDATE
 /* ---------------------------------------------------------------------------
- * ÌáÇ°»ñÈ¡×îÓÅµÄDMHÄ£Ê½ºòÑ¡£¬¼õÉÙRDO´ÎÊı
+ * æå‰è·å–æœ€ä¼˜çš„DMHæ¨¡å¼å€™é€‰ï¼Œå‡å°‘RDOæ¬¡æ•°
  */
 static int dmh_bits[9] = {
 //  0, 3, 3, 4, 4, 5, 5, 5, 5
@@ -2091,7 +2091,7 @@ static int rdo_get_dmh_candidate(xavs2_t *h, cu_t *p_cu, rdcost_t rdcost_non_dmh
     pel_t *p_fenc = h->lcu.p_fenc[0] + p_cu->i_pos_y * FENC_STRIDE + p_cu->i_pos_x;
     int i;
     int rate;
-    /* ±éÀúDMHÄ£Ê½Ö´ĞĞÔ¤²â²¢¼ÆËãÊ§Õæ£¬È¡Ê§Õæ×îĞ¡µÄÒ»¸öÄ£Ê½×÷ÎªDMHºòÑ¡¼¯ */
+    /* éå†DMHæ¨¡å¼æ‰§è¡Œé¢„æµ‹å¹¶è®¡ç®—å¤±çœŸï¼Œå–å¤±çœŸæœ€å°çš„ä¸€ä¸ªæ¨¡å¼ä½œä¸ºDMHå€™é€‰é›† */
     for (i = 1; i < num_dmh_modes; i++) {
         /* get prediction data and luma distortion */
         p_cu->cu_info.dmh_mode = (int8_t)(i);
@@ -2107,7 +2107,7 @@ static int rdo_get_dmh_candidate(xavs2_t *h, cu_t *p_cu, rdcost_t rdcost_non_dmh
     }
 
     if (IS_ALG_ENABLE(OPT_SKIP_DMH_THRES) && min_distotion > (rdcost_t)(1.2 * rdcost_non_dmh)) {
-        /* ²»¿¼ÂÇ²Ğ²î±àÂë´øÀ´µÄdistortion¼õÉÙ */
+        /* ä¸è€ƒè™‘æ®‹å·®ç¼–ç å¸¦æ¥çš„distortionå‡å°‘ */
         return -1;
     } else {
         return best_dmh_cand;
@@ -2117,7 +2117,7 @@ static int rdo_get_dmh_candidate(xavs2_t *h, cu_t *p_cu, rdcost_t rdcost_non_dmh
 
 
 /* ---------------------------------------------------------------------------
- * ³¢ÊÔËùÓĞÖ¡¼äÔ¤²â¿é»®·Ö·½Ê½£¬Ñ¡ÔñÒ»¸ö×îÓÅµÄ»®·Ö
+ * å°è¯•æ‰€æœ‰å¸§é—´é¢„æµ‹å—åˆ’åˆ†æ–¹å¼ï¼Œé€‰æ‹©ä¸€ä¸ªæœ€ä¼˜çš„åˆ’åˆ†
  */
 static int cu_select_inter_partition(xavs2_t *h, cu_t *p_cu, int i_level, uint32_t inter_modes,
                                      cu_info_t *best, rdcost_t *p_min_rdcost,
@@ -2146,13 +2146,13 @@ static int cu_select_inter_partition(xavs2_t *h, cu_t *p_cu, int i_level, uint32
     //inter_modes |= (uint32_t)((1 << PRED_2NxN) | (1 << PRED_Nx2N));
 
     for (mode = 1; mode < MAX_INTER_MODES; mode++) {
-        /* Ö´ĞĞÔË¶¯¹À¼Æ */
+        /* æ‰§è¡Œè¿åŠ¨ä¼°è®¡ */
 
         if (!(inter_modes & (1 << mode))) {
-            continue;           // Ö±½ÓÌø¹ı²»¿ÉÓÃÄ£Ê½µÄ¾ö²ß
+            continue;           // ç›´æ¥è·³è¿‡ä¸å¯ç”¨æ¨¡å¼çš„å†³ç­–
         }
 
-        /* ¿ìËÙ¾ö²ß(OPT_BYPASS_AMP)£ºÈç¹ûP2NxNÎ´»ñµÃ×îÓÅ£¬Ö±½ÓÌø¹ıÏàÍ¬»®·Ö·½ÏòµÄPRED_2NxnU/PRED_2NxnD; PNx2NÍ¬Àí */
+        /* å¿«é€Ÿå†³ç­–(OPT_BYPASS_AMP)ï¼šå¦‚æœP2NxNæœªè·å¾—æœ€ä¼˜ï¼Œç›´æ¥è·³è¿‡ç›¸åŒåˆ’åˆ†æ–¹å‘çš„PRED_2NxnU/PRED_2NxnD; PNx2NåŒç† */
         if (IS_ALG_ENABLE(OPT_BYPASS_AMP) && i_level > B16X16_IN_BIT) {
             if ((mode == PRED_2NxnU || mode == PRED_2NxnD) && best_cu_mode != PRED_2NxN) {
                 continue;
@@ -2165,7 +2165,7 @@ static int cu_select_inter_partition(xavs2_t *h, cu_t *p_cu, int i_level, uint32
         cu_init_pu_inter(h, &p_cu->cu_info, i_level, mode);
         cu_rdo_motion_estimation(h, p_cu, &h->me_state, b_dhp_enabled);
 
-        /* ¹À¼ÆCostÑ¡È¡×îĞ¡µÄ */
+        /* ä¼°è®¡Costé€‰å–æœ€å°çš„ */
         p_cu->cu_info.directskip_wsm_idx = 0;
         p_cu->cu_info.directskip_mhp_idx = DS_NONE;
         p_cu->cu_info.dmh_mode = 0;
@@ -2201,7 +2201,7 @@ static int cu_select_inter_partition(xavs2_t *h, cu_t *p_cu, int i_level, uint32
 }
 
 /* ---------------------------------------------------------------------------
- * ³¢ÊÔÆÕÍ¨Ö¡¼äÔ¤²â¿é»®·Ö·½Ê½£¬²¢¼ÆËãÏàÓ¦µÄCost
+ * å°è¯•æ™®é€šå¸§é—´é¢„æµ‹å—åˆ’åˆ†æ–¹å¼ï¼Œå¹¶è®¡ç®—ç›¸åº”çš„Cost
  */
 static
 void cu_check_inter_partition(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, int mode, int i_level,
@@ -2216,13 +2216,13 @@ void cu_check_inter_partition(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, int mode, in
 
     h->lcu.bypass_all_dmh = 0;
 
-    /* ¼ÆËãÒ»¸öÖ¡¼ä»®·ÖÄ£Ê½µÄRDCost£¬ÒÔÈ·¶¨×îÓÅ±àÂëÄ£Ê½ */
+    /* è®¡ç®—ä¸€ä¸ªå¸§é—´åˆ’åˆ†æ¨¡å¼çš„RDCostï¼Œä»¥ç¡®å®šæœ€ä¼˜ç¼–ç æ¨¡å¼ */
     p_cu->cu_info.directskip_wsm_idx = 0;
     p_cu->cu_info.directskip_mhp_idx = DS_NONE;
     p_cu->cu_info.dmh_mode = 0;
     cu_rdcost_inter(h, p_aec, p_cu, p_min_rdcost, best);
 
-    /* ¼ì²éDMHÄ£Ê½ */
+    /* æ£€æŸ¥DMHæ¨¡å¼ */
     if (h->i_type == SLICE_TYPE_F && h->param->enable_dmh && !h->lcu.bypass_all_dmh && b_check_dmh
         && !(i_level == B8X8_IN_BIT && mode != PRED_2Nx2N)) {  // disable 8x4 or 4x8 2MVs/PU mode
         int dmh_mode_candidate = 0;
@@ -2232,26 +2232,26 @@ void cu_check_inter_partition(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, int mode, in
 
         if (p_cu->cu_info.b8pdir[0] == PDIR_FWD && p_cu->cu_info.b8pdir[1] == PDIR_FWD &&
             p_cu->cu_info.b8pdir[2] == PDIR_FWD && p_cu->cu_info.b8pdir[3] == PDIR_FWD) {
-            /* MEÈ·¶¨µÄ×îÓÅµÄPUÔ¤²â·½Ïò¾ùÎªµ¥Ç°Ïò£¬´ËÊ±Ö»ĞèÒª¼ì²éºóĞøDMHÄ£Ê½ */
+            /* MEç¡®å®šçš„æœ€ä¼˜çš„PUé¢„æµ‹æ–¹å‘å‡ä¸ºå•å‰å‘ï¼Œæ­¤æ—¶åªéœ€è¦æ£€æŸ¥åç»­DMHæ¨¡å¼ */
             dmh_mode = 1;
-        } else { // DHP ¿ªÆôÇÒ²Î¿¼Ö¡ÊıÁ¿Îª2Ê±²ÅÓĞ¿ÉÄÜÉÏÊöÌõ¼ş²»³ÉÁ¢
-            /* ×îÓÅµÄPUÖĞ°üº¬Ë«Ç°Ïò¿é£¬´ËÊ±ĞèÒª¼ÆËãPU¾ùÎªµ¥Ç°ÏòÊ±µÄRDCosts£¬ÔÙ±éÀúºóĞøDMHÄ£Ê½ */
-            /* ´ËÊ±ĞèÖØĞÂME£¬Í¬Ê±µÚÒ»¸öPU²»ĞèÒªÖØĞÂËÑË÷ */
+        } else { // DHP å¼€å¯ä¸”å‚è€ƒå¸§æ•°é‡ä¸º2æ—¶æ‰æœ‰å¯èƒ½ä¸Šè¿°æ¡ä»¶ä¸æˆç«‹
+            /* æœ€ä¼˜çš„PUä¸­åŒ…å«åŒå‰å‘å—ï¼Œæ­¤æ—¶éœ€è¦è®¡ç®—PUå‡ä¸ºå•å‰å‘æ—¶çš„RDCostsï¼Œå†éå†åç»­DMHæ¨¡å¼ */
+            /* æ­¤æ—¶éœ€é‡æ–°MEï¼ŒåŒæ—¶ç¬¬ä¸€ä¸ªPUä¸éœ€è¦é‡æ–°æœç´¢ */
             cu_rdo_motion_estimation(h, p_cu, &h->me_state, -1);
             dmh_mode = 0;
         }
 
-        /* ×Ü¼Æ 2 * (DMH_MODE_NUM - 1) + 1 ¸öÄ£Ê½ */
+        /* æ€»è®¡ 2 * (DMH_MODE_NUM - 1) + 1 ä¸ªæ¨¡å¼ */
         max_dmh_mode = DMH_MODE_NUM + DMH_MODE_NUM - 1;
 
-        /* ¿ìËÙËã·¨£¬´ÓDMH¿ÉÑ¡Ä£Ê½ÖĞ¹À¼Æ×îĞèÒª×öµÄÄ£Ê½
-            * ±ÜÃâÒÀ´Î±éÀúËùÓĞÄ£Ê½¾Ş´óµÄ¼ÆËãÁ¿
+        /* å¿«é€Ÿç®—æ³•ï¼Œä»DMHå¯é€‰æ¨¡å¼ä¸­ä¼°è®¡æœ€éœ€è¦åšçš„æ¨¡å¼
+            * é¿å…ä¾æ¬¡éå†æ‰€æœ‰æ¨¡å¼å·¨å¤§çš„è®¡ç®—é‡
             */
         if (IS_ALG_ENABLE(OPT_DMH_CANDIDATE)) {
             dmh_mode_candidate = rdo_get_dmh_candidate(h, p_cu, *p_min_rdcost);
         }
 
-        // µ±Ä³¸öÄ£Ê½ÏÂµÄ²Ğ²îÎªÈ«ÁãÊ±£¬Ìø¹ıËùÓĞºóĞødmhÄ£Ê½
+        // å½“æŸä¸ªæ¨¡å¼ä¸‹çš„æ®‹å·®ä¸ºå…¨é›¶æ—¶ï¼Œè·³è¿‡æ‰€æœ‰åç»­dmhæ¨¡å¼
         for (; dmh_mode < max_dmh_mode && !h->lcu.bypass_all_dmh; dmh_mode++) {
             if (IS_ALG_ENABLE(OPT_DMH_CANDIDATE)) {
                 if (dmh_mode != 0 && dmh_mode != dmh_mode_candidate) {
@@ -2259,7 +2259,7 @@ void cu_check_inter_partition(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, int mode, in
                 }
             } else {
                 if (dmh_mode > (DMH_MODE_NUM - 1)) {
-                    if (best_dmh_mode != (dmh_mode - (DMH_MODE_NUM - 1))) { // Ö»ÔÚÍ¬·½ÏòÉÏÀ©Õ¹£¬ÆäËûÌø¹ı
+                    if (best_dmh_mode != (dmh_mode - (DMH_MODE_NUM - 1))) { // åªåœ¨åŒæ–¹å‘ä¸Šæ‰©å±•ï¼Œå…¶ä»–è·³è¿‡
                         continue;
                     }
                 }
@@ -2340,7 +2340,7 @@ typedef struct cu_skip_mc_t {
 } cu_skip_mc_t;
 
 /* ---------------------------------------------------------------------------
- * ¸üĞÂSkipµÄMV¼¯£¬ÒÔ¼ì²âµ±Ç°Ä£Ê½µÄMVÊÇ·ñ±»±éÀú¹ı
+ * æ›´æ–°Skipçš„MVé›†ï¼Œä»¥æ£€æµ‹å½“å‰æ¨¡å¼çš„MVæ˜¯å¦è¢«éå†è¿‡
  */
 static ALWAYS_INLINE
 int is_same_skip_mc_param(const cu_skip_mc_t *p_src1, const cu_skip_mc_t *p_src2)
@@ -2360,7 +2360,7 @@ int is_same_skip_mc_param(const cu_skip_mc_t *p_src1, const cu_skip_mc_t *p_src2
 }
 
 /* ---------------------------------------------------------------------------
- * ¸üĞÂSkipµÄMV¼¯£¬ÒÔ¼ì²âµ±Ç°Ä£Ê½µÄMVÊÇ·ñ±»±éÀú¹ı
+ * æ›´æ–°Skipçš„MVé›†ï¼Œä»¥æ£€æµ‹å½“å‰æ¨¡å¼çš„MVæ˜¯å¦è¢«éå†è¿‡
  */
 static
 int update_skip_mv_list(cu_skip_mc_t *p_skip_mvs, int i_num, cu_t *p_cu)
@@ -2389,7 +2389,7 @@ int update_skip_mv_list(cu_skip_mc_t *p_skip_mvs, int i_num, cu_t *p_cu)
 }
 
 /* ---------------------------------------------------------------------------
- * ¼ì²éSkip/DirectÄ£Ê½µÄ±àÂë´ú¼Û£¨ÒÀ¾İÔ¤²â²Ğ²î£©£¬Ñ¡È¡×îÓÅµÄSkip×ÓÄ£Ê½½øĞĞÒ»´ÎRDO
+ * æ£€æŸ¥Skip/Directæ¨¡å¼çš„ç¼–ç ä»£ä»·ï¼ˆä¾æ®é¢„æµ‹æ®‹å·®ï¼‰ï¼Œé€‰å–æœ€ä¼˜çš„Skipå­æ¨¡å¼è¿›è¡Œä¸€æ¬¡RDO
  */
 static
 void cu_check_skip_direct_rough2(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu_t *p_cu, rdcost_t *p_min_rdcost)
@@ -2423,7 +2423,7 @@ void cu_check_skip_direct_rough2(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
     p_cu->cu_info.directskip_mhp_idx = DS_NONE;
     p_cu->cu_info.directskip_wsm_idx = 0;
 
-    /* Ê±ÓòMVPÔ¤²âµÄÖ±½ÓËãRDCost£¬ÔÙ¸ú¿ÕÓòµÄ×îÓÅµÄRDCost×ö±È½Ï£¬ÔöÒæ 3%×óÓÒ£¬Ê±¼äÔö¼Ó 20%~30% */
+    /* æ—¶åŸŸMVPé¢„æµ‹çš„ç›´æ¥ç®—RDCostï¼Œå†è·Ÿç©ºåŸŸçš„æœ€ä¼˜çš„RDCoståšæ¯”è¾ƒï¼Œå¢ç›Š 3%å·¦å³ï¼Œæ—¶é—´å¢åŠ  20%~30% */
     cu_set_mvs_skip(h, p_cu);
     cu_rdcost_inter(h, p_aec, p_cu, p_min_rdcost, p_best);
 
@@ -2447,7 +2447,7 @@ void cu_check_skip_direct_rough2(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
         }
     }
 
-    /* 3, ËÄ¸öspatial directÀàĞÍ (single first, single second, dual first, dual second) */
+    /* 3, å››ä¸ªspatial directç±»å‹ (single first, single second, dual first, dual second) */
     if ((h->i_type == SLICE_TYPE_B || (h->i_type == SLICE_TYPE_F && h->param->enable_mhp_skip)) && (!h->fdec->rps.referd_by_others && h->i_type == SLICE_TYPE_B)) {
         p_cu->cu_info.directskip_wsm_idx = 0;
         for (i = 0; i < DS_MAX_NUM; i++) {
@@ -2469,7 +2469,7 @@ void cu_check_skip_direct_rough2(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
                 }
             }
         }
-        /* ÔÚdistortion×îĞ¡µÄÄ£Ê½ÖĞÑ¡ÔñÒ»¸ö×îÓÅµÄ */
+        /* åœ¨distortionæœ€å°çš„æ¨¡å¼ä¸­é€‰æ‹©ä¸€ä¸ªæœ€ä¼˜çš„ */
         p_cu->cu_info.directskip_mhp_idx = (int8_t)best_skip_mode;
         p_cu->cu_info.directskip_wsm_idx = (int8_t)best_weighted_skip;
         cu_set_mvs_skip(h, p_cu);
@@ -2497,7 +2497,7 @@ void cu_check_skip_direct_rough2(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
                         }
                     }
                 }
-                /* ÔÚdistortion×îĞ¡µÄÄ£Ê½ÖĞÑ¡ÔñÒ»¸ö×îÓÅµÄ */
+                /* åœ¨distortionæœ€å°çš„æ¨¡å¼ä¸­é€‰æ‹©ä¸€ä¸ªæœ€ä¼˜çš„ */
                 p_cu->cu_info.directskip_mhp_idx = (int8_t)best_skip_mode;
                 p_cu->cu_info.directskip_wsm_idx = (int8_t)best_weighted_skip;
                 cu_set_mvs_skip(h, p_cu);
@@ -2544,7 +2544,7 @@ void cu_check_skip_direct_rough2(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
                         }
                     }
                 }
-                /* ÔÚdistortion×îĞ¡µÄÄ£Ê½ÖĞÑ¡ÔñÒ»¸ö×îÓÅµÄ */
+                /* åœ¨distortionæœ€å°çš„æ¨¡å¼ä¸­é€‰æ‹©ä¸€ä¸ªæœ€ä¼˜çš„ */
                 p_cu->cu_info.directskip_mhp_idx = (int8_t)best_skip_mode;
                 p_cu->cu_info.directskip_wsm_idx = (int8_t)best_weighted_skip;
                 cu_set_mvs_skip(h, p_cu);
@@ -2603,7 +2603,7 @@ void cu_check_skip_direct_rough1(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
     p_cu->cu_info.directskip_mhp_idx = DS_NONE;
     p_cu->cu_info.directskip_wsm_idx = 0;
 
-    /* Ê±ÓòMVPÔ¤²âµÄÖ±½ÓËãRDCost£¬ÔÙ¸ú¿ÕÓòµÄ×îÓÅµÄRDCost×ö±È½Ï£¬ÔöÒæ 3%×óÓÒ£¬Ê±¼äÔö¼Ó 20%~30% */
+    /* æ—¶åŸŸMVPé¢„æµ‹çš„ç›´æ¥ç®—RDCostï¼Œå†è·Ÿç©ºåŸŸçš„æœ€ä¼˜çš„RDCoståšæ¯”è¾ƒï¼Œå¢ç›Š 3%å·¦å³ï¼Œæ—¶é—´å¢åŠ  20%~30% */
     cu_set_mvs_skip(h, p_cu);
     cu_init_pu_inter(h, &p_cu->cu_info, p_cu->cu_info.i_level, PRED_SKIP);
     num_mc_params += update_skip_mv_list(skip_mc_params, num_mc_params, p_cu);
@@ -2636,7 +2636,7 @@ void cu_check_skip_direct_rough1(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
         }
     }
 
-    /* 3, ËÄ¸öspatial directÀàĞÍ (single first, single second, dual first, dual second) */
+    /* 3, å››ä¸ªspatial directç±»å‹ (single first, single second, dual first, dual second) */
     if (h->i_type == SLICE_TYPE_B || (h->i_type == SLICE_TYPE_F && h->param->enable_mhp_skip)) {
         p_cu->cu_info.directskip_wsm_idx = 0;
         for (i = 0; i < DS_MAX_NUM; i++) {
@@ -2660,7 +2660,7 @@ void cu_check_skip_direct_rough1(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
         }
     }
 
-    /* ÔÚdistortion×îĞ¡µÄÄ£Ê½ÖĞÑ¡ÔñÒ»¸ö×îÓÅµÄ */
+    /* åœ¨distortionæœ€å°çš„æ¨¡å¼ä¸­é€‰æ‹©ä¸€ä¸ªæœ€ä¼˜çš„ */
     p_cu->cu_info.directskip_mhp_idx = (int8_t)best_skip_mode;
     p_cu->cu_info.directskip_wsm_idx = (int8_t)best_weighted_skip;
     cu_set_mvs_skip(h, p_cu);
@@ -2669,7 +2669,7 @@ void cu_check_skip_direct_rough1(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu
 
 
 /* ---------------------------------------------------------------------------
- * ¼ì²éSkip/DirectÄ£Ê½µÄ±àÂë´ú¼Û£¨RDO£©£¬Ñ¡È¡×îÓÅµÄSkip×ÓÄ£Ê½
+ * æ£€æŸ¥Skip/Directæ¨¡å¼çš„ç¼–ç ä»£ä»·ï¼ˆRDOï¼‰ï¼Œé€‰å–æœ€ä¼˜çš„Skipå­æ¨¡å¼
  */
 static
 void cu_check_skip_direct_fullrdo(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, cu_t *p_cu, rdcost_t *p_min_rdcost)
@@ -2690,7 +2690,7 @@ void cu_check_skip_direct_fullrdo(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, c
     p_cu->cu_info.directskip_mhp_idx = DS_NONE;
     p_cu->cu_info.directskip_wsm_idx = 0;
 
-    /* Ê±ÓòMVPÔ¤²âµÄÖ±½ÓËãRDCost£¬ÔÙ¸ú¿ÕÓòµÄ×îÓÅµÄRDCost×ö±È½Ï£¬ÔöÒæ 3%×óÓÒ£¬Ê±¼äÔö¼Ó 20%~30% */
+    /* æ—¶åŸŸMVPé¢„æµ‹çš„ç›´æ¥ç®—RDCostï¼Œå†è·Ÿç©ºåŸŸçš„æœ€ä¼˜çš„RDCoståšæ¯”è¾ƒï¼Œå¢ç›Š 3%å·¦å³ï¼Œæ—¶é—´å¢åŠ  20%~30% */
     cu_set_mvs_skip(h, p_cu);
     cu_rdcost_inter(h, p_aec, p_cu, p_min_rdcost, p_best);
 
@@ -2701,7 +2701,7 @@ void cu_check_skip_direct_fullrdo(xavs2_t *h, aec_t *p_aec, cu_info_t *p_best, c
         cu_rdcost_inter(h, p_aec, p_cu, p_min_rdcost, p_best);
     }
 
-    /* 3, ËÄ¸öspatial directÀàĞÍ (single first, single second, dual first, dual second) */
+    /* 3, å››ä¸ªspatial directç±»å‹ (single first, single second, dual first, dual second) */
     if (h->i_type == SLICE_TYPE_B || (h->i_type == SLICE_TYPE_F && h->param->enable_mhp_skip)) {
         p_cu->cu_info.directskip_wsm_idx = 0;
         for (i = 0; i < DS_MAX_NUM; i++) {
@@ -2997,11 +2997,11 @@ rdcost_t compress_cu_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
     //===== GET BEST MACROBLOCK MODE =====
     for (mode = PRED_I_2Nx2N; mode <= PRED_I_nx2N; mode++) {
         if (!(intra_modes & (1 << mode))) {
-            continue;           // Ö±½ÓÌø¹ı²»¿ÉÓÃÄ£Ê½
+            continue;           // ç›´æ¥è·³è¿‡ä¸å¯ç”¨æ¨¡å¼
         }
 
         if (IS_ALG_ENABLE(OPT_BYPASS_SDIP)) {
-            // ×îºóÒ»¸ö·Ç¶Ô³ÆÖ¡ÄÚÄ£Ê½µÄÌáÇ°Ìø¹ı
+            // æœ€åä¸€ä¸ªéå¯¹ç§°å¸§å†…æ¨¡å¼çš„æå‰è·³è¿‡
             if (sdip_early_bypass(h, p_layer, mode)) {
                 continue;
             }
@@ -3013,7 +3013,7 @@ rdcost_t compress_cu_intra(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         cu_check_intra(h, p_aec, p_cu, best, mode, &min_rdcost);
     }
 
-    /* ¼ì²é×îÓÅÄ£Ê½£¬´øRDOQ */
+    /* æ£€æŸ¥æœ€ä¼˜æ¨¡å¼ï¼Œå¸¦RDOQ */
     if (h->param->i_rdoq_level == RDOQ_CU_LEVEL && best->i_cbp > 0) {
         h->lcu.get_intra_dir_for_rdo_luma = rdo_get_pred_intra_luma_2nd_pass;
         h->lcu.b_enable_rdoq = 1;
@@ -3043,7 +3043,7 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
     cu_layer_t *p_layer  = cu_get_layer(h, p_cu->cu_info.i_level);
 
     /* -------------------------------------------------------------
-     * 1, ³õÊ¼»¯
+     * 1, åˆå§‹åŒ–
      */
     UNUSED_PARAMETER(cost_limit);
     h->lcu.get_intra_dir_for_rdo_luma = h->get_intra_candidates_luma;
@@ -3056,12 +3056,12 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
     }
 
     /* reset chroma intra predictor to default */
-    p_cu->cu_info.i_intra_mode_c = DC_PRED_C;   // @luofl£ºÇëÎğÒÆ³ı´ËĞĞ£¬·ñÔò»áµ¼ÖÂ²»Æ¥ÅäÎÊÌâ£»20170304 19:52:32
+    p_cu->cu_info.i_intra_mode_c = DC_PRED_C;   // @luoflï¼šè¯·å‹¿ç§»é™¤æ­¤è¡Œï¼Œå¦åˆ™ä¼šå¯¼è‡´ä¸åŒ¹é…é—®é¢˜ï¼›20170304 19:52:32
 
     /* -------------------------------------------------------------
-     * 2, ¼ì²éSkipºÍDirectÄ£Ê½
+     * 2, æ£€æŸ¥Skipå’ŒDirectæ¨¡å¼
      */
-    /* ¼ì²éËùÓĞSKIP/Direct×ÓÄ£Ê½ */
+    /* æ£€æŸ¥æ‰€æœ‰SKIP/Directå­æ¨¡å¼ */
     p_cu->cu_info.i_mode = PRED_SKIP;
 
     if (IS_ALG_ENABLE(OPT_ROUGH_SKIP_SEL) && h->skip_rough_improved) {
@@ -3087,15 +3087,15 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
 
 
     /* -------------------------------------------------------------
-     * 3, ·ÇSkip/DirectµÄÖ¡¼äÄ£Ê½
+     * 3, éSkip/Directçš„å¸§é—´æ¨¡å¼
      */
     for (mode = 1; mode < MAX_INTER_MODES; mode++) {
         if (!(avail_modes & (1 << mode))) {
-            continue;           // Ö±½ÓÌø¹ı²»¿ÉÓÃÄ£Ê½µÄ¾ö²ß
+            continue;           // ç›´æ¥è·³è¿‡ä¸å¯ç”¨æ¨¡å¼çš„å†³ç­–
         }
 
         /* -------------------------------------------------------------
-         * 3.1 ÓëSkip/DirectÄ£Ê½Ïà¹ØµÄ¿ìËÙÄ£Ê½¾ö²ßËã·¨·ÅÔÚ´Ë´¦
+         * 3.1 ä¸Skip/Directæ¨¡å¼ç›¸å…³çš„å¿«é€Ÿæ¨¡å¼å†³ç­–ç®—æ³•æ”¾åœ¨æ­¤å¤„
          */
 
 #if SAVE_CU_INFO
@@ -3107,8 +3107,8 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         }
 #endif
 
-        /* ¿ìËÙPU»®·ÖÄ£Ê½¾ö²ß£º
-         * Èç¹ûP2NxNÎ´»ñµÃ×îÓÅ£¬Ö±½ÓÌø¹ıÏàÍ¬»®·Ö·½ÏòµÄPRED_2NxnU/PRED_2NxnD; PNx2NÍ¬Àí */
+        /* å¿«é€ŸPUåˆ’åˆ†æ¨¡å¼å†³ç­–ï¼š
+         * å¦‚æœP2NxNæœªè·å¾—æœ€ä¼˜ï¼Œç›´æ¥è·³è¿‡ç›¸åŒåˆ’åˆ†æ–¹å‘çš„PRED_2NxnU/PRED_2NxnD; PNx2NåŒç† */
         if (IS_ALG_ENABLE(OPT_BYPASS_AMP) && i_level > B16X16_IN_BIT) {
             if ((mode == PRED_2NxnU || mode == PRED_2NxnD) && best->i_mode != PRED_2NxN) {
                 continue;
@@ -3119,7 +3119,7 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
 
 
         /* -------------------------------------------------------------
-         * 3.2, ³¢ÊÔ±àÂëµ±Ç°PU»®·ÖÄ£Ê½
+         * 3.2, å°è¯•ç¼–ç å½“å‰PUåˆ’åˆ†æ¨¡å¼
          */
         p_cu->cu_info.i_mode = (int8_t)mode;
         if (IS_ALG_ENABLE(OPT_ROUGH_PU_SEL) && mode == PRED_2Nx2N) {
@@ -3127,15 +3127,15 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
             cu_select_inter_partition(h, p_cu, i_level, avail_modes, &cur_best, &min_rdcost, b_dhp_enabled, b_check_dmh);
             mode = cur_best.i_mode;
             cu_copy_info(&p_cu->cu_info, &cur_best);
-            memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc_tmp, sizeof(p_cu->mc));  /* ¿½±´MVĞÅÏ¢ÓÃÓÚ²¹³¥ */
+            memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc_tmp, sizeof(p_cu->mc));  /* æ‹·è´MVä¿¡æ¯ç”¨äºè¡¥å¿ */
             cu_rdcost_inter(h, p_aec, p_cu, &min_rdcost, best);
-            avail_modes &= ~0xfe;   // ½ûÓÃµôÊ£ÓàÖ¡¼ä»®·ÖÄ£Ê½
+            avail_modes &= ~0xfe;   // ç¦ç”¨æ‰å‰©ä½™å¸§é—´åˆ’åˆ†æ¨¡å¼
         } else {
             cu_check_inter_partition(h, p_aec, p_cu, mode, i_level, best, &min_rdcost, b_dhp_enabled, b_check_dmh);
         }
 
         /* -------------------------------------------------------------
-         * 3.3, µ±Ç°ÆÕÍ¨PU»®·ÖÄ£Ê½±àÂëºóµÄ¿ìËÙ¾ö²ßËã·¨
+         * 3.3, å½“å‰æ™®é€šPUåˆ’åˆ†æ¨¡å¼ç¼–ç åçš„å¿«é€Ÿå†³ç­–ç®—æ³•
          */
 
         if (best->i_mode == mode) {
@@ -3165,29 +3165,29 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         }
     }
 
-    /* ×öµÚ¶ş²ãTU»®·Ö£¬Ñ¡³ö×îÓÅÄ£Ê½ */
+    /* åšç¬¬äºŒå±‚TUåˆ’åˆ†ï¼Œé€‰å‡ºæœ€ä¼˜æ¨¡å¼ */
     if (IS_ALG_ENABLE(OPT_TU_LEVEL_DEC) && best->i_cbp > 0) {
         h->enable_tu_2level = 1;
         mode = best->i_mode;
         cu_copy_info(&p_cu->cu_info, best);
-        memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc, sizeof(p_cu->mc));  /* ¿½±´MVĞÅÏ¢ÓÃÓÚ²¹³¥ */
+        memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc, sizeof(p_cu->mc));  /* æ‹·è´MVä¿¡æ¯ç”¨äºè¡¥å¿ */
         cu_rdcost_inter(h, p_aec, p_cu, &min_rdcost, best);
     }// end of checking inter PU partitions
 
-    /* Í¨¹ıÖ¡¼¶Ô¤·ÖÎöÅĞ¶¨£¬´ËÖ¡²»ĞèÒª×öÖ¡ÄÚÔ¤²âÊ±£¬Ìø¹ıºóĞøÖ¡ÄÚÄ£Ê½ */
+    /* é€šè¿‡å¸§çº§é¢„åˆ†æåˆ¤å®šï¼Œæ­¤å¸§ä¸éœ€è¦åšå¸§å†…é¢„æµ‹æ—¶ï¼Œè·³è¿‡åç»­å¸§å†…æ¨¡å¼ */
     if (!h->fenc->b_enable_intra) {
         b_bypass_intra = 1;
     }
 
     if (IS_ALG_ENABLE(OPT_BYPASS_INTRA_BPIC)) {
-        b_bypass_intra |= (h->i_type == SLICE_TYPE_B && best->i_cbp == 0);   // ½ûÓÃBÖ¡µÄÖ¡ÄÚÔ¤²âÄ£Ê½
+        b_bypass_intra |= (h->i_type == SLICE_TYPE_B && best->i_cbp == 0);   // ç¦ç”¨Bå¸§çš„å¸§å†…é¢„æµ‹æ¨¡å¼
     }
 
-    /* Ìõ¼ş½ûÓÃ²¿·ÖÖ¡ÄÚ»®·ÖÄ£Ê½ */
+    /* æ¡ä»¶ç¦ç”¨éƒ¨åˆ†å¸§å†…åˆ’åˆ†æ¨¡å¼ */
     if (IS_ALG_ENABLE(OPT_CMS_ETMD)) {
-        /* Ö¡¼äÄ£Ê½×öÍêÖ®ºó£¬Èô×îÓÅÄ£Ê½µÄCBPÎªÁã£¬Ôò²»ÔÙ±éÀúËùÓĞÖ¡ÄÚÔ¤²âÄ£Ê½ */
+        /* å¸§é—´æ¨¡å¼åšå®Œä¹‹åï¼Œè‹¥æœ€ä¼˜æ¨¡å¼çš„CBPä¸ºé›¶ï¼Œåˆ™ä¸å†éå†æ‰€æœ‰å¸§å†…é¢„æµ‹æ¨¡å¼ */
         b_bypass_intra |= ((best->i_cbp == 0) && (best->i_mode == 0));
-        /* ÒÀ¾İÖ¡¼ä×îÓÅ»®·ÖÄ£Ê½£¬É¸Ñ¡²»ĞèÒª±éÀúµÄÄ£Ê½ */
+        /* ä¾æ®å¸§é—´æœ€ä¼˜åˆ’åˆ†æ¨¡å¼ï¼Œç­›é€‰ä¸éœ€è¦éå†çš„æ¨¡å¼ */
         // if (IS_HOR_PU_PART(best->i_mode)) {
         //     avail_modes &= !(1 << PRED_I_nx2N);
         // } else if (IS_VER_PU_PART(best->i_mode)) {
@@ -3207,7 +3207,7 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         }
     }
 
-    /* Èôµ±Ç°×îĞ¡RDCostĞ¡ÓÚÁËÄ³¸öãĞÖµ£¬±íÃ÷Ö¡¼äÔ¤²âÄ£Ê½ÒÑ¾­ÄÜ¹»½ÏºÃµØÔ¤²â£¬´ËÊ±²»ÔÙ¼ÌĞø³¢ÊÔÖ¡ÄÚÄ£Ê½ */
+    /* è‹¥å½“å‰æœ€å°RDCostå°äºäº†æŸä¸ªé˜ˆå€¼ï¼Œè¡¨æ˜å¸§é—´é¢„æµ‹æ¨¡å¼å·²ç»èƒ½å¤Ÿè¾ƒå¥½åœ°é¢„æµ‹ï¼Œæ­¤æ—¶ä¸å†ç»§ç»­å°è¯•å¸§å†…æ¨¡å¼ */
     if (IS_ALG_ENABLE(OPT_FAST_INTRA_IN_INTER) && min_rdcost < h->thres_qsfd_cu[1][i_level - MIN_CU_SIZE_IN_BIT]) {
         b_bypass_intra = 1;
     }
@@ -3218,11 +3218,11 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
     if (!b_bypass_intra) {
         for (mode = PRED_I_2Nx2N; mode <= PRED_I_nx2N; mode++) {
             if (!(avail_modes & (1 << mode))) {
-                continue;           // Ö±½ÓÌø¹ı²»¿ÉÓÃÄ£Ê½µÄ¾ö²ß
+                continue;           // ç›´æ¥è·³è¿‡ä¸å¯ç”¨æ¨¡å¼çš„å†³ç­–
             }
 
             if (IS_ALG_ENABLE(OPT_BYPASS_SDIP)) {
-                // ×îºóÒ»¸ö·Ç¶Ô³ÆÖ¡ÄÚÄ£Ê½µÄÌáÇ°Ìø¹ı
+                // æœ€åä¸€ä¸ªéå¯¹ç§°å¸§å†…æ¨¡å¼çš„æå‰è·³è¿‡
                 if (sdip_early_bypass(h, p_layer, mode)) {
                     continue;
                 }
@@ -3242,7 +3242,7 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         }
     }
 
-    /* ¼ì²é×îÓÅÄ£Ê½,°üÀ¨TU»®·Ö»¹ÊÇ²»»®·ÖµÄÈ·¶¨£¬´øRDOQ */
+    /* æ£€æŸ¥æœ€ä¼˜æ¨¡å¼,åŒ…æ‹¬TUåˆ’åˆ†è¿˜æ˜¯ä¸åˆ’åˆ†çš„ç¡®å®šï¼Œå¸¦RDOQ */
     if (h->param->i_rdoq_level == RDOQ_CU_LEVEL&& best->i_cbp > 0) {
         if (IS_ALG_ENABLE(OPT_TU_LEVEL_DEC)) {
             h->enable_tu_2level = 3;
@@ -3259,7 +3259,7 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
                 cu_check_intra(h, p_aec, p_cu, best, mode, &min_rdcost);
             }
         } else {
-            memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc, sizeof(p_cu->mc));  /* ¿½±´MVĞÅÏ¢ÓÃÓÚ²¹³¥ */
+            memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc, sizeof(p_cu->mc));  /* æ‹·è´MVä¿¡æ¯ç”¨äºè¡¥å¿ */
             cu_rdcost_inter(h, p_aec, p_cu, &min_rdcost, best);
         }
     } else if (IS_ALG_ENABLE(OPT_BIT_EST_PSZT) && i_level >= 5 && (best->i_mode != PRED_SKIP || best->i_cbp != 0)) {
@@ -3272,7 +3272,7 @@ rdcost_t compress_cu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, cu_info_t *best
         if (IS_INTRA_MODE(mode)) {
             cu_check_intra(h, p_aec, p_cu, best, mode, &min_rdcost);
         } else {
-            memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc, sizeof(p_cu->mc));  /* ¿½±´MVĞÅÏ¢ÓÃÓÚ²¹³¥ */
+            memcpy(&p_cu->mc, &p_layer->cu_mode.best_mc, sizeof(p_cu->mc));  /* æ‹·è´MVä¿¡æ¯ç”¨äºè¡¥å¿ */
             cu_rdcost_inter(h, p_aec, p_cu, &min_rdcost, best);
         }
     }
@@ -3304,7 +3304,7 @@ int ctu_intra_depth_pred_mad(xavs2_t *h, int level, int pix_x, int pix_y)
  */
 
 /* ---------------------------------------------------------------------------
- * RDOPT³õÊ¼»¯Ê±£¬ÉèÖÃ²»Í¬Ö¡ºÍCU´óĞ¡¿ÉÓÃµÄÄ£Ê½£¬ºóĞøÖ±½Ó²é±í
+ * RDOPTåˆå§‹åŒ–æ—¶ï¼Œè®¾ç½®ä¸åŒå¸§å’ŒCUå¤§å°å¯ç”¨çš„æ¨¡å¼ï¼Œåç»­ç›´æ¥æŸ¥è¡¨
  */
 void xavs2_init_valid_mode_table(xavs2_t *h)
 {
@@ -3466,7 +3466,7 @@ rdcost_t compress_ctu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, int i_level, i
             b_split_ctu &= !is_ET_inter_recur(h, p_cu, best);
         }
 
-        /* µ±Ç°CUºÍÉÏÒ»²ãCUµÄ×îÓÅÄ£Ê½¾ùÎªSKIPÄ£Ê½£¬ÔòÌø¹ıÏÂ²ãCUµÄ»®·Ö @ÕÅÓñ»± */
+        /* å½“å‰CUå’Œä¸Šä¸€å±‚CUçš„æœ€ä¼˜æ¨¡å¼å‡ä¸ºSKIPæ¨¡å¼ï¼Œåˆ™è·³è¿‡ä¸‹å±‚CUçš„åˆ’åˆ† @å¼ ç‰æ§ */
         if (IS_ALG_ENABLE(OPT_CU_CSET) &&
             ((p_cu->i_size <= 16 && h->i_type == SLICE_TYPE_B) || (p_cu->i_size <= 32 && h->fdec->rps.referd_by_others == 0))) {
             cu_layer_t *p_ulayer = cu_get_layer(h, i_level + 1);
@@ -3524,7 +3524,7 @@ rdcost_t compress_ctu_inter(xavs2_t *h, aec_t *p_aec, cu_t *p_cu, int i_level, i
     if (IS_ALG_ENABLE(OPT_SUBCU_SPLIT)) {
         if ((p_cu->sub_cu[0] != NULL) && (p_cu->sub_cu[1] != NULL) && (p_cu->sub_cu[2] != NULL) && (p_cu->sub_cu[3] != NULL)) {
             if (((p_cu->sub_cu[0]->is_ctu_split + p_cu->sub_cu[1]->is_ctu_split + p_cu->sub_cu[2]->is_ctu_split + p_cu->sub_cu[3]->is_ctu_split) >= 3)) {
-                b_check_large_cu = FALSE;   // 1080p 20% ½ÚÊ¡£¬Ô¼1.7%ËğÊ§£¬preset 6£¬1080p
+                b_check_large_cu = FALSE;   // 1080p 20% èŠ‚çœï¼Œçº¦1.7%æŸå¤±ï¼Œpreset 6ï¼Œ1080p
             }
             /* else if (((!p_cu->sub_cu[0]->is_ctu_split) && ((p_cu->sub_cu[0]->cu_info.i_mode == PRED_SKIP || p_cu->sub_cu[0]->cu_info.i_mode == PRED_2Nx2N) && (p_cu->sub_cu[0]->cu_info.i_cbp == 0)))
             && ((!p_cu->sub_cu[1]->is_ctu_split) && ((p_cu->sub_cu[1]->cu_info.i_mode == PRED_SKIP || p_cu->sub_cu[1]->cu_info.i_mode == PRED_2Nx2N) && (p_cu->sub_cu[1]->cu_info.i_cbp == 0)))
