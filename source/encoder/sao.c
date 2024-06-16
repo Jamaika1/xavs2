@@ -65,7 +65,7 @@ static ALWAYS_INLINE void sao_init_stat_data(SAOStatData *p_stats)
 /* ---------------------------------------------------------------------------
  */
 static
-void sao_get_stat_block_EO_0(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
+void sao_get_stat_block_EO_0(xavs2_t *h, xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
                              SAOStatData *p_stats, sao_region_t *p_region, int compIdx)
 {
     int start_x, end_x, start_y, end_y;
@@ -111,7 +111,7 @@ void sao_get_stat_block_EO_0(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
 /* ---------------------------------------------------------------------------
 */
 static
-void sao_get_stat_block_EO_90(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
+void sao_get_stat_block_EO_90(xavs2_t *h, xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
                               SAOStatData *p_stats, sao_region_t *p_region, int compIdx)
 {
     int start_x, end_x, start_y, end_y;
@@ -155,7 +155,7 @@ void sao_get_stat_block_EO_90(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
 /* ---------------------------------------------------------------------------
 */
 static
-void sao_get_stat_block_EO_135(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
+void sao_get_stat_block_EO_135(xavs2_t *h, xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
                                SAOStatData *p_stats, sao_region_t *p_region, int compIdx)
 {
     int start_x_r0, end_x_r0, start_x_r, end_x_r, start_x_rn, end_x_rn;
@@ -237,7 +237,7 @@ void sao_get_stat_block_EO_135(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
 /* ---------------------------------------------------------------------------
 */
 static
-void sao_get_stat_block_EO_45(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
+void sao_get_stat_block_EO_45(xavs2_t *h, xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
                               SAOStatData *p_stats, sao_region_t *p_region, int compIdx)
 {
     int start_x_r0, end_x_r0, start_x_r, end_x_r, start_x_rn, end_x_rn;
@@ -318,7 +318,7 @@ void sao_get_stat_block_EO_45(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
 /* ---------------------------------------------------------------------------
 */
 static
-void sao_get_stat_block_BO(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
+void sao_get_stat_block_BO(xavs2_t *h, xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
                            SAOStatData *p_stats, sao_region_t *p_region, int compIdx)
 {
     int start_x, end_x, start_y, end_y;
@@ -343,7 +343,7 @@ void sao_get_stat_block_BO(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
 
     p_org_iter = p_org;
     p_rec_iter = p_rec;
-    band_shift = (g_bit_depth - NUM_SAO_BO_CLASSES_IN_BIT);
+    band_shift = (h->param->input_sample_bit_depth - NUM_SAO_BO_CLASSES_IN_BIT);
     start_x = 0;
     end_x = width;
     start_y = 0;
@@ -361,7 +361,7 @@ void sao_get_stat_block_BO(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
 
 /* ---------------------------------------------------------------------------
 */
-typedef void(*sao_pf)(xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
+typedef void(*sao_pf)(xavs2_t *h, xavs2_frame_t *frm_rec, xavs2_frame_t *frm_org,
                       SAOStatData *stat_datas, sao_region_t *p_region, int compIdx);
 
 sao_pf gf_sao_stat[5] = {
@@ -517,7 +517,7 @@ static void find_offset(int typeIdc, SAOStatData *p_stat, SAOBlkParam *p_param, 
         start_band2 = XAVS2_MAX(best_start_band1, best_start_band2);
         delta_band12 = (start_band2 - start_band1);
         if (delta_band12 > (NUM_SAO_BO_CLASSES >> 1)) {
-            p_param->deltaBand = 32 - delta_band12;  // TODO: ÕâÀïÓ¦¸ÃÊÇ (32 + delta_band12)
+            p_param->deltaBand = 32 - delta_band12;  // TODO: è¿™é‡Œåº”è¯¥æ˜¯ (32 + delta_band12)
             p_param->startBand = start_band2;
         } else {
             p_param->deltaBand = delta_band12;
@@ -907,7 +907,7 @@ static void sao_get_neighbor_avail(xavs2_t *h, sao_region_t *p_avail, int i_lcu_
     int width_c = width >> 1;
     int height_c = height >> 1;
 
-    /* ¿ÉÓÃÐÔ»ñÈ¡ */
+    /* å¯ç”¨æ€§èŽ·å– */
     p_avail->b_left = i_lcu_x != 0;
     p_avail->b_top  = i_lcu_y != 0;
     p_avail->b_right = (i_lcu_x < h->i_width_in_lcu - 1);
@@ -928,7 +928,7 @@ static void sao_get_neighbor_avail(xavs2_t *h, sao_region_t *p_avail, int i_lcu_
     p_avail->b_down_left = p_avail->b_down && p_avail->b_left;
     p_avail->b_right_down = p_avail->b_down && p_avail->b_right;
 
-    /* ÂË²¨ÇøÓòµÄµ÷Õû */
+    /* æ»¤æ³¢åŒºåŸŸçš„è°ƒæ•´ */
     if (!p_avail->b_right) {
         width += SAO_SHIFT_PIX_NUM;
         width_c += SAO_SHIFT_PIX_NUM;
@@ -1144,7 +1144,7 @@ void sao_get_lcu_param_after_deblock(xavs2_t *h, aec_t *p_aec, int i_lcu_x, int 
             for (type = 0; type < 5; type++) {
                 if (!h->param->b_fast_sao || tab_sao_check_mode_fast[compIdx][type]) {
                     if (((!IS_ALG_ENABLE(OPT_FAST_SAO)) || (!(!h->fdec->rps.referd_by_others && h->i_type == SLICE_TYPE_B)))) {
-                        gf_sao_stat[type](h->img_sao, h->fenc, &h->sao_stat_datas[i_lcu_xy][compIdx][type], &region, compIdx);
+                        gf_sao_stat[type](h, h->img_sao, h->fenc, &h->sao_stat_datas[i_lcu_xy][compIdx][type], &region, compIdx);
                     }
                     // SAOStatData tmp;
                     // memset(&tmp, 0, sizeof(tmp));
@@ -1193,7 +1193,7 @@ void sao_filter_lcu(xavs2_t *h, SAOBlkParam blk_param[NUM_SAO_COMPONENTS], int l
         avail[5] = region.b_top_right;
         avail[6] = region.b_down_left;
         avail[7] = region.b_right_down;
-        g_funcs.sao_block(dst, i_dst, src, i_src,
+        g_funcs.sao_block(h, dst, i_dst, src, i_src,
                           region.width[compIdx], region.height[compIdx],
                           avail, &p_param[compIdx]);
 
