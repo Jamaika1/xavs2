@@ -49,10 +49,12 @@
 /* ---------------------------------------------------------------------------
  */
 static
-void alf_filter_block1(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+void alf_filter_block1(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                        int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                        int *alf_coeff, int b_top_avail, int b_down_avail)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     const int pel_add  = 1 << (ALF_NUM_BIT_SHIFT - 1);
     int startPos = b_top_avail  ? (lcu_pix_y - 4) : lcu_pix_y;
     int endPos   = b_down_avail ? (lcu_pix_y + lcu_height - 4) : (lcu_pix_y + lcu_height);
@@ -110,15 +112,18 @@ void alf_filter_block1(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
         p_src += i_src;
         p_dst += i_dst;
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
  */
 static
-void alf_filter_block2(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+void alf_filter_block2(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                        int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                        int *alf_coeff, int b_top_avail, int b_down_avail)
 {
+#define XAVS2_CLIP1(a)        ((a) > ((1 << h->param->input_sample_bit_depth) - 1) ? ((1 << h->param->input_sample_bit_depth) - 1) : ((a) < 0 ? 0 : (a)))
+
     pel_t *p_src1, *p_src2, *p_src3, *p_src4, *p_src5, *p_src6;
     int pixelInt;
     int startPos = b_top_avail ? (lcu_pix_y - 4) : lcu_pix_y;
@@ -227,6 +232,7 @@ void alf_filter_block2(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
         pixelInt = (int)((pixelInt + 32) >> 6);
         p_dst[0] = (pel_t)XAVS2_CLIP1(pixelInt);
     }
+#undef XAVS2_CLIP1
 }
 
 /* ---------------------------------------------------------------------------
