@@ -124,7 +124,7 @@ static const char tab_auc_dir_dxdy[2][NUM_INTRA_MODE][2] = {
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ver_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ver_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     pel_t *p_src = src + 1;
     int y;
@@ -137,7 +137,7 @@ static void intra_pred_ver_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, in
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_hor_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_hor_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     pel_t *p_src = src - 1;
 
@@ -150,7 +150,7 @@ static void intra_pred_hor_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, in
 /* ---------------------------------------------------------------------------
  * NOTE: dir_mode = (bAboveAvail << 8) + (bLeftAvail)
  */
-static void intra_pred_dc_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_dc_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int avail_top  = dir_mode >> 8;
     int avail_left = dir_mode & 0xFF;
@@ -178,7 +178,7 @@ static void intra_pred_dc_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int
     } else if (avail_top) {
         dc_value = (sum_above + (bsx >> 1)) >> xavs2_log2u(bsx);
     } else {
-        dc_value = g_dc_value;
+        dc_value = ((1 << h->param->input_sample_bit_depth) >> 1);
     }
 
     for (y = 0; y < bsy; y++) {
@@ -189,7 +189,7 @@ static void intra_pred_dc_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_plane_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_plane_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     /*                 size in bits:       2   3   4   5   6 */
     static const int ib_mult [8] = { 0, 0, 13, 17,  5, 11, 23, 0 };
@@ -200,7 +200,7 @@ static void intra_pred_plane_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
     const int shift_v = ib_shift[tab_log2size[bsy]];
     const int W2   = bsx >> 1;              /* half block width */
     const int H2   = bsy >> 1;              /* half block height */
-    const int vmax = (1 << g_bit_depth) - 1;  /* max value of pixel */
+    const int vmax = (1 << h->param->input_sample_bit_depth) - 1;  /* max value of pixel */
     int H = 0;
     int V = 0;
     int a, b, c;
@@ -235,7 +235,7 @@ static void intra_pred_plane_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_bilinear_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_bilinear_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     itr_t pTop[MAX_CU_SIZE], pLeft[MAX_CU_SIZE], pT[MAX_CU_SIZE], pL[MAX_CU_SIZE], wy[MAX_CU_SIZE];
     int shift_x  = tab_log2size[bsx];
@@ -243,7 +243,7 @@ static void intra_pred_bilinear_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
     int shift    = XAVS2_MIN(shift_x, shift_y);
     int shift_xy = shift_x + shift_y + 1;
     int offset   = 1 << (shift_x + shift_y);
-    int vmax     = max_pel_value;    // max value of pixel
+    int vmax     = (1 << h->param->input_sample_bit_depth) - 1;;    // max value of pixel
     int a, b, c, t, wxy, temp;
     int predx, val;
     int x, y;
@@ -307,7 +307,7 @@ static ALWAYS_INLINE int get_context_pixel(int dir_mode, int xy_flag, int temp_d
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int f0, f1, f2, f3;
     int i, j;
@@ -333,7 +333,7 @@ static void intra_pred_ang_x_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int offsets[64];
     int xsteps[64];
@@ -360,7 +360,7 @@ static void intra_pred_ang_y_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_xy_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(int xoffsets[64]);
     ALIGN16(int xsteps[64]);
@@ -398,7 +398,7 @@ static void intra_pred_ang_xy_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_3_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_3_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[(64 + 176) << 2]);
     int line_size = bsx + (bsy >> 2) * 11 - 1;
@@ -432,7 +432,7 @@ static void intra_pred_ang_x_3_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_4_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_4_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 128]);
     int line_size = bsx + ((bsy - 1) << 1);
@@ -452,7 +452,7 @@ static void intra_pred_ang_x_4_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_5_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_5_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -605,7 +605,7 @@ static void intra_pred_ang_x_5_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_6_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_6_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 64]);
     int line_size = bsx + bsy - 1;
@@ -623,7 +623,7 @@ static void intra_pred_ang_x_6_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_7_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_7_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     pel_t *dst1 = dst;
@@ -653,13 +653,13 @@ static void intra_pred_ang_x_7_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
             dst8[i] = (pel_t)((src[5] *  3 + src[6] * 19 + src[7] * 29 + src[8] * 13 + 32) >> 6);
         }
     } else {
-        intra_pred_ang_x_c(src, dst, i_dst, dir_mode, bsx, bsy);
+        intra_pred_ang_x_c(h, src, dst, i_dst, dir_mode, bsx, bsy);
     }
 }
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_8_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_8_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[2 * (64 + 32)]);
     int line_size = bsx + (bsy >> 1) - 1;
@@ -685,10 +685,10 @@ static void intra_pred_ang_x_8_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_9_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_9_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     if (bsy > 8) {
-        intra_pred_ang_x_c(src, dst, i_dst, dir_mode, bsx, bsy);
+        intra_pred_ang_x_c(h, src, dst, i_dst, dir_mode, bsx, bsy);
         /*
         ALIGN16(pel_t first_line[(64 + 32) * 11]);
         int line_size = bsx + (bsy * 93 >> 8) - 1;
@@ -832,7 +832,7 @@ static void intra_pred_ang_x_9_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_10_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_10_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     pel_t *dst1 = dst;
     pel_t *dst2 = dst1 + i_dst;
@@ -882,7 +882,7 @@ static void intra_pred_ang_x_10_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_x_11_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_x_11_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     if (bsy > 8) {
@@ -961,7 +961,7 @@ static void intra_pred_ang_x_11_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_25_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_25_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -1010,7 +1010,7 @@ static void intra_pred_ang_y_25_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_26_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_26_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -1043,11 +1043,11 @@ static void intra_pred_ang_y_26_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_27_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_27_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     if (bsx > 8) {
-        intra_pred_ang_y_c(src, dst, i_dst, dir_mode, bsx, bsy);
+        intra_pred_ang_y_c(h, src, dst, i_dst, dir_mode, bsx, bsy);
     } else if (bsx == 8) {
         for (i = 0; i < bsy; i++, src--) {
             dst[0] = (pel_t)((21 * src[0] +  53 * src[-1] + 43 * src[-2] + 11 * src[-3] + 64) >> 7);
@@ -1074,7 +1074,7 @@ static void intra_pred_ang_y_27_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_28_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_28_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 128]);
     int line_size = bsx + ((bsy - 1) << 1);
@@ -1094,11 +1094,11 @@ static void intra_pred_ang_y_28_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_29_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_29_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     if (bsx > 8) {
-        intra_pred_ang_y_c(src, dst, i_dst, dir_mode, bsx, bsy);
+        intra_pred_ang_y_c(h, src, dst, i_dst, dir_mode, bsx, bsy);
     } else if (bsx == 8) {
         for (i = 0; i < bsy; i++, src--) {
             dst[0] = (pel_t)((src[0] * 9 + src[-1] * 41 + src[-2] * 55 + src[-3] * 23 + 64) >> 7);
@@ -1125,7 +1125,7 @@ static void intra_pred_ang_y_29_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_30_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_30_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 64]);
     int line_size = bsx + bsy - 1;
@@ -1144,7 +1144,7 @@ static void intra_pred_ang_y_30_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_31_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_31_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t dst_tran[MAX_CU_SIZE * MAX_CU_SIZE]);
     ALIGN16(pel_t src_tran[MAX_CU_SIZE << 3]);
@@ -1155,7 +1155,7 @@ static void intra_pred_ang_y_31_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
         for (i = 0; i < (bsy + bsx * 11 / 8 + 3); i++) {
             src_tran[i] = src[-i];
         }
-        intra_pred_ang_x_5_c(src_tran, dst_tran, bsy, 5, bsy, bsx);
+        intra_pred_ang_x_5_c(h, src_tran, dst_tran, bsy, 5, bsy, bsx);
         for (i = 0; i < bsy; i++) {
             for (int j = 0; j < bsx; j++) {
                 dst[j + i_dst * i] = dst_tran[i + bsy * j];
@@ -1187,7 +1187,7 @@ static void intra_pred_ang_y_31_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_y_32_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_y_32_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[2 * (32 + 64)]);
     int line_size = (bsy >> 1) + bsx - 1;
@@ -1215,7 +1215,7 @@ static void intra_pred_ang_y_32_c(pel_t *src, pel_t *dst, int i_dst, int dir_mod
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_xy_13_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_13_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     if (bsy > 8) {
@@ -1320,7 +1320,7 @@ static void intra_pred_ang_xy_13_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
         }
     }
 }
-static void intra_pred_ang_xy_14_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_14_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -1384,7 +1384,7 @@ static void intra_pred_ang_xy_14_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_xy_16_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_16_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[2 * (64 + 32)]);
     int line_size = bsx + (bsy >> 1) - 1;
@@ -1421,7 +1421,7 @@ static void intra_pred_ang_xy_16_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_xy_18_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_18_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 64]);
     int line_size = bsx + bsy - 1;
@@ -1442,7 +1442,7 @@ static void intra_pred_ang_xy_18_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_xy_20_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_20_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 128]);
     int left_size = ((bsy - 1) << 1) + 1;
@@ -1471,7 +1471,7 @@ static void intra_pred_ang_xy_20_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
 
 /* ---------------------------------------------------------------------------
  */
-static void intra_pred_ang_xy_22_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_22_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -1514,7 +1514,7 @@ static void intra_pred_ang_xy_22_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
 
 /* ---------------------------------------------------------------------------
 */
-static void intra_pred_ang_xy_23_c(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+static void intra_pred_ang_xy_23_c(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -1575,15 +1575,15 @@ static void intra_pred_ang_xy_23_c(pel_t *src, pel_t *dst, int i_dst, int dir_mo
 
 /* ---------------------------------------------------------------------------
  * fill reference samples for intra prediction
- * LCUÄÚÔÚÉÏ±ß½çµÄPU
+ * LCUå†…åœ¨ä¸Šè¾¹ç•Œçš„PU
  */
 static
-void fill_reference_samples_0_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_reference_samples_0_c(xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
     int num_padding = 0;
 
     /* fill default value */
-    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], g_dc_value, ((bsy + bsx) << 1) + 1);
+    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], ((1 << h->param->input_sample_bit_depth) >> 1), ((bsy + bsx) << 1) + 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -1640,16 +1640,16 @@ void fill_reference_samples_0_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
 
 /* ---------------------------------------------------------------------------
  * fill reference samples for intra prediction
- * LCUÄÚÔÚÉÏ±ß½çµÄPU
+ * LCUå†…åœ¨ä¸Šè¾¹ç•Œçš„PU
  */
 static
-void fill_reference_samples_x_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_reference_samples_x_c(xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
     const pel_t *pL = pTL + i_TL;
     int num_padding = 0;
 
     /* fill default value */
-    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], g_dc_value, ((bsy + bsx) << 1) + 1);
+    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], ((1 << h->param->input_sample_bit_depth) >> 1), ((bsy + bsx) << 1) + 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -1717,16 +1717,16 @@ void fill_reference_samples_x_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
 
 /* ---------------------------------------------------------------------------
  * fill reference samples for intra prediction
- * LCUÄÚÔÚ×ó±ß½çÉÏµÄPU
+ * LCUå†…åœ¨å·¦è¾¹ç•Œä¸Šçš„PU
  */
 static
-void fill_reference_samples_y_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_reference_samples_y_c(xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
     const pel_t *pT = pTL + 1;
     int num_padding = 0;
 
     /* fill default value */
-    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], g_dc_value, ((bsy + bsx) << 1) + 1);
+    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], ((1 << h->param->input_sample_bit_depth) >> 1), ((bsy + bsx) << 1) + 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -1783,17 +1783,17 @@ void fill_reference_samples_y_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
 
 /* ---------------------------------------------------------------------------
  * fill reference samples for intra prediction
- * LCUÄÚ²»ÔÚ±ß½çÉÏµÄPU
+ * LCUå†…ä¸åœ¨è¾¹ç•Œä¸Šçš„PU
  */
 static
-void fill_reference_samples_xy_c(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_reference_samples_xy_c(xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
     const pel_t *pT = pTL + 1;
     const pel_t *pL = pTL + i_TL;
     int num_padding = 0;
 
     /* fill default value */
-    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], g_dc_value, ((bsy + bsx) << 1) + 1);
+    g_funcs.mem_repeat_p(&EP[-(bsy << 1)], ((1 << h->param->input_sample_bit_depth) >> 1), ((bsy + bsx) << 1) + 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -1925,7 +1925,7 @@ void xavs2_intra_pred_init(uint32_t cpuid, intrinsic_func_t *pf)
     ipred[INTRA_ANG_Y_31]  = intra_pred_ang_y_31_c;
     ipred[INTRA_ANG_Y_32]  = intra_pred_ang_y_32_c;
 
-    // TODO: 8bitÇé¿öÏÂ½Ç¶È7¡¢9¡¢11ÐÔÄÜ²»Ò»ÖÂ   20170716
+    // TODO: 8bitæƒ…å†µä¸‹è§’åº¦7ã€9ã€11æ€§èƒ½ä¸ä¸€è‡´   20170716
 #if HAVE_MMX
     if (cpuid & XAVS2_CPU_SSE42) {
         ipred[DC_PRED        ] = intra_pred_dc_sse128;
@@ -1961,6 +1961,7 @@ void xavs2_intra_pred_init(uint32_t cpuid, intrinsic_func_t *pf)
         pf->fill_edge_f[3] = fill_edge_samples_xy_sse128;
     }
 
+#if defined(__AVX2__)
     /* 8/10bit assemble*/
     if (cpuid & XAVS2_CPU_AVX2) {
         ipred[DC_PRED        ] = intra_pred_dc_avx;
@@ -1996,6 +1997,7 @@ void xavs2_intra_pred_init(uint32_t cpuid, intrinsic_func_t *pf)
         ipred[INTRA_ANG_Y_32 ] = intra_pred_ang_y_32_avx;
 
     }
+#endif
 #endif //if HAVE_MMX
 #undef ANG_X_OFFSET
 #undef ANG_XY_OFFSET
