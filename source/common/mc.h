@@ -44,16 +44,16 @@
  */
 
 /* ---------------------------------------------------------------------------
- * img_size: ÕûÏñËØ¾«¶ÈµÄÍ¼Ïñ ¿í¶È»ò¸ß¶È £¨ÕûÏñËØ¾«¶È£©
- * blk_size: µ±Ç°Ô¤²â¿éµÄ ¿í¶È»ò¸ß¶È     £¨ÕûÏñËØ¾«¶È£©
- * blk_pos:  µ±Ç°¿éÔÚÍ¼ÏñÖĞµÄ x/y ×ø±ê   £¨ÕûÏñËØ¾«¶È£©
- * mv     :  MV µÄ x/y ·ÖÁ¿             £¨1/4ÏñËØ¾«¶È£©
+ * img_size: æ•´åƒç´ ç²¾åº¦çš„å›¾åƒ å®½åº¦æˆ–é«˜åº¦ ï¼ˆæ•´åƒç´ ç²¾åº¦ï¼‰
+ * blk_size: å½“å‰é¢„æµ‹å—çš„ å®½åº¦æˆ–é«˜åº¦     ï¼ˆæ•´åƒç´ ç²¾åº¦ï¼‰
+ * blk_pos:  å½“å‰å—åœ¨å›¾åƒä¸­çš„ x/y åæ ‡   ï¼ˆæ•´åƒç´ ç²¾åº¦ï¼‰
+ * mv     :  MV çš„ x/y åˆ†é‡             ï¼ˆ1/4åƒç´ ç²¾åº¦ï¼‰
  */
 static INLINE
 int cu_get_mc_pos(int img_size, int blk_size, int blk_pos, int mv)
 {
-    int imv = mv >> 2;  // MVµÄÕûÏñËØ¾«¶È
-    int fmv = mv & 7;   // MVµÄ·ÖÏñËØ¾«¶È²¿·Ö£¬±£Áôµ½ 1/8 ¾«¶È
+    int imv = mv >> 2;  // MVçš„æ•´åƒç´ ç²¾åº¦
+    int fmv = mv & 7;   // MVçš„åˆ†åƒç´ ç²¾åº¦éƒ¨åˆ†ï¼Œä¿ç•™åˆ° 1/8 ç²¾åº¦
 
     if (blk_pos + imv < -blk_size - 8) {
         return ((-blk_size - 8) << 2) + (fmv);
@@ -69,7 +69,7 @@ int cu_get_mc_pos(int img_size, int blk_size, int blk_pos, int mv)
 static ALWAYS_INLINE
 void get_mv_for_mc(xavs2_t *h, mv_t *mv, int pic_pix_x, int pic_pix_y, int blk_w, int blk_h)
 {
-    // WARNING: ÔÚÍ¼Ïñ·Ö±æÂÊÎª 4K ¼°ÒÔÏÂÊ±£¬¾«¶È×ã¹»£»8K Ê±²»¹»ÓÃ
+    // WARNING: åœ¨å›¾åƒåˆ†è¾¨ç‡ä¸º 4K åŠä»¥ä¸‹æ—¶ï¼Œç²¾åº¦è¶³å¤Ÿï¼›8K æ—¶ä¸å¤Ÿç”¨
     mv->x = (int16_t)cu_get_mc_pos(h->i_width,  blk_w, pic_pix_x, mv->x);
     mv->y = (int16_t)cu_get_mc_pos(h->i_height, blk_h, pic_pix_y, mv->y);
 }
@@ -86,12 +86,12 @@ void interpolate_lcu_row(xavs2_t *h, xavs2_frame_t* frm, int i_lcu_y);
 void interpolate_sample_rows(xavs2_t *h, xavs2_frame_t* frm, int start_y, int height, int b_start, int b_end);
 
 #define mc_luma FPFX(mc_luma)
-void mc_luma  (pel_t *p_pred, int i_pred,
+void mc_luma  (xavs2_t *h, pel_t *p_pred, int i_pred,
                int pic_pix_x, int pic_pix_y, int width, int height,
                const xavs2_frame_t *p_ref_frm);
 
 #define mc_chroma FPFX(mc_chroma)
-void mc_chroma(pel_t *p_pred_u, pel_t *p_pred_v, int i_pred,
+void mc_chroma(xavs2_t *h, pel_t *p_pred_u, pel_t *p_pred_v, int i_pred,
                int pix_quad_x, int pix_quad_y, int width, int height,
                const xavs2_frame_t *p_ref_frm);
 
