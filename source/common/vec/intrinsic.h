@@ -47,7 +47,7 @@
 #define M128_I16(mx, idx)  _mm_extract_epi16(mx, idx)
 
 
-#if _MSC_VER // 解决vs下immintrin.h中没有定义这些函数的问题
+#if _MSC_VER // 瑙ｅ喅vs涓媔mmintrin.h涓病鏈夊畾涔夎繖浜涘嚱鏁扮殑闂
 #define _mm256_extract_epi64(a, i) (a.m256i_i64[i])
 #define _mm256_extract_epi32(a, i) (a.m256i_i32[i])
 #define _mm256_extract_epi16(a, i) (a.m256i_i16[i])
@@ -61,7 +61,7 @@
 #define _mm256_insert_epi16(a, value, index) (a.m256i_i16[index] = value)
 #define _mm256_insert_epi8 (a, value, index) (a.m256i_i8 [index] = value)
 #else
-// 添加部分gcc中缺少的avx函数定义
+// 娣诲姞閮ㄥ垎gcc涓己灏戠殑avx鍑芥暟瀹氫箟
 #define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) \
             _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
 #define _mm256_loadu2_m128i(/* __m128i const* */ hiaddr, \
@@ -111,12 +111,14 @@ void intpl_luma_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int wid
 #define intpl_luma_ext_sse128 FPFX(intpl_luma_ext_sse128)
 void intpl_luma_ext_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff);
 
+#if defined(__AVX2__)
 #define intpl_luma_hor_avx2 FPFX(intpl_luma_hor_avx2)
 void intpl_luma_hor_avx2(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, int8_t const *coeff);
 #define intpl_luma_ver_avx2 FPFX(intpl_luma_ver_avx2)
 void intpl_luma_ver_avx2(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff);
 #define intpl_luma_ext_avx2 FPFX(intpl_luma_ext_avx2)
 void intpl_luma_ext_avx2(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff);
+#endif
 
 #define intpl_luma_hor_x3_sse128 FPFX(intpl_luma_hor_x3_sse128)
 void intpl_luma_hor_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
@@ -132,6 +134,7 @@ void intpl_chroma_block_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src,
 #define intpl_chroma_block_ext_sse128 FPFX(intpl_chroma_block_ext_sse128)
 void intpl_chroma_block_ext_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v);
 
+#if defined(__AVX2__)
 #define intpl_luma_block_hor_avx2 FPFX(intpl_luma_block_hor_avx2)
 void intpl_luma_block_hor_avx2(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_luma_block_ver_avx2 FPFX(intpl_luma_block_ver_avx2)
@@ -152,6 +155,7 @@ void intpl_luma_hor_x3_avx2(pel_t *const dst[3], int i_dst, mct_t *const tmp[3],
 void intpl_luma_ver_x3_avx2(pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
 #define intpl_luma_ext_x3_avx2 FPFX(intpl_luma_ext_x3_avx2)
 void intpl_luma_ext_x3_avx2(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff);
+#endif
 
 /* memory operation */
 #define cpy_pel_I420_to_uchar_YUY2_sse128 FPFX(cpy_pel_I420_to_uchar_YUY2_sse128)
@@ -160,12 +164,13 @@ void cpy_pel_I420_to_uchar_YUY2_sse128(const pel_t *srcy, const pel_t *srcu, con
 void add_pel_clip_sse128(const pel_t *src1, int i_src1, const int16_t *src2, int i_src2, pel_t *dst, int i_dst, int width, int height, int bit_depth);
 #define xavs2_pixel_average_sse128 FPFX(pixel_average_sse128)
 void xavs2_pixel_average_sse128(pel_t *dst, int i_dst, pel_t *src1, int i_src1, pel_t *src2, int i_src2, int width, int height);
-#define xavs2_pixel_average_avx FPFX(pixel_average_avx)
-void xavs2_pixel_average_avx   (pel_t *dst, int i_dst, pel_t *src1, int i_src1, pel_t *src2, int i_src2, int width, int height);
 #define padding_rows_sse128 FPFX(padding_rows_sse128)
 void padding_rows_sse128   (pel_t *src, int i_src, int width, int height, int start, int rows, int pad);
 #define padding_rows_lr_sse128 FPFX(padding_rows_lr_sse128)
 void padding_rows_lr_sse128(pel_t *src, int i_src, int width, int height, int start, int rows, int pad);
+#if defined(__AVX2__)
+#define xavs2_pixel_average_avx FPFX(pixel_average_avx)
+void xavs2_pixel_average_avx   (pel_t *dst, int i_dst, pel_t *src1, int i_src1, pel_t *src2, int i_src2, int width, int height);
 #define padding_rows_sse256 FPFX(padding_rows_sse256)
 void padding_rows_sse256(pel_t *src, int i_src, int width, int height, int start, int rows, int pad);
 #define padding_rows_sse256_10bit FPFX(padding_rows_sse256_10bit)
@@ -174,15 +179,15 @@ void padding_rows_sse256_10bit(pel_t *src, int i_src, int width, int height, int
 void padding_rows_lr_sse256(pel_t *src, int i_src, int width, int height, int start, int rows, int pad);
 #define padding_rows_lr_sse256_10bit FPFX(padding_rows_lr_sse256)
 void padding_rows_lr_sse256_10bit(pel_t *src, int i_src, int width, int height, int start, int rows, int pad);
-
-#define xavs2_memzero_aligned_c_sse2 FPFX(memzero_aligned_c_sse2)
-void *xavs2_memzero_aligned_c_sse2(void *dst, size_t n);
 #define xavs2_memzero_aligned_c_avx FPFX(memzero_aligned_c_avx)
 void *xavs2_memzero_aligned_c_avx (void *dst, size_t n);
-#define xavs2_mem_repeat_i_c_sse2 FPFX(mem_repeat_i_c_sse2)
-void  xavs2_mem_repeat_i_c_sse2   (void *dst, int val, size_t count);
 #define xavs2_mem_repeat_i_c_avx FPFX(mem_repeat_i_c_avx)
 void  xavs2_mem_repeat_i_c_avx    (void *dst, int val, size_t count);
+#endif
+#define xavs2_memzero_aligned_c_sse2 FPFX(memzero_aligned_c_sse2)
+void *xavs2_memzero_aligned_c_sse2(void *dst, size_t n);
+#define xavs2_mem_repeat_i_c_sse2 FPFX(mem_repeat_i_c_sse2)
+void  xavs2_mem_repeat_i_c_sse2   (void *dst, int val, size_t count);
 #define xavs2_memcpy_aligned_c_sse2 FPFX(memcpy_aligned_c_sse2)
 void *xavs2_memcpy_aligned_c_sse2 (void *dst, const void *src, size_t n);
 
@@ -196,6 +201,7 @@ void deblock_edge_ver_c_sse128(pel_t *SrcPtrU, pel_t *SrcPtrV, int stride, int A
 void deblock_edge_hor_c_sse128(pel_t *SrcPtrU, pel_t *SrcPtrV, int stride, int Alpha, int Beta, unsigned char *flt_flag);
 
 //--------avx2--------    add by zhangjiaqi    2016-12-02
+#if defined(__AVX2__)
 #define deblock_edge_hor_avx2 FPFX(deblock_edge_hor_avx2)
 void deblock_edge_hor_avx2(pel_t *SrcPtr, int stride, int Alpha, int Beta, uint8_t *flt_flag);
 #define deblock_edge_ver_avx2 FPFX(deblock_edge_ver_avx2)
@@ -204,6 +210,7 @@ void deblock_edge_ver_avx2(pel_t *SrcPtr, int stride, int Alpha, int Beta, uint8
 void deblock_edge_hor_c_avx2(pel_t *SrcPtrU, pel_t *SrcPtrV, int stride, int Alpha, int Beta, uint8_t *flt_flag);
 #define deblock_edge_ver_c_avx2 FPFX(deblock_edge_ver_c_avx2)
 void deblock_edge_ver_c_avx2(pel_t *SrcPtrU, pel_t *SrcPtrV, int stride, int Alpha, int Beta, uint8_t *flt_flag);
+#endif
 
 #define dct_c_4x4_sse128 FPFX(dct_c_4x4_sse128)
 void dct_c_4x4_sse128  (const coeff_t *src, coeff_t *dst, int i_src);
@@ -230,6 +237,7 @@ void dct_c_64x16_sse128(const coeff_t *src, coeff_t *dst, int i_src);
 void dct_c_16x64_sse128(const coeff_t *src, coeff_t *dst, int i_src);
 
 //futl
+#if defined(__AVX2__)
 #define dct_c_4x4_avx2 FPFX(dct_c_4x4_avx2)
 void dct_c_4x4_avx2(const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_8x8_avx2 FPFX(dct_c_8x8_avx2)
@@ -255,16 +263,19 @@ void dct_c_64x64_avx2(const coeff_t *src, coeff_t *dst, int i_src);
 void dct_c_64x16_avx2(const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_16x64_avx2 FPFX(dct_c_16x64_avx2)
 void dct_c_16x64_avx2(const coeff_t *src, coeff_t *dst, int i_src);
+#endif
 
 /* half DCT, only keep low frequency coefficients */
 #define dct_c_32x32_half_sse128 FPFX(dct_c_32x32_half_sse128)
 void dct_c_32x32_half_sse128(const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_64x64_half_sse128 FPFX(dct_c_64x64_half_sse128)
 void dct_c_64x64_half_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+#if defined(__AVX2__)
 #define dct_c_32x32_half_avx2 FPFX(dct_c_32x32_half_avx2)
 void dct_c_32x32_half_avx2(const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_64x64_half_avx2 FPFX(dct_c_64x64_half_avx2)
 void dct_c_64x64_half_avx2(const coeff_t *src, coeff_t *dst, int i_src);
+#endif
 
 #define transform_4x4_2nd_sse128 FPFX(transform_4x4_2nd_sse128)
 void transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff);
@@ -301,8 +312,8 @@ void inv_transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff);
 #define inv_transform_2nd_sse128 FPFX(inv_transform_2nd_sse128)
 void inv_transform_2nd_sse128    (coeff_t *coeff, int i_coeff, int i_mode, int b_top, int b_left);
 
-
 //zhangjiaqi add 2016.11.30    avx2
+#if defined(__AVX2__)
 #define idct_c_8x8_avx2 FPFX(idct_c_8x8_avx2)
 void idct_c_8x8_avx2  (const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_16x16_avx2 FPFX(idct_c_16x16_avx2)
@@ -315,6 +326,7 @@ void idct_c_64x64_avx2(const coeff_t *src, coeff_t *dst, int i_dst);
 void idct_c_64x16_avx2(const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_16x64_avx2 FPFX(idct_c_16x64_avx2)
 void idct_c_16x64_avx2(const coeff_t *src, coeff_t *dst, int i_dst);
+#endif
 
 // scan the cg coefficient
 #define coeff_scan_4x4_xy_sse128 FPFX(coeff_scan_4x4_xy_sse128)
@@ -326,38 +338,40 @@ void coeff_scan_4x4_yx_sse128(coeff_t *dst, const coeff_t *src, int i_src_shift)
 void coeff_scan4_xy_sse128(coeff_t *dst, uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4);
 #define coeff_scan4_yx_sse128 FPFX(coeff_scan4_yx_sse128)
 void coeff_scan4_yx_sse128(coeff_t *dst, uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4);
+#if defined(__AVX2__)
 #define coeff_scan4_xy_avx FPFX(coeff_scan4_xy_avx)
 void coeff_scan4_xy_avx(coeff_t *dst, uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4);
 #define coeff_scan4_yx_avx FPFX(coeff_scan4_yx_avx)
 void coeff_scan4_yx_avx(coeff_t *dst, uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4);
-
+#endif
 #define abs_coeff_sse128 FPFX(abs_coeff_sse128)
 void abs_coeff_sse128(coeff_t *dst, const coeff_t *src, const int i_coef);
 #define add_sign_sse128 FPFX(add_sign_sse128)
 int add_sign_sse128(coeff_t *dst, const coeff_t *abs_val, const int i_coef);
 
-#define quant_c_avx2 FPFX(quant_c_avx2)
-int quant_c_avx2(coeff_t *coef, const int i_coef, const int scale, const int shift, const int add);
-#define dequant_c_avx2 FPFX(dequant_c_avx2)
-void dequant_c_avx2(coeff_t *coef, const int i_coef, const int scale, const int shift);
 #define quant_c_sse128 FPFX(quant_c_avx2)
 int quant_c_sse128(coeff_t *coef, const int i_coef, const int scale, const int shift, const int add);
 #define dequant_c_sse128 FPFX(dequant_c_sse128)
 void dequant_c_sse128(coeff_t *coef, const int i_coef, const int scale, const int shift, const int add);
+#if defined(__AVX2__)
+#define quant_c_avx2 FPFX(quant_c_avx2)
+int quant_c_avx2(coeff_t *coef, const int i_coef, const int scale, const int shift, const int add);
+#define dequant_c_avx2 FPFX(dequant_c_avx2)
+void dequant_c_avx2(coeff_t *coef, const int i_coef, const int scale, const int shift);
 #define abs_coeff_avx2 FPFX(abs_coeff_avx2)
 void abs_coeff_avx2(coeff_t *dst, const coeff_t *src, const int i_coef);
 #define add_sign_avx2 FPFX(add_sign_avx2)
 int add_sign_avx2(coeff_t *dst, const coeff_t *abs_val, const int i_coef);
+#define SAO_on_block_sse256 FPFX(SAO_on_block_sse256)
+void SAO_on_block_sse256(pel_t *p_dst, int i_dst, pel_t *p_src,
+                         int i_src,int i_block_w, int i_block_h,
+                         int *lcu_avail, SAOBlkParam *sao_param);
+#endif
 
 #define SAO_on_block_sse128 FPFX(SAO_on_block_sse128)
 void SAO_on_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src,
                          int i_src, int i_block_w, int i_block_h,
                          int *lcu_avail, SAOBlkParam *sao_param);
-#define SAO_on_block_sse256 FPFX(SAO_on_block_sse256)
-void SAO_on_block_sse256(pel_t *p_dst, int i_dst, pel_t *p_src,
-                         int i_src,int i_block_w, int i_block_h,
-                         int *lcu_avail, SAOBlkParam *sao_param);
-
 #define alf_flt_one_block_sse128 FPFX(alf_flt_one_block_sse128)
 void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                               int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
@@ -431,6 +445,7 @@ void fill_edge_samples_y_sse128 (const pel_t *pTL, int i_TL, const pel_t *pLcuEP
 void fill_edge_samples_xy_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
 
 //intra prediction avx functions
+#if defined(__AVX2__)
 #define intra_pred_ver_avx FPFX(intra_pred_ver_avx)
 void intra_pred_ver_avx(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_hor_avx FPFX(intra_pred_hor_avx)
@@ -487,7 +502,7 @@ void intra_pred_ang_y_30_avx(pel_t *src, pel_t *dst, int i_dst, int dir_mode, in
 void intra_pred_ang_y_31_avx(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_y_32_avx FPFX(intra_pred_ang_y_32_avx)
 void intra_pred_ang_y_32_avx(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
-
+#endif
 
 
 #define mad_16x16_sse128 FPFX(mad_16x16_sse128)
