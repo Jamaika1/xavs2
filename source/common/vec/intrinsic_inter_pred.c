@@ -44,9 +44,11 @@
 #include "intrinsic.h"
 #include "avs2_defs.h"
 
+#if !HIGH_BIT_DEPTH
 /* ---------------------------------------------------------------------------
  */
-void intpl_chroma_block_hor_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
+void intpl_chroma_block_hor_sse128(xavs2_t *h,
+                                   pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
 {
     const int16_t offset = 32;
     const int shift = 6;
@@ -95,7 +97,8 @@ void intpl_chroma_block_hor_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src,
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_luma_block_hor_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
+void intpl_luma_block_hor_sse128(xavs2_t *h,
+                                 pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
 {
     int row, col = 0;
     const short offset = 32;
@@ -154,7 +157,8 @@ void intpl_luma_block_hor_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, i
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_luma_hor_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+void intpl_luma_hor_sse128(xavs2_t *h,
+                           pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
     int row, col = 0;
     const short offset = 32;
@@ -270,9 +274,10 @@ void intpl_luma_hor_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *
 }
 
 /* ---------------------------------------------------------------------------
- * TODO: @luofl 20170827 ∞¥’’ intpl_luma_hor_sse128() ∏ƒ–¥£¨“¿¥Œ≤Â÷µ16¡–
+ * TODO: @luofl 20170827 ÊåâÁÖß intpl_luma_hor_sse128() ÊîπÂÜôÔºå‰æùÊ¨°ÊèíÂÄº16Âàó
  */
-void intpl_luma_hor_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff)
+void intpl_luma_hor_x3_sse128(xavs2_t *h,
+                              pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff)
 {
     int row, col = 0;
     const short offset = 32;
@@ -557,7 +562,8 @@ void intpl_luma_hor_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *const tmp[3
     result = _mm_packus_epi16(mVal1, mVal1);
 
 
-void intpl_luma_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
+void intpl_luma_ver_sse128(xavs2_t *h,
+                           pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
 {
     int row, col;
     const short offset = 32;
@@ -691,7 +697,8 @@ void intpl_luma_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int wid
 /* ---------------------------------------------------------------------------
  *
  */
-void intpl_luma_ver_x3_sse128(pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, int8_t const **coeff)
+void intpl_luma_ver_x3_sse128(xavs2_t *h,
+                              pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, int8_t const **coeff)
 {
     /*
     intpl_luma_ver_sse128(dst0, i_dst, src, i_src, width, height, coeff[0]);
@@ -956,7 +963,8 @@ void intpl_luma_ver_x3_sse128(pel_t *const dst[3], int i_dst, pel_t *src, int i_
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_luma_ext_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff)
+void intpl_luma_ext_sse128(xavs2_t *h,
+                           pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff)
 {
     int row, col;
     int shift;
@@ -1188,7 +1196,8 @@ void intpl_luma_ext_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int wid
     }
 }
 
-void intpl_luma_ext_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff)
+void intpl_luma_ext_x3_sse128(xavs2_t *h,
+                              pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff)
 {
     /*
     intpl_luma_ext_sse128(dst0, i_dst, tmp, i_tmp, width, height, coeff[0]);
@@ -1581,7 +1590,8 @@ void intpl_luma_ext_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_chroma_block_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
+void intpl_chroma_block_ver_sse128(xavs2_t *h,
+                                   pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
 {
     int row, col;
     const short offset = 32;
@@ -1704,7 +1714,8 @@ void intpl_chroma_block_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src,
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_luma_block_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
+void intpl_luma_block_ver_sse128(xavs2_t *h,
+                                 pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff)
 {
     const short offset = 32;
     const int shift = 6;
@@ -1839,7 +1850,8 @@ void intpl_luma_block_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, i
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_chroma_block_ext_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coef_x, const int8_t *coef_y)
+void intpl_chroma_block_ext_sse128(xavs2_t *h,
+                                   pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coef_x, const int8_t *coef_y)
 {
     ALIGN16(int16_t tmp_res[(32 + 3) * 32]);
     int16_t *tmp = tmp_res;
@@ -2074,7 +2086,8 @@ void intpl_chroma_block_ext_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src,
 
 /* ---------------------------------------------------------------------------
  */
-void intpl_luma_block_ext_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coef_x, const int8_t *coef_y)
+void intpl_luma_block_ext_sse128(xavs2_t *h,
+                                 pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coef_x, const int8_t *coef_y)
 {
     ALIGN16(int16_t tmp_res[(64 + 7) * 64]);
     int16_t *tmp = tmp_res;
@@ -2312,4 +2325,4 @@ void intpl_luma_block_ext_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, i
         }
     }
 }
-
+#endif
