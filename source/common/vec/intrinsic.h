@@ -98,18 +98,18 @@ ALIGN16(extern const int8_t tab_coeff_mode_11[64][16]);
 #define intpl_copy_block_sse128 FPFX(intpl_copy_block_sse128)
 void intpl_copy_block_sse128      (pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height);
 #define intpl_luma_block_hor_sse128 FPFX(intpl_luma_block_hor_sse128)
-void intpl_luma_block_hor_sse128  (pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+void intpl_luma_block_hor_sse128  (xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_luma_block_ver_sse128 FPFX(intpl_luma_block_ver_sse128)
-void intpl_luma_block_ver_sse128  (pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+void intpl_luma_block_ver_sse128  (xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_luma_block_ext_sse128 FPFX(intpl_luma_block_ext_sse128)
-void intpl_luma_block_ext_sse128  (pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v);
+void intpl_luma_block_ext_sse128  (xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v);
 
 #define intpl_luma_hor_sse128 FPFX(intpl_luma_hor_sse128)
-void intpl_luma_hor_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+void intpl_luma_hor_sse128(xavs2_t *h, pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_luma_ver_sse128 FPFX(intpl_luma_ver_sse128)
-void intpl_luma_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+void intpl_luma_ver_sse128(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_luma_ext_sse128 FPFX(intpl_luma_ext_sse128)
-void intpl_luma_ext_sse128(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff);
+void intpl_luma_ext_sse128(xavs2_t *h, pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t *coeff);
 
 #if defined(__AVX2__)
 #define intpl_luma_hor_avx2 FPFX(intpl_luma_hor_avx2)
@@ -121,18 +121,18 @@ void intpl_luma_ext_avx2(pel_t *dst, int i_dst, mct_t *tmp, int i_tmp, int width
 #endif
 
 #define intpl_luma_hor_x3_sse128 FPFX(intpl_luma_hor_x3_sse128)
-void intpl_luma_hor_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
+void intpl_luma_hor_x3_sse128(xavs2_t *h, pel_t *const dst[3], int i_dst, mct_t *const tmp[3], int i_tmp, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
 #define intpl_luma_ver_x3_sse128 FPFX(intpl_luma_ver_x3_sse128)
-void intpl_luma_ver_x3_sse128(pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
+void intpl_luma_ver_x3_sse128(xavs2_t *h, pel_t *const dst[3], int i_dst, pel_t *src, int i_src, int width, int height, const int8_t **coeff);
 #define intpl_luma_ext_x3_sse128 FPFX(intpl_luma_ext_x3_sse128)
-void intpl_luma_ext_x3_sse128(pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff);
+void intpl_luma_ext_x3_sse128(xavs2_t *h, pel_t *const dst[3], int i_dst, mct_t *tmp, int i_tmp, int width, int height, const int8_t **coeff);
 
 #define intpl_chroma_block_hor_sse128 FPFX(intpl_chroma_block_hor_sse128)
-void intpl_chroma_block_hor_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+void intpl_chroma_block_hor_sse128(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_chroma_block_ver_sse128 FPFX(intpl_chroma_block_ver_sse128)
-void intpl_chroma_block_ver_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
+void intpl_chroma_block_ver_sse128(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff);
 #define intpl_chroma_block_ext_sse128 FPFX(intpl_chroma_block_ext_sse128)
-void intpl_chroma_block_ext_sse128(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v);
+void intpl_chroma_block_ext_sse128(xavs2_t *h, pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v);
 
 #if defined(__AVX2__)
 #define intpl_luma_block_hor_avx2 FPFX(intpl_luma_block_hor_avx2)
@@ -213,28 +213,28 @@ void deblock_edge_ver_c_avx2(pel_t *SrcPtrU, pel_t *SrcPtrV, int stride, int Alp
 #endif
 
 #define dct_c_4x4_sse128 FPFX(dct_c_4x4_sse128)
-void dct_c_4x4_sse128  (const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_4x4_sse128  (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_8x8_sse128 FPFX(dct_c_8x8_sse128)
-void dct_c_8x8_sse128  (const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_8x8_sse128  (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_16x16_sse128 FPFX(dct_c_16x16_sse128)
-void dct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_16x16_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_32x32_sse128 FPFX(dct_c_32x32_sse128)
-void dct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_32x32_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_64x64_sse128 FPFX(dct_c_64x64_sse128)
-void dct_c_64x64_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_64x64_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 
 #define dct_c_4x16_sse128 FPFX(dct_c_4x16_sse128)
-void dct_c_4x16_sse128 (const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_4x16_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_8x32_sse128 FPFX(dct_c_8x32_sse128)
-void dct_c_8x32_sse128 (const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_8x32_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_16x4_sse128 FPFX(dct_c_16x4_sse128)
-void dct_c_16x4_sse128 (const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_16x4_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_32x8_sse128 FPFX(dct_c_32x8_sse128)
-void dct_c_32x8_sse128 (const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_32x8_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_64x16_sse128 FPFX(dct_c_64x16_sse128)
-void dct_c_64x16_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_64x16_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_16x64_sse128 FPFX(dct_c_16x64_sse128)
-void dct_c_16x64_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_16x64_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 
 //futl
 #if defined(__AVX2__)
@@ -267,9 +267,9 @@ void dct_c_16x64_avx2(const coeff_t *src, coeff_t *dst, int i_src);
 
 /* half DCT, only keep low frequency coefficients */
 #define dct_c_32x32_half_sse128 FPFX(dct_c_32x32_half_sse128)
-void dct_c_32x32_half_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_32x32_half_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #define dct_c_64x64_half_sse128 FPFX(dct_c_64x64_half_sse128)
-void dct_c_64x64_half_sse128(const coeff_t *src, coeff_t *dst, int i_src);
+void dct_c_64x64_half_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_src);
 #if defined(__AVX2__)
 #define dct_c_32x32_half_avx2 FPFX(dct_c_32x32_half_avx2)
 void dct_c_32x32_half_avx2(const coeff_t *src, coeff_t *dst, int i_src);
@@ -278,37 +278,37 @@ void dct_c_64x64_half_avx2(const coeff_t *src, coeff_t *dst, int i_src);
 #endif
 
 #define transform_4x4_2nd_sse128 FPFX(transform_4x4_2nd_sse128)
-void transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff);
+void transform_4x4_2nd_sse128(xavs2_t *h, coeff_t *coeff, int i_coeff);
 #define transform_2nd_sse128 FPFX(transform_2nd_sse128)
 void transform_2nd_sse128    (coeff_t *coeff, int i_coeff, int i_mode, int b_top, int b_left);
 
 #define idct_c_4x4_sse128 FPFX(idct_c_4x4_sse128)
-void idct_c_4x4_sse128  (const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_4x4_sse128  (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_8x8_sse128 FPFX(idct_c_8x8_sse128)
-void idct_c_8x8_sse128  (const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_8x8_sse128  (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_16x16_sse128 FPFX(idct_c_16x16_sse128)
-void idct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_16x16_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_32x32_sse128 FPFX(idct_c_32x32_sse128)
-void idct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_32x32_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_64x64_sse128 FPFX(idct_c_64x64_sse128)
-void idct_c_64x64_sse128(const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_64x64_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 
 #define idct_c_16x4_sse128 FPFX(idct_c_16x4_sse128)
-void idct_c_16x4_sse128 (const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_16x4_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_32x8_sse128 FPFX(idct_c_32x8_sse128)
-void idct_c_32x8_sse128 (const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_32x8_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_64x16_sse128 FPFX(idct_c_64x16_sse128)
-void idct_c_64x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_64x16_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 
 #define idct_c_4x16_sse128 FPFX(idct_c_4x16_sse128)
-void idct_c_4x16_sse128 (const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_4x16_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_8x32_sse128 FPFX(idct_c_8x32_sse128)
-void idct_c_8x32_sse128 (const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_8x32_sse128 (xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 #define idct_c_16x64_sse128 FPFX(idct_c_16x64_sse128)
-void idct_c_16x64_sse128(const coeff_t *src, coeff_t *dst, int i_dst);
+void idct_c_16x64_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst);
 
 #define inv_transform_4x4_2nd_sse128 FPFX(inv_transform_4x4_2nd_sse128)
-void inv_transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff);
+void inv_transform_4x4_2nd_sse128(xavs2_t *h, coeff_t *coeff, int i_coeff);
 #define inv_transform_2nd_sse128 FPFX(inv_transform_2nd_sse128)
 void inv_transform_2nd_sse128    (coeff_t *coeff, int i_coeff, int i_mode, int b_top, int b_left);
 
@@ -368,81 +368,120 @@ void SAO_on_block_sse256(pel_t *p_dst, int i_dst, pel_t *p_src,
                          int *lcu_avail, SAOBlkParam *sao_param);
 #endif
 
+#if !HIGH_BIT_DEPTH
 #define SAO_on_block_sse128 FPFX(SAO_on_block_sse128)
-void SAO_on_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src,
+void SAO_on_block_sse128(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src,
                          int i_src, int i_block_w, int i_block_h,
                          int *lcu_avail, SAOBlkParam *sao_param);
+#else
+#define SAO_on_block_bo_sse128 FPFX(SAO_on_block_bo_sse128)
+void SAO_on_block_bo_sse128(xavs2_t *h, pel_t* dst, int i_dst, const pel_t* src, int i_src, int i_block_w, int i_block_h, const SAOBlkParam* saoBlkParam);
+#define SAO_on_block_eo_0_sse128 FPFX(SAO_on_block_eo_0_sse128)
+void SAO_on_block_eo_0_sse128(xavs2_t *h, pel_t* dst, int i_dst, const pel_t* src, int i_src, int i_block_w, int i_block_h, const int* lcu_avail, const int* sao_offset);
+#define SAO_on_block_eo_45_sse128 FPFX(SAO_on_block_eo_45_sse128)
+void SAO_on_block_eo_45_sse128(xavs2_t *h, pel_t* dst, int i_dst, const pel_t* src, int i_src, int i_block_w, int i_block_h, const int* lcu_avail, const int* sao_offset);
+#define SAO_on_block_eo_90_sse128 FPFX(SAO_on_block_eo_90_sse128)
+void SAO_on_block_eo_90_sse128(xavs2_t *h, pel_t* dst, int i_dst, const pel_t* src, int i_src, int i_block_w, int i_block_h, const int* lcu_avail, const int* sao_offset);
+#define SAO_on_block_eo_135_sse128 FPFX(SAO_on_block_eo_135_sse128)
+void SAO_on_block_eo_135_sse128(xavs2_t *h, pel_t* dst, int i_dst, const pel_t* src, int i_src, int i_block_w, int i_block_h, const int* lcu_avail, const int* sao_offset);
+#endif
+
 #define alf_flt_one_block_sse128 FPFX(alf_flt_one_block_sse128)
-void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+#if !HIGH_BIT_DEPTH
+void alf_flt_one_block_sse128(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                               int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                               int *alf_coeff, int b_top_avail, int b_down_avail);
+#else
+void alf_flt_one_block_sse128(xavs2_t *h, pel_t* p_dst, const pel_t* p_src, int stride,
+    int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
+    int* alf_coeff, int b_top_avail, int b_down_avail);
+#endif
+#if defined(__AVX2__)
+#define alf_filter_block_avx2_10bit FPFX(alf_filter_block_avx2_10bit)
+void alf_filter_block_avx2(xavs2_t *h, pel_t* p_dst, const pel_t* p_src, int stride,
+    int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
+    int* alf_coeff, int b_top_avail, int b_down_avail);
+#endif
 
+#if !HIGH_BIT_DEPTH
 #define intra_pred_dc_sse128 FPFX(intra_pred_dc_sse128)
-void intra_pred_dc_sse128       (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_dc_sse128       (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_plane_sse128 FPFX(intra_pred_plane_sse128)
-void intra_pred_plane_sse128    (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_plane_sse128    (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_bilinear_sse128 FPFX(intra_pred_bilinear_sse128)
-void intra_pred_bilinear_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_bilinear_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_hor_sse128 FPFX(intra_pred_hor_sse128)
-void intra_pred_hor_sse128      (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_hor_sse128      (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ver_sse128 FPFX(intra_pred_ver_sse128)
-void intra_pred_ver_sse128      (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ver_sse128      (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+#else
+#define intra_pred_dc_sse128 FPFX(intra_pred_dc_sse128)
+void intra_pred_dc_sse128       (xavs2_t *h, pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight);
+#define intra_pred_plane_sse128 FPFX(intra_pred_plane_sse128)
+void intra_pred_plane_sse128    (xavs2_t *h, pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight);
+#define intra_pred_bilinear_sse128 FPFX(intra_pred_bilinear_sse128)
+void intra_pred_bilinear_sse128 (xavs2_t *h, pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight);
+#define intra_pred_hor_sse128 FPFX(intra_pred_hor_sse128)
+void intra_pred_hor_sse128      (xavs2_t *h, pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight);
+#define intra_pred_ver_sse128 FPFX(intra_pred_ver_sse128)
+void intra_pred_ver_sse128      (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+#endif
 
 #define intra_pred_ang_x_3_sse128 FPFX(intra_pred_ang_x_3_sse128)
-void intra_pred_ang_x_3_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_3_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_4_sse128 FPFX(intra_pred_ang_x_4_sse128)
-void intra_pred_ang_x_4_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_4_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_5_sse128 FPFX(intra_pred_ang_x_5_sse128)
-void intra_pred_ang_x_5_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_5_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_6_sse128 FPFX(intra_pred_ang_x_6_sse128)
-void intra_pred_ang_x_6_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_6_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_7_sse128 FPFX(intra_pred_ang_x_7_sse128)
-void intra_pred_ang_x_7_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_7_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_8_sse128 FPFX(intra_pred_ang_x_8_sse128)
-void intra_pred_ang_x_8_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_8_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_9_sse128 FPFX(intra_pred_ang_x_9_sse128)
-void intra_pred_ang_x_9_sse128  (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_9_sse128  (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_10_sse128 FPFX(intra_pred_ang_x_10_sse128)
-void intra_pred_ang_x_10_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_10_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_x_11_sse128 FPFX(intra_pred_ang_x_11_sse128)
-void intra_pred_ang_x_11_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_x_11_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 
 #define intra_pred_ang_y_25_sse128 FPFX(intra_pred_ang_y_25_sse128)
-void intra_pred_ang_y_25_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_y_25_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_y_26_sse128 FPFX(intra_pred_ang_y_26_sse128)
-void intra_pred_ang_y_26_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_y_26_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_y_28_sse128 FPFX(intra_pred_ang_y_28_sse128)
-void intra_pred_ang_y_28_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_y_28_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_y_30_sse128 FPFX(intra_pred_ang_y_30_sse128)
-void intra_pred_ang_y_30_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_y_30_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_y_31_sse128 FPFX(intra_pred_ang_y_31_sse128)
-void intra_pred_ang_y_31_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_y_31_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_y_32_sse128 FPFX(intra_pred_ang_y_32_sse128)
-void intra_pred_ang_y_32_sse128 (pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_y_32_sse128 (xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 
 #define intra_pred_ang_xy_13_sse128 FPFX(intra_pred_ang_xy_13_sse128)
-void intra_pred_ang_xy_13_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_13_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_xy_14_sse128 FPFX(intra_pred_ang_xy_14_sse128)
-void intra_pred_ang_xy_14_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_14_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_xy_16_sse128 FPFX(intra_pred_ang_xy_16_sse128)
-void intra_pred_ang_xy_16_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_16_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_xy_18_sse128 FPFX(intra_pred_ang_xy_18_sse128)
-void intra_pred_ang_xy_18_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_18_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_xy_20_sse128 FPFX(intra_pred_ang_xy_20_sse128)
-void intra_pred_ang_xy_20_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_20_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_xy_22_sse128 FPFX(intra_pred_ang_xy_22_sse128)
-void intra_pred_ang_xy_22_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_22_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 #define intra_pred_ang_xy_23_sse128 FPFX(intra_pred_ang_xy_23_sse128)
-void intra_pred_ang_xy_23_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
+void intra_pred_ang_xy_23_sse128(xavs2_t *h, pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy);
 
 #define fill_edge_samples_0_sse128 FPFX(fill_edge_samples_0_sse128)
-void fill_edge_samples_0_sse128 (const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
+void fill_edge_samples_0_sse128 (xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
 #define fill_edge_samples_x_sse128 FPFX(fill_edge_samples_x_sse128)
-void fill_edge_samples_x_sse128 (const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
+void fill_edge_samples_x_sse128 (xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
 #define fill_edge_samples_y_sse128 FPFX(fill_edge_samples_y_sse128)
-void fill_edge_samples_y_sse128 (const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
+void fill_edge_samples_y_sse128 (xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
 #define fill_edge_samples_xy_sse128 FPFX(fill_edge_samples_xy_sse128)
-void fill_edge_samples_xy_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
+void fill_edge_samples_xy_sse128(xavs2_t *h, const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy);
 
 //intra prediction avx functions
 #if defined(__AVX2__)
