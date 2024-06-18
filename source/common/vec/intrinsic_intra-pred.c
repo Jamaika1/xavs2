@@ -45,6 +45,7 @@
 #include <smmintrin.h>
 
 
+#if !HIGH_BIT_DEPTH
 static ALIGN16(int8_t tab_coeff_mode_5[8][16]) = {
     { 20, 52, 44, 12, 20, 52, 44, 12, 20, 52, 44, 12, 20, 52, 44, 12 },
     { 8, 40, 56, 24, 8, 40, 56, 24, 8, 40, 56, 24, 8, 40, 56, 24 },
@@ -64,7 +65,8 @@ static uint8_t tab_idx_mode_5[64] = {
 
 /* ---------------------------------------------------------------------------
  */
-void intra_pred_ver_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ver_sse128(xavs2_t *h,
+                           pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int y;
     pel_t *rpSrc = src + 1;
@@ -125,7 +127,8 @@ void intra_pred_ver_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int 
 
 /* ---------------------------------------------------------------------------
  */
-void intra_pred_hor_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_hor_sse128(xavs2_t *h,
+                           pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int y;
     pel_t *rpSrc = src - 1;
@@ -180,9 +183,9 @@ void intra_pred_hor_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int 
 
 /* ---------------------------------------------------------------------------
  */
-void intra_pred_dc_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_dc_sse128(xavs2_t *h,
+                          pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
-    xavs2_t *bb;
     int avail_above = dir_mode >> 8;
     int avail_left = dir_mode & 0xFF;
     int dc_value;
@@ -253,7 +256,7 @@ void intra_pred_dc_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int b
     } else if (avail_above) {
         dc_value = (sum_above + (bsx >> 1)) >> xavs2_log2u(bsx);
     } else {
-        dc_value = ((1 << bb->param->input_sample_bit_depth) >> 1);
+        dc_value = ((1 << h->param->input_sample_bit_depth) >> 1);
     }
 
     p00 = _mm_set1_epi8((pel_t)dc_value);
@@ -274,7 +277,8 @@ void intra_pred_dc_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int b
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_plane_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_plane_sse128(xavs2_t *h,
+                             pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     pel_t  *rpSrc;
     int iH = 0;
@@ -358,7 +362,8 @@ void intra_pred_plane_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, in
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_bilinear_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_bilinear_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int x, y;
     int ishift_x = tab_log2[bsx];
@@ -545,7 +550,8 @@ void intra_pred_bilinear_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
  */
-void intra_pred_ang_x_3_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_3_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     __m128i zero = _mm_setzero_si128();
     __m128i coeff2 = _mm_set1_epi16(2);
@@ -1113,7 +1119,8 @@ void intra_pred_ang_x_3_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
  */
-void intra_pred_ang_x_4_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_4_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
 
     ALIGN16(pel_t first_line[64 + 128]);
@@ -1246,7 +1253,8 @@ void intra_pred_ang_x_4_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
  */
-void intra_pred_ang_x_5_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_5_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     __m128i zero = _mm_setzero_si128();
     __m128i coeff2 = _mm_set1_epi16(2);
@@ -1979,7 +1987,8 @@ void intra_pred_ang_x_5_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_x_6_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_6_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 64]);
     int line_size = bsx + bsy - 1;
@@ -2196,7 +2205,8 @@ void intra_pred_ang_x_6_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_x_7_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_7_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i, j;
     int iWidth2 = bsx << 1;
@@ -2523,7 +2533,8 @@ void intra_pred_ang_x_7_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_x_8_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_8_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[2 * (64 + 48)]);
     int line_size = bsx + (bsy >> 1) - 1;
@@ -2704,7 +2715,8 @@ void intra_pred_ang_x_8_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_x_9_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_9_sse128(xavs2_t *h,
+                               pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i, j;
     int iWidth2 = bsx << 1;
@@ -3032,7 +3044,8 @@ void intra_pred_ang_x_9_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, 
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_x_10_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_10_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     pel_t *dst1 = dst;
@@ -3528,7 +3541,8 @@ void intra_pred_ang_x_10_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_x_11_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_x_11_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i, j, idx;
     __m128i zero = _mm_setzero_si128();
@@ -3665,7 +3679,8 @@ void intra_pred_ang_x_11_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_y_25_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_y_25_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -4154,7 +4169,8 @@ void intra_pred_ang_y_25_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_y_26_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_y_26_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -4578,7 +4594,8 @@ void intra_pred_ang_y_26_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_y_28_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_y_28_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 128]);
     int line_size = bsx + (bsy - 1) * 2;
@@ -4719,7 +4736,8 @@ void intra_pred_ang_y_28_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_y_30_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_y_30_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 64]);
     int line_size = bsx + bsy - 1;
@@ -4958,7 +4976,8 @@ void intra_pred_ang_y_30_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_y_31_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_y_31_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t dst_tran[64 * 80]);
     ALIGN16(pel_t src_tran[64 * 8]);
@@ -4972,7 +4991,7 @@ void intra_pred_ang_y_31_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
         src_tran[i] = src[-i];
     }
 
-    intra_pred_ang_x_5_sse128(src_tran, dst_tran, i_dst2, 5, bsy, bsx);
+    intra_pred_ang_x_5_sse128(h, src_tran, dst_tran, i_dst2, 5, bsy, bsx);
 
     if ((bsy > 4) && (bsx > 4)) {
         pel_t *pDst_128[64];
@@ -5214,7 +5233,8 @@ void intra_pred_ang_y_31_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_y_32_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_y_32_sse128(xavs2_t *h,
+                                pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[2 * (64 + 64)]);
     int line_size = (bsy >> 1) + bsx - 1;
@@ -5369,7 +5389,8 @@ void intra_pred_ang_y_32_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode,
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_13_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_13_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     __m128i zero = _mm_setzero_si128();
     __m128i coeff2 = _mm_set1_epi16(2);
@@ -6385,7 +6406,8 @@ void intra_pred_ang_xy_13_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_14_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_14_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
     __m128i coeff2 = _mm_set1_epi16(2);
@@ -6757,7 +6779,8 @@ void intra_pred_ang_xy_14_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_16_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_16_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[2 * (64 + 48)]);
     int line_size = bsx + bsy / 2 - 1;
@@ -6927,7 +6950,8 @@ void intra_pred_ang_xy_16_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_18_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_18_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 64]);
     int line_size = bsx + bsy - 1;
@@ -7018,7 +7042,8 @@ void intra_pred_ang_xy_18_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_20_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_20_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     ALIGN16(pel_t first_line[64 + 128]);
     int left_size = (bsy - 1) * 2 + 1;
@@ -7190,7 +7215,8 @@ void intra_pred_ang_xy_20_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_22_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_22_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
     int i;
 
@@ -7466,7 +7492,8 @@ void intra_pred_ang_xy_22_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
 
 /* ---------------------------------------------------------------------------
 */
-void intra_pred_ang_xy_23_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
+void intra_pred_ang_xy_23_sse128(xavs2_t *h,
+                                 pel_t *src, pel_t *dst, int i_dst, int dir_mode, int bsx, int bsy)
 {
 
     int i;
@@ -7926,7 +7953,527 @@ void intra_pred_ang_xy_23_sse128(pel_t *src, pel_t *dst, int i_dst, int dir_mode
             *((int*)dst) = _mm_cvtsi128_si32(M7);
         }
     }
-
 }
+#else
+ /*****************************************************************************
+ *  Copyright (C) 2016 uavs2dec project,
+ *  National Engineering Laboratory for Video Technology(Shenzhen),
+ *  Digital Media R&D Center at Peking University Shenzhen Graduate School, China
+ *  Project Leader: Ronggang Wang <rgwang@pkusz.edu.cn>
+ *
+ *  Main Authors: Zhenyu Wang <wangzhenyu@pkusz.edu.cn>, Kui Fan <kuifan@pku.edu.cn>
+ *               Shenghao Zhang <1219759986@qq.com>Ł¬ Bingjie Han, Kaili Yao, Hongbin Cao,  Yueming Wang,
+ *               Jing Su, Jiaying Yan, Junru Li
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111, USA.
+ *
+ * This program is also available under a commercial proprietary license.
+ * For more information, contact us at rgwang@pkusz.edu.cn.
+ *****************************************************************************/
+
+void intra_pred_ver_sse128(xavs2_t *h,
+                           pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight)
+{
+    int y;
+    pel_t* rpSrc = pSrc + 1;
+    __m128i T1, T2, T3, T4;
+    __m128i M1, M2, M3, M4;
+
+    UNUSED_PARAMETER(dir_mode);
+
+    switch (iWidth) {
+    case 4:
+        for (y = 0; y < iHeight; y += 2) {
+            CP64(dst, rpSrc);
+            CP64(dst + i_dst, rpSrc);
+            dst += i_dst << 1;
+        }
+        break;
+    case 8:
+        T1 = _mm_loadu_si128((__m128i*)rpSrc);
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst), T1);
+            dst += i_dst;
+        }
+        break;
+    case 16:
+        T1 = _mm_loadu_si128((__m128i*)(rpSrc + 0));
+        T2 = _mm_loadu_si128((__m128i*)(rpSrc + 8));
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst + 0), T1);
+            _mm_storeu_si128((__m128i*)(dst + 8), T2);
+            dst += i_dst;
+        }
+        break;
+    case 32:
+        T1 = _mm_loadu_si128((__m128i*)(rpSrc + 0));
+        T2 = _mm_loadu_si128((__m128i*)(rpSrc + 8));
+        T3 = _mm_loadu_si128((__m128i*)(rpSrc + 16));
+        T4 = _mm_loadu_si128((__m128i*)(rpSrc + 24));
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst + 0), T1);
+            _mm_storeu_si128((__m128i*)(dst + 8), T2);
+            _mm_storeu_si128((__m128i*)(dst + 16), T3);
+            _mm_storeu_si128((__m128i*)(dst + 24), T4);
+            dst += i_dst;
+        }
+        break;
+    case 64:
+        T1 = _mm_loadu_si128((__m128i*)(rpSrc + 0));
+        T2 = _mm_loadu_si128((__m128i*)(rpSrc + 8));
+        T3 = _mm_loadu_si128((__m128i*)(rpSrc + 16));
+        T4 = _mm_loadu_si128((__m128i*)(rpSrc + 24));
+        M1 = _mm_loadu_si128((__m128i*)(rpSrc + 32));
+        M2 = _mm_loadu_si128((__m128i*)(rpSrc + 40));
+        M3 = _mm_loadu_si128((__m128i*)(rpSrc + 48));
+        M4 = _mm_loadu_si128((__m128i*)(rpSrc + 56));
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst + 0), T1);
+            _mm_storeu_si128((__m128i*)(dst + 8), T2);
+            _mm_storeu_si128((__m128i*)(dst + 16), T3);
+            _mm_storeu_si128((__m128i*)(dst + 24), T4);
+            _mm_storeu_si128((__m128i*)(dst + 32), M1);
+            _mm_storeu_si128((__m128i*)(dst + 40), M2);
+            _mm_storeu_si128((__m128i*)(dst + 48), M3);
+            _mm_storeu_si128((__m128i*)(dst + 56), M4);
+            dst += i_dst;
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+
+void intra_pred_hor_sse128(xavs2_t *h,
+                           pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight)
+{
+    int y;
+    pel_t* rpSrc = pSrc - 1;
+    __m128i T;
+
+    UNUSED_PARAMETER(dir_mode);
+
+    switch (iWidth) {
+    case 4:
+        for (y = 0; y < iHeight; y++) {
+            M64(dst) = 0x0001000100010001 * rpSrc[-y];
+            dst += i_dst;
+        }
+        break;
+    case 8:
+        for (y = 0; y < iHeight; y++) {
+            T = _mm_set1_epi16((pel_t)rpSrc[-y]);
+            _mm_storeu_si128((__m128i*)(dst), T);
+            dst += i_dst;
+        }
+        break;
+    case 16:
+        for (y = 0; y < iHeight; y++) {
+            T = _mm_set1_epi16((pel_t)rpSrc[-y]);
+            _mm_storeu_si128((__m128i*)(dst + 0), T);
+            _mm_storeu_si128((__m128i*)(dst + 8), T);
+            dst += i_dst;
+        }
+        break;
+    case 32:
+        for (y = 0; y < iHeight; y++) {
+            T = _mm_set1_epi16((pel_t)rpSrc[-y]);
+            _mm_storeu_si128((__m128i*)(dst + 0), T);
+            _mm_storeu_si128((__m128i*)(dst + 8), T);
+            _mm_storeu_si128((__m128i*)(dst + 16), T);
+            _mm_storeu_si128((__m128i*)(dst + 24), T);
+            dst += i_dst;
+        }
+        break;
+    case 64:
+        for (y = 0; y < iHeight; y++) {
+            T = _mm_set1_epi16((pel_t)rpSrc[-y]);
+            _mm_storeu_si128((__m128i*)(dst + 0), T);
+            _mm_storeu_si128((__m128i*)(dst + 8), T);
+            _mm_storeu_si128((__m128i*)(dst + 16), T);
+            _mm_storeu_si128((__m128i*)(dst + 24), T);
+            _mm_storeu_si128((__m128i*)(dst + 32), T);
+            _mm_storeu_si128((__m128i*)(dst + 40), T);
+            _mm_storeu_si128((__m128i*)(dst + 48), T);
+            _mm_storeu_si128((__m128i*)(dst + 56), T);
+            dst += i_dst;
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+
+void intra_pred_plane_sse128(xavs2_t *h,
+                             pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight)
+{
+    pel_t* rpSrc;
+    int iH = 0;
+    int iV = 0;
+    int iA, iB, iC;
+    int x, y;
+    int iW2 = iWidth >> 1;
+    int iH2 = iHeight >> 1;
+    int ib_mult[5] = { 13, 17, 5, 11, 23 };
+    int ib_shift[5] = { 7, 10, 11, 15, 19 };
+    int max_pixel = (1 << h->param->input_sample_bit_depth) - 1;
+    __m128i max_val = _mm_set1_epi16((pel_t)max_pixel);
+
+    int im_h = ib_mult[tab_log2[iWidth] - 2];
+    int is_h = ib_shift[tab_log2[iWidth] - 2];
+    int im_v = ib_mult[tab_log2[iHeight] - 2];
+    int is_v = ib_shift[tab_log2[iHeight] - 2];
+
+    int iTmp;
+    __m128i TC, TB, TA, T_Start, T, D, D1;
+
+    UNUSED_PARAMETER(dir_mode);
+
+    rpSrc = pSrc + iW2;
+    for (x = 1; x < iW2 + 1; x++) {
+        iH += x * (rpSrc[x] - rpSrc[-x]);
+    }
+
+    rpSrc = pSrc - iH2;
+    for (y = 1; y < iH2 + 1; y++) {
+        iV += y * (rpSrc[-y] - rpSrc[y]);
+    }
+
+    iA = (pSrc[-1 - (iHeight - 1)] + pSrc[1 + iWidth - 1]) << 4;
+    iB = ((iH << 5) * im_h + (1 << (is_h - 1))) >> is_h;
+    iC = ((iV << 5) * im_v + (1 << (is_v - 1))) >> is_v;
+
+    iTmp = iA - (iH2 - 1) * iC - (iW2 - 1) * iB + 16;
+
+    TA = _mm_set1_epi32((int16_t)iTmp);
+    TB = _mm_set1_epi32((int16_t)iB);
+    TC = _mm_set1_epi32((int16_t)iC);
+
+    T_Start = _mm_set_epi32(3, 2, 1, 0);
+    T_Start = _mm_mullo_epi32(TB, T_Start);
+    T_Start = _mm_add_epi32(T_Start, TA);
+
+    TB = _mm_slli_epi32(TB, 2);
+
+    if (iWidth <= 4) {
+        for (y = 0; y < iHeight; y++) {
+            D = _mm_srai_epi32(T_Start, 5);
+            D = _mm_packus_epi32(D, D);
+            D = _mm_min_epu16(D, max_val);
+            _mm_storel_epi64((__m128i*)dst, D);
+            T_Start = _mm_add_epi32(T_Start, TC);
+            dst += i_dst;
+        }
+    }
+    else
+    {
+        for (y = 0; y < iHeight; y++) {
+            T = T_Start;
+            for (x = 0; x < iWidth; x += 8) {
+                D = _mm_srai_epi32(T, 5);
+                T = _mm_add_epi32(T, TB);
+                D1 = _mm_srai_epi32(T, 5);
+                T = _mm_add_epi32(T, TB);
+                D = _mm_packus_epi32(D, D1);
+                D = _mm_min_epu16(D, max_val);
+                _mm_storeu_si128((__m128i*)(dst + x), D);
+            }
+            T_Start = _mm_add_epi32(T_Start, TC);
+            dst += i_dst;
+        }
+    }
+}
+
+void intra_pred_bilinear_sse128(xavs2_t *h,
+                                pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight)
+{
+    int x, y;
+    int ishift_x = tab_log2[iWidth];
+    int ishift_y = tab_log2[iHeight];
+    int ishift = min(ishift_x, ishift_y);
+    int ishift_xy = ishift_x + ishift_y + 1;
+    int offset = 1 << (ishift_x + ishift_y);
+    int a, b, c, w, val;
+    pel_t* p;
+    __m128i T, T1, T2, T3, C1, C2, ADD;
+    __m128i ZERO = _mm_setzero_si128();
+    __m128i shuff = _mm_setr_epi8(14, 15, 12, 13, 10, 11, 8, 9, 6, 7, 4, 5, 2, 3, 0, 1);
+    int max_pixel = (1 << h->param->input_sample_bit_depth) - 1;
+    __m128i max_val = _mm_set1_epi16((pel_t)max_pixel);
+
+    ALIGN16(int16_t pTop[MAX_CU_SIZE + 16]);
+    ALIGN16(int16_t pLeft[MAX_CU_SIZE + 16]);
+    ALIGN16(int16_t pT[MAX_CU_SIZE + 16]);
+    ALIGN16(int16_t pL[MAX_CU_SIZE + 16]);
+    ALIGN16(int16_t wy[MAX_CU_SIZE + 16]);
+
+    UNUSED_PARAMETER(dir_mode);
+
+    a = pSrc[iWidth];
+    b = pSrc[-iHeight];
+
+    c = (iWidth == iHeight) ? (a + b + 1) >> 1 : (((a << ishift_x) + (b << ishift_y)) * 13 + (1 << (ishift + 5))) >> (ishift + 6);
+    w = (c << 1) - a - b;
+
+    T = _mm_set1_epi16((int16_t)b);
+    p = pSrc + 1;
+
+    for (x = 0; x < iWidth; x += 8) {
+        T1 = _mm_loadu_si128((__m128i*)(p + x));
+        T2 = _mm_sub_epi16(T, T1);
+        T1 = _mm_slli_epi16(T1, ishift_y);
+        _mm_store_si128((__m128i*)(pT + x), T2);
+        _mm_store_si128((__m128i*)(pTop + x), T1);
+    }
+
+    T = _mm_set1_epi16((int16_t)a);
+    p = pSrc - 8;
+
+    for (y = 0; y < iHeight; y += 8) {
+        T1 = _mm_loadu_si128((__m128i*)(p - y));
+        T1 = _mm_shuffle_epi8(T1, shuff);
+        T2 = _mm_sub_epi16(T, T1);
+        T1 = _mm_slli_epi16(T1, ishift_x);
+        _mm_store_si128((__m128i*)(pL + y), T2);
+        _mm_store_si128((__m128i*)(pLeft + y), T1);
+    }
+
+    T = _mm_set1_epi16((int16_t)w);
+    T = _mm_mullo_epi16(T, _mm_set_epi16(7, 6, 5, 4, 3, 2, 1, 0));
+    T1 = _mm_set1_epi16((int16_t)(8 * w));
+
+    for (y = 0; y < iHeight; y += 8) {
+        _mm_store_si128((__m128i*)(wy + y), T);
+        T = _mm_add_epi16(T, T1);
+    }
+
+    C1 = _mm_set_epi32(3, 2, 1, 0);
+    C2 = _mm_set1_epi32(4);
+
+    if (iWidth == 4) {
+        __m128i pTT = _mm_loadl_epi64((__m128i*)pT);
+        T = _mm_loadl_epi64((__m128i*)pTop);
+        for (y = 0; y < iHeight; y++) {
+            int add = (pL[y] << ishift_y) + wy[y];
+            ADD = _mm_set1_epi32(add);
+            ADD = _mm_mullo_epi32(C1, ADD);
+
+            val = (pLeft[y] << ishift_y) + offset + (pL[y] << ishift_y);
+
+            ADD = _mm_add_epi32(ADD, _mm_set1_epi32(val));
+            T = _mm_add_epi16(T, pTT);
+
+            T1 = _mm_cvtepi16_epi32(T);
+            T1 = _mm_slli_epi32(T1, ishift_x);
+
+            T1 = _mm_add_epi32(T1, ADD);
+            T1 = _mm_srai_epi32(T1, ishift_xy);
+
+            T1 = _mm_packus_epi32(T1, T1);
+            T1 = _mm_min_epu16(T1, max_val);
+            _mm_storel_epi64((__m128i*)dst, T1);
+
+            dst += i_dst;
+        }
+    }
+    else if (iWidth == 8) {
+        __m128i pTT = _mm_load_si128((__m128i*)pT);
+        T = _mm_load_si128((__m128i*)pTop);
+        for (y = 0; y < iHeight; y++) {
+            int add = (pL[y] << ishift_y) + wy[y];
+            ADD = _mm_set1_epi32(add);
+            T3 = _mm_mullo_epi32(C2, ADD);
+            ADD = _mm_mullo_epi32(C1, ADD);
+
+            val = (pLeft[y] << ishift_y) + offset + (pL[y] << ishift_y);
+
+            ADD = _mm_add_epi32(ADD, _mm_set1_epi32(val));
+
+            T = _mm_add_epi16(T, pTT);
+
+            T1 = _mm_cvtepi16_epi32(T);
+            T2 = _mm_cvtepi16_epi32(_mm_srli_si128(T, 8));
+            T1 = _mm_slli_epi32(T1, ishift_x);
+            T2 = _mm_slli_epi32(T2, ishift_x);
+
+            T1 = _mm_add_epi32(T1, ADD);
+            T1 = _mm_srai_epi32(T1, ishift_xy);
+            ADD = _mm_add_epi32(ADD, T3);
+
+            T2 = _mm_add_epi32(T2, ADD);
+            T2 = _mm_srai_epi32(T2, ishift_xy);
+            ADD = _mm_add_epi32(ADD, T3);
+
+            T1 = _mm_packus_epi32(T1, T2);
+            T1 = _mm_min_epu16(T1, max_val);
+            _mm_storeu_si128((__m128i*)dst, T1);
+
+            dst += i_dst;
+        }
+    }
+    else {
+        __m128i TT[16];
+        __m128i PTT[16];
+        for (x = 0; x < iWidth; x += 8) {
+            int idx = x >> 2;
+            __m128i M0 = _mm_load_si128((__m128i*)(pTop + x));
+            __m128i M1 = _mm_load_si128((__m128i*)(pT + x));
+            TT[idx] = _mm_unpacklo_epi16(M0, ZERO);
+            TT[idx + 1] = _mm_unpackhi_epi16(M0, ZERO);
+            PTT[idx] = _mm_cvtepi16_epi32(M1);
+            PTT[idx + 1] = _mm_cvtepi16_epi32(_mm_srli_si128(M1, 8));
+        }
+        for (y = 0; y < iHeight; y++) {
+            int add = (pL[y] << ishift_y) + wy[y];
+            ADD = _mm_set1_epi32(add);
+            T3 = _mm_mullo_epi32(C2, ADD);
+            ADD = _mm_mullo_epi32(C1, ADD);
+
+            val = ((uint16_t)pLeft[y] << ishift_y) + offset + (pL[y] << ishift_y);
+
+            ADD = _mm_add_epi32(ADD, _mm_set1_epi32(val));
+
+            for (x = 0; x < iWidth; x += 8) {
+                int idx = x >> 2;
+                TT[idx] = _mm_add_epi32(TT[idx], PTT[idx]);
+                TT[idx + 1] = _mm_add_epi32(TT[idx + 1], PTT[idx + 1]);
+
+                T1 = _mm_slli_epi32(TT[idx], ishift_x);
+                T2 = _mm_slli_epi32(TT[idx + 1], ishift_x);
+
+                T1 = _mm_add_epi32(T1, ADD);
+                T1 = _mm_srai_epi32(T1, ishift_xy);
+                ADD = _mm_add_epi32(ADD, T3);
+
+                T2 = _mm_add_epi32(T2, ADD);
+                T2 = _mm_srai_epi32(T2, ishift_xy);
+                ADD = _mm_add_epi32(ADD, T3);
+
+                T1 = _mm_packus_epi32(T1, T2);
+                T1 = _mm_min_epu16(T1, max_val);
+                _mm_storeu_si128((__m128i*)(dst + x), T1);
+            }
+            dst += i_dst;
+        }
+    }
+}
+
+void intra_pred_dc_sse128(xavs2_t *h,
+                          pel_t* pSrc, pel_t* dst, int i_dst, int dir_mode, int iWidth, int iHeight)
+{
+    int bAboveAvail = dir_mode >> 8;
+    int bLeftAvail = dir_mode & 0xFF;
+
+    int   x, y;
+    int   iDCValue = 0;
+    pel_t* rpSrc = pSrc - 1;
+    int h_bitsize = tab_log2[iHeight];
+    int w_bitsize = tab_log2[iWidth];
+    int half_height = iHeight >> 1;
+    int half_width = iWidth >> 1;
+    __m128i T;
+    uint64_t v64;
+
+    if (bLeftAvail) {
+        for (y = 0; y < iHeight; y++) {
+            iDCValue += rpSrc[-y];
+        }
+
+        rpSrc = pSrc + 1;
+        if (bAboveAvail) {
+            for (x = 0; x < iWidth; x++) {
+                iDCValue += rpSrc[x];
+            }
+
+            iDCValue += ((iWidth + iHeight) >> 1);
+            iDCValue = (iDCValue * (512 / (iWidth + iHeight))) >> 9;
+        }
+        else {
+            iDCValue += half_height;
+            iDCValue >>= h_bitsize;
+        }
+    }
+    else {
+        rpSrc = pSrc + 1;
+        if (bAboveAvail) {
+            for (x = 0; x < iWidth; x++) {
+                iDCValue += rpSrc[x];
+            }
+
+            iDCValue += half_width;
+            iDCValue >>= w_bitsize;
+        }
+        else {
+            iDCValue = 1 << (h->param->input_sample_bit_depth - 1);
+        }
+    }
+
+    switch (iWidth) {
+    case 4:
+        v64 = 0x0001000100010001 * iDCValue;
+        for (y = 0; y < iHeight; y++) {
+            M64(dst) = v64;
+            dst += i_dst;
+        }
+        break;
+    case 8:
+        T = _mm_set1_epi16((pel_t)iDCValue);
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst), T);
+            dst += i_dst;
+        }
+        break;
+    case 16:
+        T = _mm_set1_epi16((pel_t)iDCValue);
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst + 0), T);
+            _mm_storeu_si128((__m128i*)(dst + 8), T);
+            dst += i_dst;
+        }
+        break;
+    case 32:
+        T = _mm_set1_epi16((pel_t)iDCValue);
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst + 0), T);
+            _mm_storeu_si128((__m128i*)(dst + 8), T);
+            _mm_storeu_si128((__m128i*)(dst + 16), T);
+            _mm_storeu_si128((__m128i*)(dst + 24), T);
+            dst += i_dst;
+        }
+        break;
+    case 64:
+        T = _mm_set1_epi16((pel_t)iDCValue);
+        for (y = 0; y < iHeight; y++) {
+            _mm_storeu_si128((__m128i*)(dst + 0), T);
+            _mm_storeu_si128((__m128i*)(dst + 8), T);
+            _mm_storeu_si128((__m128i*)(dst + 16), T);
+            _mm_storeu_si128((__m128i*)(dst + 24), T);
+            _mm_storeu_si128((__m128i*)(dst + 32), T);
+            _mm_storeu_si128((__m128i*)(dst + 40), T);
+            _mm_storeu_si128((__m128i*)(dst + 48), T);
+            _mm_storeu_si128((__m128i*)(dst + 56), T);
+            dst += i_dst;
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+#endif // #if !HIGH_BIT_DEPTH
 
 
