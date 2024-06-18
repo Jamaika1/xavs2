@@ -1184,6 +1184,7 @@ void sao_filter_lcu(xavs2_t *h, SAOBlkParam blk_param[NUM_SAO_COMPONENTS], int l
         int i_src = h->img_sao->i_stride[compIdx];
         pel_t *dst = h->fdec->planes[compIdx]    + pix_y * i_dst + pix_x;
         pel_t *src = h->img_sao->planes[compIdx] + pix_y * i_src + pix_x;
+#if !HIGH_BIT_DEPTH
         int avail[8];
         avail[0] = region.b_top;
         avail[1] = region.b_down;
@@ -1196,7 +1197,28 @@ void sao_filter_lcu(xavs2_t *h, SAOBlkParam blk_param[NUM_SAO_COMPONENTS], int l
         g_funcs.sao_block(h, dst, i_dst, src, i_src,
                           region.width[compIdx], region.height[compIdx],
                           avail, &p_param[compIdx]);
+#else
+        int filter_type = p_param[compIdx].typeIdc;
+        assert(filter_type >= SAO_TYPE_EO_0 && filter_type <= SAO_TYPE_BO);
 
+        if (filter_type == SAO_TYPE_BO) {
+            g_funcs.sao_block_bo(h, dst, i_dst, src, i_src,
+                           region.width[compIdx], region.height[compIdx], &p_param[compIdx]);
+        } else {
+            int avail[8];
+            avail[0] = region.b_top;
+            avail[1] = region.b_down;
+            avail[2] = region.b_left;
+            avail[3] = region.b_right;
+            avail[4] = region.b_top_left;
+            avail[5] = region.b_top_right;
+            avail[6] = region.b_down_left;
+            avail[7] = region.b_right_down;
+            g_funcs.sao_filter_eo[filter_type](h, dst, i_dst, src, i_src,
+                                                region.width[compIdx], region.height[compIdx],
+                                                avail, p_param[compIdx].offset);
+        }
+#endif
     }
 }
 
