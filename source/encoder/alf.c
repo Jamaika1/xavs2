@@ -792,13 +792,21 @@ void filterOneCTB(xavs2_t *h, alf_ctx_t *Enc_ALF, pel_t *p_dst, int i_dst, pel_t
         coef = Enc_ALF->m_filterCoeffSym[0];
     }
 
-
+#if !HIGH_BIT_DEPTH
     g_funcs.alf_flt[0](h, p_dst, i_dst, p_src, i_src,
                        xpos, ypos, width, height, coef,
                        isAboveAvail, isBelowAvail);
     g_funcs.alf_flt[1](h, p_dst, i_dst, p_src, i_src,
                        xpos, ypos, width, height, coef,
                        isAboveAvail, isBelowAvail);
+#else
+    g_funcs.alf_flt[0](h, p_dst, (const pel_t*)p_src, i_src,
+                       xpos, ypos, width, height, coef,
+                       isAboveAvail, isBelowAvail);
+    g_funcs.alf_flt[1](h, p_dst, (const pel_t*)p_src, i_src,
+                       xpos, ypos, width, height, coef,
+                       isAboveAvail, isBelowAvail);
+#endif
 }
 
 /* ---------------------------------------------------------------------------
