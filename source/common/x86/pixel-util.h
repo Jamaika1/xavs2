@@ -38,11 +38,12 @@ void xavs2_getResidual16_sse4(const pel_t *fenc, const pel_t *pred, int16_t *res
 void xavs2_getResidual32_sse2(const pel_t *fenc, const pel_t *pred, int16_t *residual, intptr_t stride);
 #define xavs2_getResidual32_sse4 FPFX(getResidual32_sse4)
 void xavs2_getResidual32_sse4(const pel_t *fenc, const pel_t *pred, int16_t *residual, intptr_t stride);
+#if defined(__AVX2__)
 #define xavs2_getResidual16_avx2 FPFX(getResidual16_avx2)
 void xavs2_getResidual16_avx2(const pel_t *fenc, const pel_t *pred, int16_t *residual, intptr_t stride);
 #define xavs2_getResidual32_avx2 FPFX(getResidual32_avx2)
 void xavs2_getResidual32_avx2(const pel_t *fenc, const pel_t *pred, int16_t *residual, intptr_t stride);
-
+#endif
 #define xavs2_transpose4_sse2 FPFX(transpose4_sse2)
 void xavs2_transpose4_sse2(pel_t *dst, const pel_t *src, intptr_t stride);
 #define xavs2_transpose8_sse2 FPFX(transpose8_sse2)
@@ -53,7 +54,7 @@ void xavs2_transpose16_sse2(pel_t *dst, const pel_t *src, intptr_t stride);
 void xavs2_transpose32_sse2(pel_t *dst, const pel_t *src, intptr_t stride);
 #define xavs2_transpose64_sse2 FPFX(transpose64_sse2)
 void xavs2_transpose64_sse2(pel_t *dst, const pel_t *src, intptr_t stride);
-
+#if defined(__AVX2__)
 #define xavs2_transpose8_avx2 FPFX(transpose8_avx2)
 void xavs2_transpose8_avx2(pel_t *dst, const pel_t *src, intptr_t stride);
 #define xavs2_transpose16_avx2 FPFX(transpose16_avx2)
@@ -62,7 +63,7 @@ void xavs2_transpose16_avx2(pel_t *dst, const pel_t *src, intptr_t stride);
 void xavs2_transpose32_avx2(pel_t *dst, const pel_t *src, intptr_t stride);
 #define xavs2_transpose64_avx2 FPFX(transpose64_avx2)
 void xavs2_transpose64_avx2(pel_t *dst, const pel_t *src, intptr_t stride);
-
+#endif
 #define xavs2_count_nonzero_4x4_ssse3 FPFX(count_nonzero_4x4_ssse3)
 int xavs2_count_nonzero_4x4_ssse3(const int16_t *quantCoeff);
 #define xavs2_count_nonzero_8x8_ssse3 FPFX(count_nonzero_8x8_ssse3)
@@ -71,6 +72,7 @@ int xavs2_count_nonzero_8x8_ssse3(const int16_t *quantCoeff);
 int xavs2_count_nonzero_16x16_ssse3(const int16_t *quantCoeff);
 #define xavs2_count_nonzero_32x32_ssse3 FPFX(count_nonzero_32x32_ssse3)
 int xavs2_count_nonzero_32x32_ssse3(const int16_t *quantCoeff);
+#if defined(__AVX2__)
 #define xavs2_count_nonzero_4x4_avx2 FPFX(count_nonzero_4x4_avx2)
 int xavs2_count_nonzero_4x4_avx2(const int16_t *quantCoeff);
 #define xavs2_count_nonzero_8x8_avx2 FPFX(count_nonzero_8x8_avx2)
@@ -79,11 +81,11 @@ int xavs2_count_nonzero_8x8_avx2(const int16_t *quantCoeff);
 int xavs2_count_nonzero_16x16_avx2(const int16_t *quantCoeff);
 #define xavs2_count_nonzero_32x32_avx2 FPFX(count_nonzero_32x32_avx2)
 int xavs2_count_nonzero_32x32_avx2(const int16_t *quantCoeff);
-
-#define xavs2_weight_pp_sse4 FPFX(weight_pp_sse4)
-void xavs2_weight_pp_sse4(const pel_t *src, pel_t *dst, intptr_t stride, int width, int height, int w0, int round, int shift, int offset);
 #define xavs2_weight_pp_avx2 FPFX(weight_pp_avx2)
 void xavs2_weight_pp_avx2(const pel_t *src, pel_t *dst, intptr_t stride, int width, int height, int w0, int round, int shift, int offset);
+#endif
+#define xavs2_weight_pp_sse4 FPFX(weight_pp_sse4)
+void xavs2_weight_pp_sse4(const pel_t *src, pel_t *dst, intptr_t stride, int width, int height, int w0, int round, int shift, int offset);
 #define xavs2_weight_sp_sse4 FPFX(weight_sp_sse4)
 void xavs2_weight_sp_sse4(const int16_t *src, pel_t *dst, intptr_t srcStride, intptr_t dstStride, int width, int height, int w0, int round, int shift, int offset);
 
@@ -103,17 +105,18 @@ float xavs2_pixel_ssim_end4_avx(int sum0[5][4], int sum1[5][4], int width);
 
 #define xavs2_scale1D_128to64_ssse3 FPFX(scale1D_128to64_ssse3)
 void xavs2_scale1D_128to64_ssse3(pel_t*, const pel_t*);
-#define xavs2_scale1D_128to64_avx2 FPFX(scale1D_128to64_avx2)
-void xavs2_scale1D_128to64_avx2(pel_t*, const pel_t*);
 #define xavs2_scale2D_64to32_ssse3 FPFX(scale2D_64to32_ssse3)
 void xavs2_scale2D_64to32_ssse3(pel_t*, const pel_t*, intptr_t);
+#if defined(__AVX2__)
+#define xavs2_scale1D_128to64_avx2 FPFX(scale1D_128to64_avx2)
+void xavs2_scale1D_128to64_avx2(pel_t*, const pel_t*);
 #define xavs2_scale2D_64to32_avx2 FPFX(scale2D_64to32_avx2)
 void xavs2_scale2D_64to32_avx2(pel_t*, const pel_t*, intptr_t);
-
-#define xavs2_scanPosLast_x64 FPFX(scanPosLast_x64)
-int xavs2_scanPosLast_x64(const uint16_t *scan, const coeff_t *coeff, uint16_t *coeffSign, uint16_t *coeffFlag, uint8_t *coeffNum, int numSig, const uint16_t *scanCG4x4, const int trSize);
 #define xavs2_scanPosLast_avx2_bmi2 FPFX(scanPosLast_avx2_bmi2)
 int xavs2_scanPosLast_avx2_bmi2(const uint16_t *scan, const coeff_t *coeff, uint16_t *coeffSign, uint16_t *coeffFlag, uint8_t *coeffNum, int numSig, const uint16_t *scanCG4x4, const int trSize);
+#endif
+#define xavs2_scanPosLast_x64 FPFX(scanPosLast_x64)
+int xavs2_scanPosLast_x64(const uint16_t *scan, const coeff_t *coeff, uint16_t *coeffSign, uint16_t *coeffFlag, uint8_t *coeffNum, int numSig, const uint16_t *scanCG4x4, const int trSize);
 #define xavs2_findPosFirstLast_ssse3 FPFX(findPosFirstLast_ssse3)
 uint32_t xavs2_findPosFirstLast_ssse3(const int16_t *dstCoeff, const intptr_t trSize, const uint16_t scanTbl[16]);
 
@@ -123,7 +126,8 @@ uint32_t xavs2_costCoeffNxN_sse4(const uint16_t *scan, const coeff_t *coeff, int
 
 #define SETUP_CHROMA_PIXELSUB_PS_FUNC(W, H, cpu) \
     void xavs2_pixel_sub_ps_ ## W ## x ## H ## cpu(coeff_t *dst, intptr_t destride, const pel_t *src0, const pel_t *src1, intptr_t srcstride0, intptr_t srcstride1); \
-    void xavs2_pixel_add_ps_ ## W ## x ## H ## cpu(pel_t *dst, intptr_t destride, const pel_t *src0, const coeff_t * src1, intptr_t srcStride0, intptr_t srcStride1);
+    void xavs2_pixel_add_ps_ ## W ## x ## H ## cpu(xavs2_t *h, pel_t *dst, intptr_t destride, const pel_t *src0, const coeff_t * src1, intptr_t srcStride0, intptr_t srcStride1);
+
 
 #define CHROMA_PIXELSUB_DEF(cpu) \
     SETUP_CHROMA_PIXELSUB_PS_FUNC(4, 4, cpu); \
@@ -139,7 +143,7 @@ uint32_t xavs2_costCoeffNxN_sse4(const uint16_t *scan, const coeff_t *coeff, int
 
 #define SETUP_LUMA_PIXELSUB_PS_FUNC(W, H, cpu) \
     void xavs2_pixel_sub_ps_ ## W ## x ## H ## cpu(coeff_t *dst, intptr_t destride, const pel_t *src0, const pel_t *src1, intptr_t srcstride0, intptr_t srcstride1); \
-    void xavs2_pixel_add_ps_ ## W ## x ## H ## cpu(pel_t *dst, intptr_t destride, const pel_t *src0, const coeff_t * src1, intptr_t srcStride0, intptr_t srcStride1);
+    void xavs2_pixel_add_ps_ ## W ## x ## H ## cpu(xavs2_t *h, pel_t *dst, intptr_t destride, const pel_t *src0, const coeff_t * src1, intptr_t srcStride0, intptr_t srcStride1);
 
 #define LUMA_PIXELSUB_DEF(cpu) \
     SETUP_LUMA_PIXELSUB_PS_FUNC(8,   8, cpu); \
