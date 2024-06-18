@@ -114,7 +114,7 @@
     FUNCDEF_PU(void,        pixel_sad_x3, cpu, const pel_t*, const pel_t*, const pel_t*, const pel_t*,               intptr_t, int32_t*);\
     FUNCDEF_PU(void,        pixel_sad_x4, cpu, const pel_t*, const pel_t*, const pel_t*, const pel_t*, const pel_t*, intptr_t, int32_t*);\
     FUNCDEF_PU(void,        pixel_avg,    cpu, pel_t* dst, intptr_t dstride, const pel_t* src0, intptr_t sstride0, const pel_t* src1, intptr_t sstride1, int);\
-    FUNCDEF_PU(void,        pixel_add_ps, cpu, pel_t* a,   intptr_t dstride, const pel_t* b0, const coeff_t* b1, intptr_t sstride0, intptr_t sstride1);\
+    FUNCDEF_PU(void,        pixel_add_ps, cpu, xavs2_t *h, pel_t* a,   intptr_t dstride, const pel_t* b0, const coeff_t* b1, intptr_t sstride0, intptr_t sstride1);\
     FUNCDEF_PU(void,        pixel_sub_ps, cpu, coeff_t* a, intptr_t dstride, const pel_t* b0, const pel_t*   b1, intptr_t sstride0, intptr_t sstride1);\
     FUNCDEF_PU(int,         pixel_satd,   cpu, const pel_t*, intptr_t, const pel_t*, intptr_t);\
     FUNCDEF_PU(int,         pixel_sad,    cpu, const pel_t*, intptr_t, const pel_t*, intptr_t);\
