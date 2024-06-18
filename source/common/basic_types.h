@@ -47,11 +47,17 @@
  * basic types
  * ===========================================================================
  */
+#if HIGH_BIT_DEPTH
+typedef uint16_t    pel_t;      /* type for pixel value */
+typedef uint64_t    pixel4;     /* type for 4-pixels value */
+typedef int32_t     itr_t;      /* intra prediction temp */
+#else
 typedef uint8_t     pel_t;      /* type for pixel */
+typedef uint32_t    pixel4;     /* type for 4-pixels value */
 typedef int16_t     itr_t;      /* intra prediction temp */
+#endif
 typedef uint16_t    sum_t;
 typedef uint32_t    sum2_t;
-typedef uint32_t    pixel4;
 typedef int32_t     ssum2_t;    /* Signed sum */
 typedef int32_t     dist_t;
 
