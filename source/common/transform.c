@@ -1707,6 +1707,7 @@ void xavs2_dct_init(uint32_t cpuid, dct_funcs_t *dctf)
     if (cpuid & XAVS2_CPU_SSE4) {
         dctf->dct[LUMA_8x8   ] = xavs2_dct_8x8_sse4;
     }
+
 #if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
         dctf->dct [LUMA_4x4   ] = xavs2_dct_4x4_avx2;
