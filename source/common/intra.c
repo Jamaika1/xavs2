@@ -1933,6 +1933,7 @@ void xavs2_intra_pred_init(uint32_t cpuid, intrinsic_func_t *pf)
         ipred[VERT_PRED      ] = intra_pred_ver_sse128;
         ipred[PLANE_PRED     ] = intra_pred_plane_sse128;
         ipred[BI_PRED        ] = intra_pred_bilinear_sse128;
+#if !HIGH_BIT_DEPTH
         ipred[INTRA_ANG_X_3  ] = intra_pred_ang_x_3_sse128;
         ipred[INTRA_ANG_X_4  ] = intra_pred_ang_x_4_sse128;
         ipred[INTRA_ANG_X_5  ] = intra_pred_ang_x_5_sse128;
@@ -1959,10 +1960,11 @@ void xavs2_intra_pred_init(uint32_t cpuid, intrinsic_func_t *pf)
         pf->fill_edge_f[1] = fill_edge_samples_x_sse128;
         pf->fill_edge_f[2] = fill_edge_samples_y_sse128;
         pf->fill_edge_f[3] = fill_edge_samples_xy_sse128;
+#endif
     }
 
-#if defined(__AVX2__)
     /* 8/10bit assemble*/
+#if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
         ipred[DC_PRED        ] = intra_pred_dc_avx;
         ipred[HOR_PRED       ] = intra_pred_hor_avx;
@@ -1995,7 +1997,6 @@ void xavs2_intra_pred_init(uint32_t cpuid, intrinsic_func_t *pf)
         ipred[INTRA_ANG_Y_30 ] = intra_pred_ang_y_30_avx;
         ipred[INTRA_ANG_Y_31 ] = intra_pred_ang_y_31_avx;
         ipred[INTRA_ANG_Y_32 ] = intra_pred_ang_y_32_avx;
-
     }
 #endif
 #endif //if HAVE_MMX
