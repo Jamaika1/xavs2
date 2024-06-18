@@ -44,11 +44,12 @@
 #include <smmintrin.h>
 
 
-void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
+#if !HIGH_BIT_DEPTH
+void alf_flt_one_block_sse128(xavs2_t *h,
+                              pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                               int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                               int *alf_coeff, int b_top_avail, int b_down_avail)
 {
-    xavs2_t *h;
     pel_t *p_src1, *p_src2, *p_src3, *p_src4, *p_src5, *p_src6;
 
     __m128i T00, T01, T10, T11, T20, T21, T30, T31, T40, T41, T50, T51;
@@ -207,5 +208,309 @@ void alf_flt_one_block_sse128(pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
         p_dst += i_dst;
     }
 }
+#else
+/*****************************************************************************
+*  Copyright (C) 2016 uavs2dec project,
+*  National Engineering Laboratory for Video Technology(Shenzhen),
+*  Digital Media R&D Center at Peking University Shenzhen Graduate School, China
+*  Project Leader: Ronggang Wang <rgwang@pkusz.edu.cn>
+*
+*  Main Authors: Zhenyu Wang <wangzhenyu@pkusz.edu.cn>, Kui Fan <kuifan@pku.edu.cn>
+*               Shenghao Zhang <1219759986@qq.com>£¬ Bingjie Han, Kaili Yao, Hongbin Cao,  Yueming Wang,
+*               Jing Su, Jiaying Yan, Junru Li
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111, USA.
+*
+* This program is also available under a commercial proprietary license.
+* For more information, contact us at rgwang@pkusz.edu.cn.
+*****************************************************************************/
+
+void alf_flt_one_block_sse128(xavs2_t *h,
+                              pel_t* p_dst, const pel_t* p_src, int stride,
+                              int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
+                              int* alf_coeff, int b_top_avail, int b_down_avail)
+{
+    const pel_t* p_src1, * p_src2, * p_src3, * p_src4, * p_src5, * p_src6;
+
+    __m128i T00, T01, T10, T11, T20, T21, T30, T31, T40, T41;
+    __m128i E00, E01, E10, E11, E20, E21, E30, E31, E40, E41;
+    __m128i C0, C1, C2, C3, C4, C5, C6, C7, C8;
+    __m128i S00, S01, S10, S11, S20, S21, S30, S31, S40, S41, S50, S51, S60, S61, SS1, SS2, S, S70, S71, S80, S81;
+    __m128i mAddOffset;
+    __m128i mask;
+    __m128i zero = _mm_setzero_si128();
+    int max_pixel = (1 << h->param->input_sample_bit_depth) - 1;
+    __m128i max_val = _mm_set1_epi16(max_pixel);
+
+    int i, j;
+    int startPos = b_top_avail ? (lcu_pix_y - 4) : lcu_pix_y;
+    int endPos = b_down_avail ? (lcu_pix_y + lcu_height - 4) : (lcu_pix_y + lcu_height);
+    int lcu_pix_xEnd = lcu_pix_x + lcu_width;
+
+    p_src += (startPos * stride);
+    p_dst += (startPos * stride);
+
+    C0 = _mm_set1_epi16((pel_t)alf_coeff[0]);
+    C1 = _mm_set1_epi16((pel_t)alf_coeff[1]);
+    C2 = _mm_set1_epi16((pel_t)alf_coeff[2]);
+    C3 = _mm_set1_epi16((pel_t)alf_coeff[3]);
+    C4 = _mm_set1_epi16((pel_t)alf_coeff[4]);
+    C5 = _mm_set1_epi16((pel_t)alf_coeff[5]);
+    C6 = _mm_set1_epi16((pel_t)alf_coeff[6]);
+    C7 = _mm_set1_epi16((pel_t)alf_coeff[7]);
+    C8 = _mm_set1_epi16((pel_t)alf_coeff[8]);
+
+    mAddOffset = _mm_set1_epi32(32);
+
+    if (lcu_width & 7) {
+        int lcu_pix_xEnd8 = lcu_pix_xEnd - (lcu_width & 0x07);
+        mask = _mm_loadu_si128((__m128i*)(intrinsic_mask[(lcu_width & 7) - 1]));
+        for (i = startPos; i < endPos; i++) {
+            int yUp = XAVS2_CLIP3(startPos, endPos - 1, i - 1);
+            int yBottom = XAVS2_CLIP3(startPos, endPos - 1, i + 1);
+            p_src1 = p_src + (yBottom - i) * stride;
+            p_src2 = p_src + (yUp - i) * stride;
+
+            yUp = XAVS2_CLIP3(startPos, endPos - 1, i - 2);
+            yBottom = XAVS2_CLIP3(startPos, endPos - 1, i + 2);
+            p_src3 = p_src + (yBottom - i) * stride;
+            p_src4 = p_src + (yUp - i) * stride;
+
+            yUp = XAVS2_CLIP3(startPos, endPos - 1, i - 3);
+            yBottom = XAVS2_CLIP3(startPos, endPos - 1, i + 3);
+            p_src5 = p_src + (yBottom - i) * stride;
+            p_src6 = p_src + (yUp - i) * stride;
+
+            for (j = lcu_pix_x; j < lcu_pix_xEnd; j += 8) {
+                T00 = _mm_loadu_si128((__m128i*) & p_src6[j]);
+                T01 = _mm_loadu_si128((__m128i*) & p_src5[j]);
+                E00 = _mm_unpacklo_epi16(T00, T01);
+                E01 = _mm_unpackhi_epi16(T00, T01);
+                S00 = _mm_madd_epi16(E00, C0);
+                S01 = _mm_madd_epi16(E01, C0);
+
+                T10 = _mm_loadu_si128((__m128i*) & p_src4[j]);
+                T11 = _mm_loadu_si128((__m128i*) & p_src3[j]);
+                E10 = _mm_unpacklo_epi16(T10, T11);
+                E11 = _mm_unpackhi_epi16(T10, T11);
+                S10 = _mm_madd_epi16(E10, C1);
+                S11 = _mm_madd_epi16(E11, C1);
+
+                T20 = _mm_loadu_si128((__m128i*) & p_src2[j - 1]);
+                T21 = _mm_loadu_si128((__m128i*) & p_src1[j + 1]);
+                E20 = _mm_unpacklo_epi16(T20, T21);
+                E21 = _mm_unpackhi_epi16(T20, T21);
+                S20 = _mm_madd_epi16(E20, C2);
+                S21 = _mm_madd_epi16(E21, C2);
+
+                T30 = _mm_loadu_si128((__m128i*) & p_src2[j]);
+                T31 = _mm_loadu_si128((__m128i*) & p_src1[j]);
+                E30 = _mm_unpacklo_epi16(T30, T31);
+                E31 = _mm_unpackhi_epi16(T30, T31);
+                S30 = _mm_madd_epi16(E30, C3);
+                S31 = _mm_madd_epi16(E31, C3);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src2[j + 1]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src1[j - 1]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S40 = _mm_madd_epi16(E40, C4);
+                S41 = _mm_madd_epi16(E41, C4);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j - 3]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src[j + 3]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S50 = _mm_madd_epi16(E40, C5);
+                S51 = _mm_madd_epi16(E41, C5);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j - 2]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src[j + 2]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S60 = _mm_madd_epi16(E40, C6);
+                S61 = _mm_madd_epi16(E41, C6);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j - 1]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src[j + 1]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S70 = _mm_madd_epi16(E40, C7);
+                S71 = _mm_madd_epi16(E41, C7);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j]);
+                E40 = _mm_unpacklo_epi16(T40, zero);
+                E41 = _mm_unpackhi_epi16(T40, zero);
+                S80 = _mm_madd_epi16(E40, C8);
+                S81 = _mm_madd_epi16(E41, C8);
+
+                SS1 = _mm_add_epi32(S00, S10);
+                SS1 = _mm_add_epi32(SS1, S20);
+                SS1 = _mm_add_epi32(SS1, S30);
+                SS1 = _mm_add_epi32(SS1, S40);
+                SS1 = _mm_add_epi32(SS1, S50);
+                SS1 = _mm_add_epi32(SS1, S60);
+                SS1 = _mm_add_epi32(SS1, S70);
+                SS1 = _mm_add_epi32(SS1, S80);
+
+                SS2 = _mm_add_epi32(S01, S11);
+                SS2 = _mm_add_epi32(SS2, S21);
+                SS2 = _mm_add_epi32(SS2, S31);
+                SS2 = _mm_add_epi32(SS2, S41);
+                SS2 = _mm_add_epi32(SS2, S51);
+                SS2 = _mm_add_epi32(SS2, S61);
+                SS2 = _mm_add_epi32(SS2, S71);
+                SS2 = _mm_add_epi32(SS2, S81);
+
+                SS1 = _mm_add_epi32(SS1, mAddOffset);
+                SS1 = _mm_srai_epi32(SS1, 6);
+
+                SS2 = _mm_add_epi32(SS2, mAddOffset);
+                SS2 = _mm_srai_epi32(SS2, 6);
+
+                S = _mm_packus_epi32(SS1, SS2);
+                S = _mm_min_epu16(S, max_val);
+                if (j != lcu_pix_xEnd8) {
+                    _mm_storeu_si128((__m128i*)(p_dst + j), S);
+                }
+                else {
+                    _mm_maskmoveu_si128(S, mask, (char*)(p_dst + j));
+                    break;
+                }
+            }
+
+            p_src += stride;
+            p_dst += stride;
+        }
+    }
+    else {
+        for (i = startPos; i < endPos; i++) {
+            int yUp = XAVS2_CLIP3(startPos, endPos - 1, i - 1);
+            int yBottom = XAVS2_CLIP3(startPos, endPos - 1, i + 1);
+            p_src1 = p_src + (yBottom - i) * stride;
+            p_src2 = p_src + (yUp - i) * stride;
+
+            yUp = XAVS2_CLIP3(startPos, endPos - 1, i - 2);
+            yBottom = XAVS2_CLIP3(startPos, endPos - 1, i + 2);
+            p_src3 = p_src + (yBottom - i) * stride;
+            p_src4 = p_src + (yUp - i) * stride;
+
+            yUp = XAVS2_CLIP3(startPos, endPos - 1, i - 3);
+            yBottom = XAVS2_CLIP3(startPos, endPos - 1, i + 3);
+            p_src5 = p_src + (yBottom - i) * stride;
+            p_src6 = p_src + (yUp - i) * stride;
+
+            for (j = lcu_pix_x; j < lcu_pix_xEnd; j += 8) {
+                T00 = _mm_loadu_si128((__m128i*) & p_src6[j]);
+                T01 = _mm_loadu_si128((__m128i*) & p_src5[j]);
+                E00 = _mm_unpacklo_epi16(T00, T01);
+                E01 = _mm_unpackhi_epi16(T00, T01);
+                S00 = _mm_madd_epi16(E00, C0);
+                S01 = _mm_madd_epi16(E01, C0);
+
+                T10 = _mm_loadu_si128((__m128i*) & p_src4[j]);
+                T11 = _mm_loadu_si128((__m128i*) & p_src3[j]);
+                E10 = _mm_unpacklo_epi16(T10, T11);
+                E11 = _mm_unpackhi_epi16(T10, T11);
+                S10 = _mm_madd_epi16(E10, C1);
+                S11 = _mm_madd_epi16(E11, C1);
+
+                T20 = _mm_loadu_si128((__m128i*) & p_src2[j - 1]);
+                T21 = _mm_loadu_si128((__m128i*) & p_src1[j + 1]);
+                E20 = _mm_unpacklo_epi16(T20, T21);
+                E21 = _mm_unpackhi_epi16(T20, T21);
+                S20 = _mm_madd_epi16(E20, C2);
+                S21 = _mm_madd_epi16(E21, C2);
+
+                T30 = _mm_loadu_si128((__m128i*) & p_src2[j]);
+                T31 = _mm_loadu_si128((__m128i*) & p_src1[j]);
+                E30 = _mm_unpacklo_epi16(T30, T31);
+                E31 = _mm_unpackhi_epi16(T30, T31);
+                S30 = _mm_madd_epi16(E30, C3);
+                S31 = _mm_madd_epi16(E31, C3);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src2[j + 1]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src1[j - 1]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S40 = _mm_madd_epi16(E40, C4);
+                S41 = _mm_madd_epi16(E41, C4);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j - 3]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src[j + 3]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S50 = _mm_madd_epi16(E40, C5);
+                S51 = _mm_madd_epi16(E41, C5);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j - 2]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src[j + 2]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S60 = _mm_madd_epi16(E40, C6);
+                S61 = _mm_madd_epi16(E41, C6);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j - 1]);
+                T41 = _mm_loadu_si128((__m128i*) & p_src[j + 1]);
+                E40 = _mm_unpacklo_epi16(T40, T41);
+                E41 = _mm_unpackhi_epi16(T40, T41);
+                S70 = _mm_madd_epi16(E40, C7);
+                S71 = _mm_madd_epi16(E41, C7);
+
+                T40 = _mm_loadu_si128((__m128i*) & p_src[j]);
+                E40 = _mm_unpacklo_epi16(T40, zero);
+                E41 = _mm_unpackhi_epi16(T40, zero);
+                S80 = _mm_madd_epi16(E40, C8);
+                S81 = _mm_madd_epi16(E41, C8);
+
+                SS1 = _mm_add_epi32(S00, S10);
+                SS1 = _mm_add_epi32(SS1, S20);
+                SS1 = _mm_add_epi32(SS1, S30);
+                SS1 = _mm_add_epi32(SS1, S40);
+                SS1 = _mm_add_epi32(SS1, S50);
+                SS1 = _mm_add_epi32(SS1, S60);
+                SS1 = _mm_add_epi32(SS1, S70);
+                SS1 = _mm_add_epi32(SS1, S80);
+
+                SS2 = _mm_add_epi32(S01, S11);
+                SS2 = _mm_add_epi32(SS2, S21);
+                SS2 = _mm_add_epi32(SS2, S31);
+                SS2 = _mm_add_epi32(SS2, S41);
+                SS2 = _mm_add_epi32(SS2, S51);
+                SS2 = _mm_add_epi32(SS2, S61);
+                SS2 = _mm_add_epi32(SS2, S71);
+                SS2 = _mm_add_epi32(SS2, S81);
+
+                SS1 = _mm_add_epi32(SS1, mAddOffset);
+                SS1 = _mm_srai_epi32(SS1, 6);
+
+                SS2 = _mm_add_epi32(SS2, mAddOffset);
+                SS2 = _mm_srai_epi32(SS2, 6);
+
+                S = _mm_packus_epi32(SS1, SS2);
+                S = _mm_min_epu16(S, max_val);
+
+                _mm_storeu_si128((__m128i*)(p_dst + j), S);
+
+            }
+
+            p_src += stride;
+            p_dst += stride;
+        }
+    }
+}
+#endif
 
 
