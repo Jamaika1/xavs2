@@ -120,9 +120,14 @@ typedef struct {
 
 
 /* SAO filter function */
+#if !HIGH_BIT_DEPTH
 typedef void(*sao_flt_t)(xavs2_t* h,pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                          int i_block_w, int i_block_h,
                          int *lcu_avail, SAOBlkParam *sao_param);
+#else
+typedef void(*sao_flt_bo_t)(xavs2_t* h, pel_t *p_dst, int i_dst, const pel_t *p_src, int i_src, int i_block_w, int i_block_h, const SAOBlkParam *sao_param);
+typedef void(*sao_flt_eo_t)(xavs2_t* h, pel_t *p_dst, int i_dst, const pel_t *p_src, int i_src, int i_block_w, int i_block_h, const int *lcu_avail, const int *sao_offset);
+#endif
 
 
 
@@ -205,12 +210,23 @@ typedef struct intrinsic_func_t {
     void(*deblock_luma_double[2])  (pel_t *src, int stride, int alpha, int beta, uint8_t *flt_flag);
     void(*deblock_chroma_double[2])(pel_t *src_u, pel_t *src_v, int stride, int alpha, int beta, uint8_t *flt_flag);
 
+#if !HIGH_BIT_DEPTH
     sao_flt_t       sao_block;          /* filter for SAO */
+#else
+    sao_flt_bo_t     sao_block_bo;          /* filter for bo type */
+    sao_flt_eo_t     sao_filter_eo[4];      /* SAO filter for eo types */
+#endif
 
     /* function handles */
+#if !HIGH_BIT_DEPTH
     void(*alf_flt[2])(xavs2_t *h, pel_t *p_dst, int i_dst, pel_t *p_src, int i_src,
                       int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
                       int *alf_coeff, int b_top_avail, int b_down_avail);
+#else
+    void(*alf_flt[2])(xavs2_t *h, pel_t *p_dst, const pel_t *p_src, int i_src,
+                      int lcu_pix_x, int lcu_pix_y, int lcu_width, int lcu_height,
+                      int *alf_coeff, int b_top_avail, int b_down_avail);
+#endif
 
     /* -----------------------------------------------------------------------
      * RDO procedure
