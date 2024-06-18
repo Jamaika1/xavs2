@@ -66,13 +66,13 @@ extern ALIGN16(const int16_t g_2T_C[SEC_TR_SIZE * SEC_TR_SIZE]);
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_4x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_4x4_sse128(xavs2_t *h,
+                       const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - bb->param->input_sample_bit_depth;
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
+    const int clip_depth2 = h->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p17_p42 = _mm_set1_epi32(0x0011002A);
     const __m128i c16_n42_p17 = _mm_set1_epi32(0xFFD60011);
@@ -147,13 +147,13 @@ void idct_c_4x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_4x16_sse128(xavs2_t *h,
+                        const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - bb->param->input_sample_bit_depth;
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
+    const int clip_depth2 = h->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p43_p45 = _mm_set1_epi32(0x002B002D);   //row0 87high - 90low address
     const __m128i c16_p35_p40 = _mm_set1_epi32(0x00230028);
@@ -452,13 +452,13 @@ void idct_c_4x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_16x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_16x4_sse128(xavs2_t *h,
+                        const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - bb->param->input_sample_bit_depth;
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
+    const int clip_depth2 = h->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p43_p45 = _mm_set1_epi32(0x002B002D);   //row0 87high - 90low address
     const __m128i c16_p35_p40 = _mm_set1_epi32(0x00230028);
@@ -721,13 +721,13 @@ void idct_c_16x4_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_8x8_sse128(xavs2_t *h,
+                       const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     // const int shift1 = 5;
-    const int shift2 = 20 - bb->param->input_sample_bit_depth;
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
     // const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
+    const int clip_depth2 = h->param->input_sample_bit_depth + 1;
 
     __m128i S0, S1, S2, S3, S4, S5, S6, S7;
     __m128i mAdd, T0, T1, T2, T3;
@@ -992,13 +992,13 @@ void idct_c_8x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_16x16_sse128(xavs2_t *h,
+                         const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - bb->param->input_sample_bit_depth;
+    const int shift2 = 20 - h->param->input_sample_bit_depth;
     //const int clip_depth1 = LIMIT_BIT;
-    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
+    const int clip_depth2 = h->param->input_sample_bit_depth + 1;
 
     const __m128i c16_p43_p45 = _mm_set1_epi32(0x002B002D);   //row0 87high - 90low address
     const __m128i c16_p35_p40 = _mm_set1_epi32(0x00230028);
@@ -1421,14 +1421,14 @@ void idct_c_16x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_32x32_sse128(xavs2_t *h,
+                         const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     int a_flag = i_dst & 0x01;
     //int shift1 = 5;
-    int shift2 = 20 - bb->param->input_sample_bit_depth - a_flag;
+    int shift2 = 20 - h->param->input_sample_bit_depth - a_flag;
     //int clip_depth1 = LIMIT_BIT;
-    int clip_depth2 = bb->param->input_sample_bit_depth + 1 + a_flag;
+    int clip_depth2 = h->param->input_sample_bit_depth + 1 + a_flag;
 
     const __m128i c16_p45_p45 = _mm_set1_epi32(0x002D002D);
     const __m128i c16_p43_p44 = _mm_set1_epi32(0x002B002C);
@@ -2213,18 +2213,18 @@ void idct_c_32x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_32x8_sse128(xavs2_t *h,
+                        const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     __m128i m128iS0[4], m128iS1[4], m128iS2[4], m128iS3[4], m128iS4[4], m128iS5[4], m128iS6[4], m128iS7[4];
     __m128i m128iAdd, m128Tmp0, m128Tmp1, m128Tmp2, m128Tmp3;
     __m128i E0h, E1h, E2h, E3h, E0l, E1l, E2l, E3l;
     __m128i O0h, O1h, O2h, O3h, O0l, O1l, O2l, O3l;
     __m128i EE0l, EE1l, E00l, E01l, EE0h, EE1h, E00h, E01h;
     //int shift1 = 5;
-    int shift2 = 20 - bb->param->input_sample_bit_depth - (i_dst & 0x01);
+    int shift2 = 20 - h->param->input_sample_bit_depth - (i_dst & 0x01);
     //int clip_depth1 = LIMIT_BIT;
-    int clip_depth2 = bb->param->input_sample_bit_depth + 1 + (i_dst & 0x01);
+    int clip_depth2 = h->param->input_sample_bit_depth + 1 + (i_dst & 0x01);
     int i, pass;
 
     i_dst &= 0xFE;    /* remember to remove the flag bit */
@@ -3052,9 +3052,9 @@ void idct_c_32x8_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_8x32_sse128(xavs2_t *h,
+                        const coeff_t *src, coeff_t *dst, int i_dst)
 {
-    xavs2_t *bb;
     const __m128i c16_p45_p45 = _mm_set1_epi32(0x002D002D);
     const __m128i c16_p43_p44 = _mm_set1_epi32(0x002B002C);
     const __m128i c16_p39_p41 = _mm_set1_epi32(0x00270029);
@@ -3237,9 +3237,9 @@ void idct_c_8x32_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
 
     int nShift = 5, pass;
     //int shift1 = 5;
-    int shift2 = 20 - bb->param->input_sample_bit_depth - (i_dst & 0x01);
+    int shift2 = 20 - h->param->input_sample_bit_depth - (i_dst & 0x01);
     //int clip_depth1 = LIMIT_BIT;
-    int clip_depth2 = bb->param->input_sample_bit_depth + 1 + (i_dst & 0x01);
+    int clip_depth2 = h->param->input_sample_bit_depth + 1 + (i_dst & 0x01);
 
     // DCT1
     __m128i in00, in01, in02, in03, in04, in05, in06, in07, in08, in09, in10, in11, in12, in13, in14, in15;
@@ -3975,12 +3975,12 @@ void inv_transform_2nd_sse128(coeff_t *coeff, int i_coeff, int i_mode, int b_top
 
 /* ---------------------------------------------------------------------------
  */
-void inv_transform_4x4_2nd_sse128(coeff_t *coeff, int i_coeff)
+void inv_transform_4x4_2nd_sse128(xavs2_t *h,
+                                  coeff_t *coeff, int i_coeff)
 {
-    xavs2_t *bb;
     const int shift1 = 5;
-    const int shift2 = 20 - bb->param->input_sample_bit_depth + 2;
-    const int clip_depth2 = bb->param->input_sample_bit_depth + 1;
+    const int shift2 = 20 - h->param->input_sample_bit_depth + 2;
+    const int clip_depth2 = h->param->input_sample_bit_depth + 1;
 
     /*---vertical transform first---*/
     __m128i factor = _mm_set1_epi32(1 << (shift1 - 1));         // add1
@@ -4777,27 +4777,27 @@ static void inv_wavelet_16x64_sse128(coeff_t *coeff)
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_64x64_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_64x64_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst)
 {
     UNUSED_PARAMETER(i_dst);
-    idct_c_32x32_sse128(src, dst, 32 | 0x01); /* 32x32 idct */
+    idct_c_32x32_sse128(h, src, dst, 32 | 0x01); /* 32x32 idct */
     inv_wavelet_64x64_sse128(dst);
 }
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_64x16_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_64x16_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst)
 {
     UNUSED_PARAMETER(i_dst);
-    idct_c_32x8_sse128(src, dst, 32 | 0x01);
+    idct_c_32x8_sse128(h, src, dst, 32 | 0x01);
     inv_wavelet_64x16_sse128(dst);
 }
 
 /* ---------------------------------------------------------------------------
  */
-void idct_c_16x64_sse128(const coeff_t *src, coeff_t *dst, int i_dst)
+void idct_c_16x64_sse128(xavs2_t *h, const coeff_t *src, coeff_t *dst, int i_dst)
 {
     UNUSED_PARAMETER(i_dst);
-    idct_c_8x32_sse128(src, dst, 8 | 0x01);
+    idct_c_8x32_sse128(h, src, dst, 8 | 0x01);
     inv_wavelet_16x64_sse128(dst);
 }
