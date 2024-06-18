@@ -186,7 +186,11 @@ enum xavs2_fast_algorithms_e {
  * quantization parameter range
  */
 #define MIN_QP                  0     /* min QP */
+#if HIGH_BIT_DEPTH
+#define MAX_QP                  79    /* max QP */
+#else
 #define MAX_QP                  63    /* max QP */
+#endif
 #define SHIFT_QP                11    /* shift QP */
 
 
