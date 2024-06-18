@@ -46,13 +46,14 @@
 #include <smmintrin.h>
 
 
+#if !HIGH_BIT_DEPTH
 /* ---------------------------------------------------------------------------
  * fill reference samples for intra prediction
  * LCU内在左边界上的PU
  */
-void fill_edge_samples_0_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_edge_samples_0_sse128(xavs2_t *h,
+                                const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
-    xavs2_t *bb;
     __m128i T0, T1;
     int i, k, j;
     int num_padding;
@@ -62,12 +63,12 @@ void fill_edge_samples_0_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
     /* fill default value */
     k = ((bsy + bsx) << 1) + 1;
     j = (k >> 4) << 4;
-    T0 = _mm_set1_epi8((uint8_t)((1 << bb->param->input_sample_bit_depth) >> 1));
+    T0 = _mm_set1_epi8((uint8_t)((1 << h->param->input_sample_bit_depth) >> 1));
     for (i = 0; i < j; i += 16) {
         _mm_storeu_si128((__m128i *)(&EP[-(bsy << 1)] + i), T0);
     }
-    memset(&EP[-(bsy << 1)] + j, ((1 << bb->param->input_sample_bit_depth) >> 1), k - j + 1);
-    EP[2 * bsx] = (pel_t)((1 << bb->param->input_sample_bit_depth) >> 1);
+    memset(&EP[-(bsy << 1)] + j, ((1 << h->param->input_sample_bit_depth) >> 1), k - j + 1);
+    EP[2 * bsx] = (pel_t)((1 << h->param->input_sample_bit_depth) >> 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -166,9 +167,9 @@ void fill_edge_samples_0_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
  * fill reference samples for intra prediction
  * LCU内在左边界上的PU
  */
-void fill_edge_samples_x_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_edge_samples_x_sse128(xavs2_t *h,
+                                const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
-    xavs2_t *bb;
     __m128i T0, T1;
     int i, k, j;
     int num_padding;
@@ -178,12 +179,12 @@ void fill_edge_samples_x_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
     /* fill default value */
     k = ((bsy + bsx) << 1) + 1;
     j = (k >> 4) << 4;
-    T0 = _mm_set1_epi8((uint8_t)((1 << bb->param->input_sample_bit_depth) >> 1));
+    T0 = _mm_set1_epi8((uint8_t)((1 << h->param->input_sample_bit_depth) >> 1));
     for (i = 0; i < j; i += 16) {
         _mm_storeu_si128((__m128i *)(&EP[-(bsy << 1)] + i), T0);
     }
-    memset(&EP[-(bsy << 1)] + j, ((1 << bb->param->input_sample_bit_depth) >> 1), k - j + 1);
-    EP[2 * bsx] = (pel_t)((1 << bb->param->input_sample_bit_depth) >> 1);
+    memset(&EP[-(bsy << 1)] + j, ((1 << h->param->input_sample_bit_depth) >> 1), k - j + 1);
+    EP[2 * bsx] = (pel_t)((1 << h->param->input_sample_bit_depth) >> 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -292,9 +293,9 @@ void fill_edge_samples_x_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
  * fill reference samples for intra prediction
  * LCU内在左边界上的PU
  */
-void fill_edge_samples_y_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_edge_samples_y_sse128(xavs2_t *h,
+                                const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
-    xavs2_t *bb;
     __m128i T0, T1;
     int i, k, j;
     int num_padding;
@@ -305,12 +306,12 @@ void fill_edge_samples_y_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
     /* fill default value */
     k = ((bsy + bsx) << 1) + 1;
     j = (k >> 4) << 4;
-    T0 = _mm_set1_epi8((uint8_t)((1 << bb->param->input_sample_bit_depth) >> 1));
+    T0 = _mm_set1_epi8((uint8_t)((1 << h->param->input_sample_bit_depth) >> 1));
     for (i = 0; i < j; i += 16) {
         _mm_storeu_si128((__m128i *)(&EP[-(bsy << 1)] + i), T0);
     }
-    memset(&EP[-(bsy << 1)] + j, ((1 << bb->param->input_sample_bit_depth) >> 1), k - j + 1);
-    EP[2 * bsx] = (pel_t)((1 << bb->param->input_sample_bit_depth) >> 1);
+    memset(&EP[-(bsy << 1)] + j, ((1 << h->param->input_sample_bit_depth) >> 1), k - j + 1);
+    EP[2 * bsx] = (pel_t)((1 << h->param->input_sample_bit_depth) >> 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -409,9 +410,9 @@ void fill_edge_samples_y_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP,
  * fill reference samples for intra prediction
  * LCU内在左边界上的PU
  */
-void fill_edge_samples_xy_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
+void fill_edge_samples_xy_sse128(xavs2_t *h,
+                                 const pel_t *pTL, int i_TL, const pel_t *pLcuEP, pel_t *EP, uint32_t i_avai, int bsx, int bsy)
 {
-    xavs2_t *bb;
     __m128i T0, T1;
     int i, k, j;
     int num_padding;
@@ -423,12 +424,12 @@ void fill_edge_samples_xy_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP
     /* fill default value */
     k = ((bsy + bsx) << 1) + 1;
     j = (k >> 4) << 4;
-    T0 = _mm_set1_epi8((uint8_t)((1 << bb->param->input_sample_bit_depth) >> 1));
+    T0 = _mm_set1_epi8((uint8_t)((1 << h->param->input_sample_bit_depth) >> 1));
     for (i = 0; i < j; i += 16) {
         _mm_storeu_si128((__m128i *)(&EP[-(bsy << 1)] + i), T0);
     }
-    memset(&EP[-(bsy << 1)] + j, ((1 << bb->param->input_sample_bit_depth) >> 1), k - j + 1);
-    EP[2 * bsx] = (pel_t)((1 << bb->param->input_sample_bit_depth) >> 1);
+    memset(&EP[-(bsy << 1)] + j, ((1 << h->param->input_sample_bit_depth) >> 1), k - j + 1);
+    EP[2 * bsx] = (pel_t)((1 << h->param->input_sample_bit_depth) >> 1);
 
     /* get prediction pixels ---------------------------------------
      * extra pixels          | left-down pixels   | left pixels   | top-left | top pixels  | top-right pixels  | extra pixels
@@ -532,5 +533,5 @@ void fill_edge_samples_xy_sse128(const pel_t *pTL, int i_TL, const pel_t *pLcuEP
         EP[0] = pL[0];
     }
 }
-
+#endif
 
