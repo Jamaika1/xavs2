@@ -45,6 +45,39 @@
 
 void xavs2_pixel_average_sse128(pel_t *dst, int i_dst, pel_t *src1, int i_src1, pel_t *src2, int i_src2, int width, int height)
 {
+#if HIGH_BIT_DEPTH
+    int j;
+    __m128i D;
+
+    if (width & 7) {
+        //__m128i mask = _mm_load_si128((const __m128i *)intrinsic_mask_10bit[(width & 7) - 1]);
+        __m128i mask = _mm_load_si128((const __m128i*)intrinsic_mask[(width & 7) - 1]);
+
+        while (height--) {
+            for (j = 0; j < width - 7; j += 8) {
+                D = _mm_avg_epu16(_mm_loadu_si128((const __m128i *)(src1 + j)), _mm_loadu_si128((const __m128i *)(src2 + j)));
+                _mm_storeu_si128((__m128i *)(dst + j), D);
+            }
+
+            D = _mm_avg_epu16(_mm_loadu_si128((const __m128i *)(src1 + j)), _mm_loadu_si128((const __m128i *)(src2 + j)));
+            _mm_maskmoveu_si128(D, mask, (char *)&dst[j]);
+
+            src1 += i_src1;
+            src2 += i_src2;
+            dst += i_dst;
+        }
+    } else {
+        while (height--) {
+            for (j = 0; j < width; j += 8) {
+                D = _mm_avg_epu16(_mm_loadu_si128((const __m128i *)(src1 + j)), _mm_loadu_si128((const __m128i *)(src2 + j)));
+                _mm_storeu_si128((__m128i *)(dst + j), D);
+            }
+            src1 += i_src1;
+            src2 += i_src2;
+            dst += i_dst;
+        }
+    }
+#else
     int i, j;
     __m128i S1, S2, D;
 
@@ -81,7 +114,7 @@ void xavs2_pixel_average_sse128(pel_t *dst, int i_dst, pel_t *src1, int i_src1, 
             dst += i_dst;
         }
     }
-
+#endif
 }
 
 /* ---------------------------------------------------------------------------
