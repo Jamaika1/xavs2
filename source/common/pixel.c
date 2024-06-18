@@ -916,12 +916,72 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
      */
 #if HAVE_MMX
     if (cpuid & XAVS2_CPU_SSE2) {
-        ALL_LUMA_PU(copy_sp, blockcopy_sp, _sse2);
-        ALL_LUMA_PU(copy_ss, blockcopy_ss, _sse2);
+#if HIGH_BIT_DEPTH
+        //10bit assemble
+        if (sizeof(pel_t) == sizeof(int16_t) && cpuid) {
+            pixf->copy_pp[LUMA_64x64] = (copy_pp_t)xavs2_blockcopy_ss_64x64_sse2;  /* 64x64 */
+            pixf->copy_pp[LUMA_64x32] = (copy_pp_t)xavs2_blockcopy_ss_64x32_sse2;
+            pixf->copy_pp[LUMA_32x64] = (copy_pp_t)xavs2_blockcopy_ss_32x64_sse2;
+            pixf->copy_pp[LUMA_64x16] = (copy_pp_t)xavs2_blockcopy_ss_64x16_sse2;
+            pixf->copy_pp[LUMA_64x48] = (copy_pp_t)xavs2_blockcopy_ss_64x48_sse2;
+            pixf->copy_pp[LUMA_16x64] = (copy_pp_t)xavs2_blockcopy_ss_16x64_sse2;
+            pixf->copy_pp[LUMA_48x64] = (copy_pp_t)xavs2_blockcopy_ss_48x64_sse2;
+            pixf->copy_pp[LUMA_32x32] = (copy_pp_t)xavs2_blockcopy_ss_32x32_sse2; /* 32x32 */
+            pixf->copy_pp[LUMA_32x16] = (copy_pp_t)xavs2_blockcopy_ss_32x16_sse2;
+            pixf->copy_pp[LUMA_16x32] = (copy_pp_t)xavs2_blockcopy_ss_16x32_sse2;
+            pixf->copy_pp[LUMA_32x8 ] = (copy_pp_t)xavs2_blockcopy_ss_32x8_sse2;
+            pixf->copy_pp[LUMA_32x24] = (copy_pp_t)xavs2_blockcopy_ss_32x24_sse2;
+            pixf->copy_pp[LUMA_8x32 ] = (copy_pp_t)xavs2_blockcopy_ss_8x32_sse2;
+            pixf->copy_pp[LUMA_24x32] = (copy_pp_t)xavs2_blockcopy_ss_24x32_sse2;
+            pixf->copy_pp[LUMA_16x16] = (copy_pp_t)xavs2_blockcopy_ss_16x16_sse2; /* 16x16 */
+            pixf->copy_pp[LUMA_16x8 ] = (copy_pp_t)xavs2_blockcopy_ss_16x8_sse2;
+            pixf->copy_pp[LUMA_8x16 ] = (copy_pp_t)xavs2_blockcopy_ss_8x16_sse2;
+            pixf->copy_pp[LUMA_16x4 ] = (copy_pp_t)xavs2_blockcopy_ss_16x4_sse2;
+            pixf->copy_pp[LUMA_16x12] = (copy_pp_t)xavs2_blockcopy_ss_16x12_sse2;
+            pixf->copy_pp[LUMA_4x16 ] = (copy_pp_t)xavs2_blockcopy_ss_4x16_sse2;
+            pixf->copy_pp[LUMA_12x16] = (copy_pp_t)xavs2_blockcopy_ss_12x16_sse2;
+            pixf->copy_pp[LUMA_8x8  ] = (copy_pp_t)xavs2_blockcopy_ss_8x8_sse2; /* 8x8 */
+            pixf->copy_pp[LUMA_8x4  ] = (copy_pp_t)xavs2_blockcopy_ss_8x4_sse2;
+            pixf->copy_pp[LUMA_4x8  ] = (copy_pp_t)xavs2_blockcopy_ss_4x8_sse2;
+            pixf->copy_pp[LUMA_4x4  ] = (copy_pp_t)xavs2_blockcopy_ss_4x4_sse2;  /* 4x4 */
+        }
+        if (sizeof(coeff_t) == sizeof(int16_t) && cpuid) {
+            pixf->copy_ss[LUMA_64x64] = (copy_ss_t)xavs2_blockcopy_ss_64x64_sse2;  /* 64x64 */
+            pixf->copy_ss[LUMA_64x32] = (copy_ss_t)xavs2_blockcopy_ss_64x32_sse2;
+            pixf->copy_ss[LUMA_32x64] = (copy_ss_t)xavs2_blockcopy_ss_32x64_sse2;
+            pixf->copy_ss[LUMA_64x16] = (copy_ss_t)xavs2_blockcopy_ss_64x16_sse2;
+            pixf->copy_ss[LUMA_64x48] = (copy_ss_t)xavs2_blockcopy_ss_64x48_sse2;
+            pixf->copy_ss[LUMA_16x64] = (copy_ss_t)xavs2_blockcopy_ss_16x64_sse2;
+            pixf->copy_ss[LUMA_48x64] = (copy_ss_t)xavs2_blockcopy_ss_48x64_sse2;
+            pixf->copy_ss[LUMA_32x32] = (copy_ss_t)xavs2_blockcopy_ss_32x32_sse2; /* 32x32 */
+            pixf->copy_ss[LUMA_32x16] = (copy_ss_t)xavs2_blockcopy_ss_32x16_sse2;
+            pixf->copy_ss[LUMA_16x32] = (copy_ss_t)xavs2_blockcopy_ss_16x32_sse2;
+            pixf->copy_ss[LUMA_32x8 ] = (copy_ss_t)xavs2_blockcopy_ss_32x8_sse2;
+            pixf->copy_ss[LUMA_32x24] = (copy_ss_t)xavs2_blockcopy_ss_32x24_sse2;
+            pixf->copy_ss[LUMA_8x32 ] = (copy_ss_t)xavs2_blockcopy_ss_8x32_sse2;
+            pixf->copy_ss[LUMA_24x32] = (copy_ss_t)xavs2_blockcopy_ss_24x32_sse2;
+            pixf->copy_ss[LUMA_16x16] = (copy_ss_t)xavs2_blockcopy_ss_16x16_sse2; /* 16x16 */
+            pixf->copy_ss[LUMA_16x8 ] = (copy_ss_t)xavs2_blockcopy_ss_16x8_sse2;
+            pixf->copy_ss[LUMA_8x16 ] = (copy_ss_t)xavs2_blockcopy_ss_8x16_sse2;
+            pixf->copy_ss[LUMA_16x4 ] = (copy_ss_t)xavs2_blockcopy_ss_16x4_sse2;
+            pixf->copy_ss[LUMA_16x12] = (copy_ss_t)xavs2_blockcopy_ss_16x12_sse2;
+            pixf->copy_ss[LUMA_4x16 ] = (copy_ss_t)xavs2_blockcopy_ss_4x16_sse2;
+            pixf->copy_ss[LUMA_12x16] = (copy_ss_t)xavs2_blockcopy_ss_12x16_sse2;
+            pixf->copy_ss[LUMA_8x8  ] = (copy_ss_t)xavs2_blockcopy_ss_8x8_sse2; /* 8x8 */
+            pixf->copy_ss[LUMA_8x4  ] = (copy_ss_t)xavs2_blockcopy_ss_8x4_sse2;
+            pixf->copy_ss[LUMA_4x8  ] = (copy_ss_t)xavs2_blockcopy_ss_4x8_sse2;
+            pixf->copy_ss[LUMA_4x4  ] = (copy_ss_t)xavs2_blockcopy_ss_4x4_sse2;  /* 4x4 */
+        }
+#else
         ALL_LUMA_PU(copy_pp, blockcopy_pp, _sse2);
+        ALL_LUMA_PU(copy_ss, blockcopy_ss, _sse2);
+#endif
     }
 
     if (cpuid & XAVS2_CPU_SSE4) {
+#if HIGH_BIT_DEPTH
+        //10bit assemble
+#else
         pixf->add_ps [LUMA_4x4  ] = xavs2_pixel_add_ps_4x4_sse4;
         pixf->add_ps [LUMA_4x8  ] = xavs2_pixel_add_ps_4x8_sse4;
         pixf->add_ps [LUMA_4x16 ] = xavs2_pixel_add_ps_4x16_sse4;
@@ -965,9 +1025,52 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sub_ps [LUMA_64x64] = xavs2_pixel_sub_ps_64x64_sse4;
 
         ALL_LUMA_PU(copy_ps, blockcopy_ps, _sse4);
+#endif
     }
 
+#if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
+#if HIGH_BIT_DEPTH
+        //10bit assemble
+        if (sizeof(pel_t) == sizeof(int16_t) && cpuid) {
+            pixf->copy_pp[LUMA_64x64] = (copy_pp_t)xavs2_blockcopy_ss_64x64_avx;
+            pixf->copy_pp[LUMA_64x32] = (copy_pp_t)xavs2_blockcopy_ss_64x32_avx;
+            pixf->copy_pp[LUMA_32x64] = (copy_pp_t)xavs2_blockcopy_ss_32x64_avx;
+            pixf->copy_pp[LUMA_64x16] = (copy_pp_t)xavs2_blockcopy_ss_64x16_avx;
+            pixf->copy_pp[LUMA_64x48] = (copy_pp_t)xavs2_blockcopy_ss_64x48_avx;
+            pixf->copy_pp[LUMA_16x64] = (copy_pp_t)xavs2_blockcopy_ss_16x64_avx;
+            pixf->copy_pp[LUMA_48x64] = (copy_pp_t)xavs2_blockcopy_ss_48x64_avx;
+            pixf->copy_pp[LUMA_32x32] = (copy_pp_t)xavs2_blockcopy_ss_32x32_avx;
+            pixf->copy_pp[LUMA_32x16] = (copy_pp_t)xavs2_blockcopy_ss_32x16_avx;
+            pixf->copy_pp[LUMA_16x32] = (copy_pp_t)xavs2_blockcopy_ss_16x32_avx;
+            pixf->copy_pp[LUMA_32x8 ] = (copy_pp_t)xavs2_blockcopy_ss_32x8_avx;
+            pixf->copy_pp[LUMA_32x24] = (copy_pp_t)xavs2_blockcopy_ss_32x24_avx;
+            pixf->copy_pp[LUMA_24x32] = (copy_pp_t)xavs2_blockcopy_ss_24x32_avx;
+            pixf->copy_pp[LUMA_16x16] = (copy_pp_t)xavs2_blockcopy_ss_16x16_avx;
+            pixf->copy_pp[LUMA_16x8 ] = (copy_pp_t)xavs2_blockcopy_ss_16x8_avx;
+            pixf->copy_pp[LUMA_16x4 ] = (copy_pp_t)xavs2_blockcopy_ss_16x4_avx;
+            pixf->copy_pp[LUMA_16x12] = (copy_pp_t)xavs2_blockcopy_ss_16x12_avx;
+        }
+        if (sizeof(coeff_t) == sizeof(int16_t) && cpuid) {
+            pixf->copy_ss[LUMA_64x64] = (copy_ss_t)xavs2_blockcopy_ss_64x64_avx;
+            pixf->copy_ss[LUMA_64x32] = (copy_ss_t)xavs2_blockcopy_ss_64x32_avx;
+            pixf->copy_ss[LUMA_32x64] = (copy_ss_t)xavs2_blockcopy_ss_32x64_avx;
+            pixf->copy_ss[LUMA_64x16] = (copy_ss_t)xavs2_blockcopy_ss_64x16_avx;
+            pixf->copy_ss[LUMA_64x48] = (copy_ss_t)xavs2_blockcopy_ss_64x48_avx;
+            pixf->copy_ss[LUMA_16x64] = (copy_ss_t)xavs2_blockcopy_ss_16x64_avx;
+            pixf->copy_ss[LUMA_48x64] = (copy_ss_t)xavs2_blockcopy_ss_48x64_avx;
+            pixf->copy_ss[LUMA_32x32] = (copy_ss_t)xavs2_blockcopy_ss_32x32_avx;
+            pixf->copy_ss[LUMA_32x16] = (copy_ss_t)xavs2_blockcopy_ss_32x16_avx;
+            pixf->copy_ss[LUMA_16x32] = (copy_ss_t)xavs2_blockcopy_ss_16x32_avx;
+            pixf->copy_ss[LUMA_32x8 ] = (copy_ss_t)xavs2_blockcopy_ss_32x8_avx;
+            pixf->copy_ss[LUMA_32x24] = (copy_ss_t)xavs2_blockcopy_ss_32x24_avx;
+            pixf->copy_ss[LUMA_24x32] = (copy_ss_t)xavs2_blockcopy_ss_24x32_avx;
+            pixf->copy_ss[LUMA_16x16] = (copy_ss_t)xavs2_blockcopy_ss_16x16_avx;
+            pixf->copy_ss[LUMA_16x8 ] = (copy_ss_t)xavs2_blockcopy_ss_16x8_avx;
+            pixf->copy_ss[LUMA_16x4 ] = (copy_ss_t)xavs2_blockcopy_ss_16x4_avx;
+            pixf->copy_ss[LUMA_16x12] = (copy_ss_t)xavs2_blockcopy_ss_16x12_avx;
+        }
+#else
         pixf->copy_pp[LUMA_64x64] = xavs2_blockcopy_pp_64x64_avx;
         pixf->copy_pp[LUMA_64x32] = xavs2_blockcopy_pp_64x32_avx;
         pixf->copy_pp[LUMA_32x64] = xavs2_blockcopy_pp_32x64_avx;
@@ -996,9 +1099,13 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->copy_ss[LUMA_16x8 ] = xavs2_blockcopy_ss_16x8_avx;
         pixf->copy_ss[LUMA_16x4 ] = xavs2_blockcopy_ss_16x4_avx;
         pixf->copy_ss[LUMA_16x12] = xavs2_blockcopy_ss_16x12_avx;
+#endif
     }
-#if defined(__AVX2__)
+
     if (cpuid & XAVS2_CPU_AVX2) {
+#if HIGH_BIT_DEPTH
+        //10bit assemble
+#else
         pixf->add_ps [LUMA_16x4 ] = xavs2_pixel_add_ps_16x4_avx2;
         pixf->add_ps [LUMA_16x8 ] = xavs2_pixel_add_ps_16x8_avx2;
         pixf->add_ps [LUMA_16x16] = xavs2_pixel_add_ps_16x16_avx2;
@@ -1039,6 +1146,7 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->copy_ps[LUMA_32x32] = xavs2_blockcopy_ps_32x32_avx2;
         pixf->copy_ps[LUMA_16x32] = xavs2_blockcopy_ps_16x32_avx2;
         pixf->copy_ps[LUMA_16x16] = xavs2_blockcopy_ps_16x16_avx2;
+#endif
     }
 #endif
 #endif // if HAVE_MMX
@@ -1444,7 +1552,8 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
 
     }
 #endif
-#if ARCH_X86_64 && defined(__AVX2__)
+#if defined(__AVX2__)
+#if ARCH_X86_64
     if (cpuid & XAVS2_CPU_AVX2) {
         pixf->sad   [LUMA_32x8 ] = xavs2_pixel_sad_32x8_avx2;
         pixf->sad   [LUMA_32x16] = xavs2_pixel_sad_32x16_avx2;
@@ -1516,6 +1625,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sa8d  [LUMA_32x32] = xavs2_pixel_sa8d_32x32_avx2;
     }
 #endif
+#endif
 
     /* -------------------------------------------------------------
      * init AVG functions
@@ -1577,7 +1687,19 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
     if (cpuid & XAVS2_CPU_SSE3) {
         INIT_PIXEL_FUNC(avg, _ssse3);
     }
+
+    /* block average */
+    if (cpuid & XAVS2_CPU_SSE42) {
+        pixf->average = xavs2_pixel_average_sse128;
+    }
+
 #if defined(__AVX2__)
+#if _MSC_VER
+    if (cpuid & XAVS2_CPU_AVX) {
+        pixf->average = xavs2_pixel_average_avx;
+    }
+#endif
+
     if (cpuid & XAVS2_CPU_AVX2) {
 #if ARCH_X86_64
         INIT_PIXEL_AVG(64, 64, avx2);
@@ -1596,16 +1718,6 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         INIT_PIXEL_AVG(16,  8, avx2);
         INIT_PIXEL_AVG(16,  4, avx2);
         INIT_PIXEL_AVG(16, 12, avx2);
-    }
-#endif
-
-    /* block average */
-    if (cpuid & XAVS2_CPU_SSE42) {
-        pixf->average = xavs2_pixel_average_sse128;
-    }
-#if _MSC_VER
-    if (cpuid & XAVS2_CPU_AVX) {
-        pixf->average = xavs2_pixel_average_avx;
     }
 #endif
 #endif
