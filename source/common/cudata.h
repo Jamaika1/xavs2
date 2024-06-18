@@ -49,7 +49,7 @@ void lcu_end(xavs2_t *h, int i_lcu_x, int i_lcu_y);
  */
 static ALWAYS_INLINE int clip_qp(xavs2_t *h, int i_qp)
 {
-    /* AVS2-P2£º Í¼ÏñÁ¿»¯Òò×Ó  picture_qp */
+    /* AVS2-P2Â£Âº ÃÂ¼ÃÃ±ÃÂ¿Â»Â¯Ã’Ã²Ã—Ã“  picture_qp */
     int max_qp = MAX_QP + (h->param->sample_bit_depth - 8) * 8;
     return XAVS2_MAX(MIN_QP, XAVS2_MIN(max_qp, i_qp));
 }
@@ -120,7 +120,14 @@ static ALWAYS_INLINE int cu_get_chroma_qp(xavs2_t *h, int luma_qp, int uv)
     int QP;
     UNUSED_PARAMETER(uv);
     UNUSED_PARAMETER(h);
+#if HIGH_BIT_DEPTH
+    const int bit_depth_offset = ((h->param->sample_bit_depth - 8) << 3);
+    QP -= bit_depth_offset;
+    QP = QP < 0 ? QP : tab_qp_scale_chroma[QP];
+    QP = XAVS2_CLIP3(0, 63 + bit_depth_offset, QP + bit_depth_offset);
+#else
     QP = tab_qp_scale_chroma[XAVS2_CLIP3(0, 63, luma_qp)];
+#endif
     return QP;
 }
 
