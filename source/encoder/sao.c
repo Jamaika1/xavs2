@@ -1178,6 +1178,10 @@ void sao_filter_lcu(xavs2_t *h, SAOBlkParam blk_param[NUM_SAO_COMPONENTS], int l
         if (h->slice_sao_on[compIdx] == 0 || p_param[compIdx].typeIdc == SAO_TYPE_OFF) {
             continue;
         }
+#if !HIGH_BIT_DEPTH
+        int filter_type = p_param[compIdx].typeIdc;
+        assert(filter_type >= SAO_TYPE_EO_0 && filter_type <= SAO_TYPE_BO);
+#endif
         int pix_y = region.pix_y[compIdx];
         int pix_x = region.pix_x[compIdx];
         int i_dst = h->fdec->i_stride[compIdx];
@@ -1198,9 +1202,6 @@ void sao_filter_lcu(xavs2_t *h, SAOBlkParam blk_param[NUM_SAO_COMPONENTS], int l
                           region.width[compIdx], region.height[compIdx],
                           avail, &p_param[compIdx]);
 #else
-        int filter_type = p_param[compIdx].typeIdc;
-        assert(filter_type >= SAO_TYPE_EO_0 && filter_type <= SAO_TYPE_BO);
-
         if (filter_type == SAO_TYPE_BO) {
             g_funcs.sao_block_bo(h, dst, i_dst, src, i_src,
                            region.width[compIdx], region.height[compIdx], &p_param[compIdx]);
