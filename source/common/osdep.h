@@ -169,7 +169,7 @@
 #  define ALIGN_256_PTR(p)      (p) = (uint8_t *)((intptr_t)((p) + (CACHE_LINE_256B - 1)) & (~(intptr_t)(CACHE_LINE_256B - 1)))
 
 #if defined(_MSC_VER)
-#pragma warning(disable:4324)   /* disable warning C4324: 由于 __declspec(align())，结构被填充 */
+#pragma warning(disable:4324)   /* disable warning C4324: 鐢变簬 __declspec(align())锛岀粨鏋勮濉厖 */
 #define DECLARE_ALIGNED(var, n) __declspec(align(n)) var
 #else
 #define DECLARE_ALIGNED(var, n) var __attribute__((aligned(n)))
@@ -216,7 +216,7 @@
 #define ALIGNED_ARRAY_64(...)   EXPAND(ALIGNED_ARRAY_EMU(63, __VA_ARGS__))
 
 /* For AVX2 */
-#if ARCH_X86 || ARCH_X86_64
+#if defined(__AVX2__) && (ARCH_X86 || ARCH_X86_64)
 #define NATIVE_ALIGN            32
 #define ALIGNED_N               ALIGN32
 #define ALIGNED_ARRAY_N         ALIGNED_ARRAY_32
