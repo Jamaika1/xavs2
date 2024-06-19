@@ -34,11 +34,11 @@ SECTION .text
 cextern pw_pixel_max
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_4x4(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_4x4(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %if HIGH_BIT_DEPTH
 INIT_XMM sse2
-cglobal pixel_add_ps_4x4, 6, 6, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_4x4, 6, 6, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m1,     [pw_pixel_max]
     pxor    m0,     m0
     add     r4,     r4
@@ -68,7 +68,7 @@ cglobal pixel_add_ps_4x4, 6, 6, 6, dest, destride, src0, scr1, srcStride0, srcSt
     RET
 %else
 INIT_XMM sse4
-cglobal pixel_add_ps_4x4, 6, 6, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_4x4, 6, 6, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     add         r5,         r5
     pmovzxbw    m0,         [r2]
     pmovzxbw    m2,         [r2 + r4]
@@ -101,12 +101,12 @@ cglobal pixel_add_ps_4x4, 6, 6, 8, dest, destride, src0, scr1, srcStride0, srcSt
 
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_4x%2(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_4x%2(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W4_H4 2
 %if HIGH_BIT_DEPTH
 INIT_XMM sse2
-cglobal pixel_add_ps_4x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_4x%2, 6, 7, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m1,     [pw_pixel_max]
     pxor    m0,     m0
     mov     r6d,    %2/4
@@ -143,7 +143,7 @@ cglobal pixel_add_ps_4x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcS
     RET
 %else
 INIT_XMM sse4
-cglobal pixel_add_ps_4x%2, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_4x%2, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %2/4
     add         r5,         r5
 .loop:
@@ -187,12 +187,12 @@ PIXEL_ADD_PS_W4_H4   4, 16
 
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_8x%2(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_8x%2(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W8_H4 2
 %if HIGH_BIT_DEPTH
 INIT_XMM sse2
-cglobal pixel_add_ps_8x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_8x%2, 6, 7, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m5,     [pw_pixel_max]
     pxor    m4,     m4
     mov     r6d,    %2/4
@@ -235,7 +235,7 @@ cglobal pixel_add_ps_8x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcS
     RET
 %else
 INIT_XMM sse4
-cglobal pixel_add_ps_8x%2, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_8x%2, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %2/4
     add         r5,         r5
 .loop:
@@ -280,12 +280,12 @@ PIXEL_ADD_PS_W8_H4 8, 32
 
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_16x%2(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_16x%2(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W16_H4 2
 %if HIGH_BIT_DEPTH
 INIT_XMM sse2
-cglobal pixel_add_ps_16x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_16x%2, 6, 7, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m5,     [pw_pixel_max]
     pxor    m4,     m4
     mov     r6d,    %2/4
@@ -352,7 +352,7 @@ cglobal pixel_add_ps_16x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, src
     RET
 %else
 INIT_XMM sse4
-cglobal pixel_add_ps_16x%2, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_16x%2, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %2/4
     add         r5,         r5
 .loop:
@@ -413,13 +413,13 @@ PIXEL_ADD_PS_W16_H4 16, 32
 PIXEL_ADD_PS_W16_H4 16, 64
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_16x16(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_16x16(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W16_H4_avx2 1
 %if HIGH_BIT_DEPTH
 %if ARCH_X86_64
 INIT_YMM avx2
-cglobal pixel_add_ps_16x%1, 6, 10, 4, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_16x%1, 6, 10, 4, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m3,     [pw_pixel_max]
     pxor    m2,     m2
     mov     r6d,    %1/4
@@ -464,7 +464,7 @@ cglobal pixel_add_ps_16x%1, 6, 10, 4, dest, destride, src0, scr1, srcStride0, sr
 %endif
 %else
 INIT_YMM avx2
-cglobal pixel_add_ps_16x%1, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_16x%1, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %1/4
     add         r5,         r5
 .loop:
@@ -519,12 +519,12 @@ PIXEL_ADD_PS_W16_H4_avx2 64
 
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_32x%2(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_32x%2(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W32_H2 2
 %if HIGH_BIT_DEPTH
 INIT_XMM sse2
-cglobal pixel_add_ps_32x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_32x%2, 6, 7, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m5,     [pw_pixel_max]
     pxor    m4,     m4
     mov     r6d,    %2/2
@@ -588,7 +588,7 @@ cglobal pixel_add_ps_32x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, src
     RET
 %else
 INIT_XMM sse4
-cglobal pixel_add_ps_32x%2, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_32x%2, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %2/2
     add         r5,         r5
 .loop:
@@ -644,13 +644,13 @@ PIXEL_ADD_PS_W32_H2 32, 32
 PIXEL_ADD_PS_W32_H2 32, 64
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_32x32(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_32x32(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W32_H4_avx2 1
 %if HIGH_BIT_DEPTH
 %if ARCH_X86_64
 INIT_YMM avx2
-cglobal pixel_add_ps_32x%1, 6, 10, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_32x%1, 6, 10, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m5,     [pw_pixel_max]
     pxor    m4,     m4
     mov     r6d,    %1/4
@@ -716,7 +716,7 @@ cglobal pixel_add_ps_32x%1, 6, 10, 6, dest, destride, src0, scr1, srcStride0, sr
 %else
 %if ARCH_X86_64
 INIT_YMM avx2
-cglobal pixel_add_ps_32x%1, 6, 10, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_32x%1, 6, 10, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %1/4
     add         r5,         r5
     lea         r7,         [r4 * 3]
@@ -786,12 +786,12 @@ PIXEL_ADD_PS_W32_H4_avx2 64
 
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_64x%2(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_64x%2(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W64_H2 2
 %if HIGH_BIT_DEPTH
 INIT_XMM sse2
-cglobal pixel_add_ps_64x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_64x%2, 6, 7, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m5,     [pw_pixel_max]
     pxor    m4,     m4
     mov     r6d,    %2/2
@@ -903,7 +903,7 @@ cglobal pixel_add_ps_64x%2, 6, 7, 6, dest, destride, src0, scr1, srcStride0, src
     RET
 %else
 INIT_XMM sse4
-cglobal pixel_add_ps_64x%2, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_64x%2, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %2/2
     add         r5,         r5
 .loop:
@@ -995,13 +995,13 @@ PIXEL_ADD_PS_W64_H2 64, 16
 PIXEL_ADD_PS_W64_H2 64, 64
 
 ;-----------------------------------------------------------------------------
-; void pixel_add_ps_64x64(pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
+; void pixel_add_ps_64x64(xavs2_t* bb, pixel *dest, intptr_t destride, pixel *src0, int16_t *scr1, intptr_t srcStride0, intptr_t srcStride1)
 ;-----------------------------------------------------------------------------
 %macro PIXEL_ADD_PS_W64H4_avx2 1
 %if HIGH_BIT_DEPTH
 %if ARCH_X86_64
 INIT_YMM avx2
-cglobal pixel_add_ps_64x%1, 6, 10, 6, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_64x%1, 6, 10, 6, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mova    m5,     [pw_pixel_max]
     pxor    m4,     m4
     mov     r6d,    %1/4
@@ -1110,7 +1110,7 @@ cglobal pixel_add_ps_64x%1, 6, 10, 6, dest, destride, src0, scr1, srcStride0, sr
 %endif
 %else
 INIT_YMM avx2
-cglobal pixel_add_ps_64x%1, 6, 7, 8, dest, destride, src0, scr1, srcStride0, srcStride1
+cglobal pixel_add_ps_64x%1, 6, 7, 8, bb, dest, destride, src0, scr1, srcStride0, srcStride1
     mov         r6d,        %1/2
     add         r5,         r5
 .loop:
