@@ -85,6 +85,7 @@ const uint8_t g_partition_map_tab[] = {
  * ===========================================================================
  */
 
+#if !HIGH_BIT_DEPTH
 /**
  * ---------------------------------------------------------------------------
  * SAD
@@ -241,6 +242,7 @@ PIXEL_SAD_X4_C( 8,  8)  /* 8x8 */
 PIXEL_SAD_X4_C( 8,  4)
 PIXEL_SAD_X4_C( 4,  8)
 PIXEL_SAD_X4_C( 4,  4)  /* 4x4 */
+#endif
 
 
 /**
@@ -529,6 +531,7 @@ PIXEL_SA8D_C16(32, 64)
 PIXEL_SA8D_C16(48, 64)
 PIXEL_SA8D_C16(64, 64)
 
+
 /**
  * ---------------------------------------------------------------------------
  * SSD
@@ -670,7 +673,7 @@ uint64_t xavs2_pixel_ssd_wxh(pixel_funcs_t *pf,
 }
 #endif
 
-
+#if !HIGH_BIT_DEPTH
 /**
  * ---------------------------------------------------------------------------
  * AVG
@@ -717,6 +720,7 @@ PIXEL_AVG_C( 8,  8) /* 8x8 */
 PIXEL_AVG_C( 8,  4)
 PIXEL_AVG_C( 4,  8)
 PIXEL_AVG_C( 4,  4) /* 4x4 */
+#endif
 
 
 /**
@@ -841,8 +845,7 @@ BLOCK_OP_C( 8,  4)
 BLOCK_OP_C( 4,  8)
 BLOCK_OP_C( 4,  4)  /* 4x4 */
 
-#undef XAVS2_CLIP1
-
+#if !HIGH_BIT_DEPTH
 /* ---------------------------------------------------------------------------
  */
 static void xavs2_pixel_average(pel_t *dst, int i_dst, pel_t *src1, int i_src1, pel_t *src2, int i_src2, int width, int height)
@@ -858,6 +861,7 @@ static void xavs2_pixel_average(pel_t *dst, int i_dst, pel_t *src1, int i_src1, 
         src2 += i_src2;
     }
 }
+#endif
 
 /* ---------------------------------------------------------------------------
  * init functions of block operation : copy / add / sub
@@ -909,7 +913,9 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
     ALL_LUMA_PU(copy_ps, blockcopy_ps, );
     ALL_LUMA_PU(copy_ss, blockcopy_ss, );
     ALL_LUMA_PU(copy_pp, blockcopy_pp, );
+#if !HIGH_BIT_DEPTH
     pixf->ssd_block = xavs2_get_block_ssd_c;
+#endif
 
     /* -------------------------------------------------------------
      * init all SIMD functions
@@ -1028,8 +1034,7 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
 #endif
     }
 
-#if defined(__AVX2__)
-    if (cpuid & XAVS2_CPU_AVX2) {
+    if (cpuid & XAVS2_CPU_AVX) {
 #if HIGH_BIT_DEPTH
         //10bit assemble
         if (sizeof(pel_t) == sizeof(int16_t) && cpuid) {
@@ -1102,6 +1107,7 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
 #endif
     }
 
+#if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
 #if HIGH_BIT_DEPTH
         //10bit assemble
@@ -1162,6 +1168,7 @@ static void init_block_opreation_funcs(uint32_t cpuid, pixel_funcs_t* pixf)
  */
 void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
 {
+#if !HIGH_BIT_DEPTH
     /* -------------------------------------------------------------
      */
 #define INIT_PIXEL_FUNC(name, cpu) \
@@ -1195,7 +1202,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
     pixf->name[LUMA_4x8  ] = xavs2_pixel_ ## name ## _4x8   ## cpu;\
     /* 4x4 */                                                    \
     pixf->name[LUMA_4x4  ] = xavs2_pixel_ ## name ## _4x4   ## cpu;
-
+#endif
 
     /* -------------------------------------------------------------
      */
@@ -1225,6 +1232,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
     pixf->satd[LUMA_8x4  ] = xavs2_pixel_satd_8x4_   ## cpu;\
     pixf->satd[LUMA_4x8  ] = xavs2_pixel_satd_4x8_   ## cpu;
 
+#if !HIGH_BIT_DEPTH
     /* -------------------------------------------------------------
      */
 #define INIT_SSD(cpu) \
@@ -1260,12 +1268,14 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
     INIT_PIXEL_FUNC(sa8d,   );        // sa8d
 
     pixf->average = xavs2_pixel_average;// block average
+#endif
 
     /* -------------------------------------------------------------
      * init SIMD functions
      */
 #if HAVE_MMX
     if (cpuid & XAVS2_CPU_MMX2) {
+#if !HIGH_BIT_DEPTH
         pixf->sad   [LUMA_16x16] = xavs2_pixel_sad_16x16_mmx2;
         pixf->sad   [LUMA_16x8 ] = xavs2_pixel_sad_16x8_mmx2;
         pixf->sad   [LUMA_8x16 ] = xavs2_pixel_sad_8x16_mmx2;
@@ -1303,6 +1313,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->ssd   [LUMA_8x4  ] = xavs2_pixel_ssd_8x4_mmx;
         pixf->ssd   [LUMA_4x8  ] = xavs2_pixel_ssd_4x8_mmx;
         pixf->ssd   [LUMA_4x4  ] = xavs2_pixel_ssd_4x4_mmx;
+#endif
 
         pixf->satd  [LUMA_16x16] = xavs2_pixel_satd_16x16_mmx2;
         pixf->satd  [LUMA_16x8 ] = xavs2_pixel_satd_16x8_mmx2;
@@ -1324,6 +1335,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
     }
 
     if (cpuid & XAVS2_CPU_SSE2) {
+#if !HIGH_BIT_DEPTH
         pixf->sad   [LUMA_16x16] = xavs2_pixel_sad_16x16_sse2;
         pixf->sad   [LUMA_16x8 ] = xavs2_pixel_sad_16x8_sse2;
         pixf->sad   [LUMA_16x12] = xavs2_pixel_sad_16x12_sse2;
@@ -1345,6 +1357,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sad   [LUMA_48x64] = xavs2_pixel_sad_48x64_sse2;
         pixf->sad   [LUMA_24x32] = xavs2_pixel_sad_24x32_sse2;
         pixf->sad   [LUMA_12x16] = xavs2_pixel_sad_12x16_sse2;
+#endif
         pixf->sa8d  [LUMA_64x16] = xavs2_pixel_sa8d_64x16_sse2;
         pixf->sa8d  [LUMA_64x32] = xavs2_pixel_sa8d_64x32_sse2;
         pixf->sa8d  [LUMA_64x48] = xavs2_pixel_sa8d_64x48_sse2;
@@ -1358,9 +1371,9 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sa8d  [LUMA_32x32] = xavs2_pixel_sa8d_32x32_sse2;
         pixf->sa8d  [LUMA_64x64] = xavs2_pixel_sa8d_64x64_sse2;
 
-
         INIT_SATD(sse2);
 
+#if !HIGH_BIT_DEPTH
         pixf->sad_x3[LUMA_16x16] = xavs2_pixel_sad_x3_16x16_sse2;
         pixf->sad_x3[LUMA_16x8 ] = xavs2_pixel_sad_x3_16x8_sse2;
         pixf->sad_x3[LUMA_8x16 ] = xavs2_pixel_sad_x3_8x16_sse2;
@@ -1374,9 +1387,10 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sad_x4[LUMA_8x4  ] = xavs2_pixel_sad_x4_8x4_sse2;
 
         INIT_SSD (sse2);
-
+#endif
     }
 
+#if !HIGH_BIT_DEPTH
     if (cpuid & XAVS2_CPU_SSE3) {
         pixf->sad   [LUMA_16x16] = xavs2_pixel_sad_16x16_sse3;
         pixf->sad   [LUMA_16x8 ] = xavs2_pixel_sad_16x8_sse3;
@@ -1405,12 +1419,13 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sad_x4[LUMA_16x16] = xavs2_pixel_sad_x4_16x16_sse3;
         pixf->sad_x4[LUMA_16x8 ] = xavs2_pixel_sad_x4_16x8_sse3;
         pixf->sad_x4[LUMA_16x4 ] = xavs2_pixel_sad_x4_16x4_sse3;
-
     }
+#endif
 
     if (cpuid & XAVS2_CPU_SSSE3) {
         INIT_SATD(ssse3);
 
+#if !HIGH_BIT_DEPTH
         pixf->sad_x3[LUMA_64x64] = xavs2_pixel_sad_x3_64x64_ssse3;    /* 64x64 */
         pixf->sad_x3[LUMA_64x32] = xavs2_pixel_sad_x3_64x32_ssse3;
         pixf->sad_x3[LUMA_32x64] = xavs2_pixel_sad_x3_32x64_ssse3;
@@ -1450,6 +1465,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sad_x4[LUMA_12x16] = xavs2_pixel_sad_x4_12x16_ssse3;
 
         INIT_SSD (ssse3);
+#endif
 
         pixf->sa8d  [LUMA_4x4  ] = xavs2_pixel_satd_4x4_ssse3;
         pixf->sa8d  [LUMA_8x8  ] = xavs2_pixel_sa8d_8x8_ssse3;
@@ -1458,11 +1474,11 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sa8d  [LUMA_8x16 ] = xavs2_pixel_sa8d_8x16_ssse3;
         pixf->sa8d  [LUMA_16x32] = xavs2_pixel_sa8d_16x32_ssse3;
         pixf->sa8d  [LUMA_32x64] = xavs2_pixel_sa8d_32x64_ssse3;
-
     }
 
     if (cpuid & XAVS2_CPU_SSE4) {
         INIT_SATD(sse4);
+#if !HIGH_BIT_DEPTH
         pixf->ssd   [LUMA_12x16] = xavs2_pixel_ssd_12x16_sse4;
         pixf->ssd   [LUMA_24x32] = xavs2_pixel_ssd_24x32_sse4;
         pixf->ssd   [LUMA_48x64] = xavs2_pixel_ssd_48x64_sse4;
@@ -1470,6 +1486,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->ssd   [LUMA_64x32] = xavs2_pixel_ssd_64x32_sse4;
         pixf->ssd   [LUMA_64x48] = xavs2_pixel_ssd_64x48_sse4;
         pixf->ssd   [LUMA_64x64] = xavs2_pixel_ssd_64x64_sse4;
+#endif
 
         pixf->sa8d  [LUMA_4x4  ] = xavs2_pixel_satd_4x4_sse4;
         pixf->sa8d  [LUMA_8x8  ] = xavs2_pixel_sa8d_8x8_sse4;
@@ -1478,11 +1495,11 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sa8d  [LUMA_8x16 ] = xavs2_pixel_sa8d_8x16_sse4;
         pixf->sa8d  [LUMA_16x32] = xavs2_pixel_sa8d_16x32_sse4;
         pixf->sa8d  [LUMA_32x64] = xavs2_pixel_sa8d_32x64_sse4;
-
     }
 
     if (cpuid & XAVS2_CPU_AVX) {
         INIT_SATD(avx);
+#if !HIGH_BIT_DEPTH
         pixf->sad_x3[LUMA_64x64] = xavs2_pixel_sad_x3_64x64_avx;  /* 64x64 */
         pixf->sad_x3[LUMA_64x32] = xavs2_pixel_sad_x3_64x32_avx;
         pixf->sad_x3[LUMA_32x64] = xavs2_pixel_sad_x3_32x64_avx;
@@ -1522,6 +1539,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sad_x4[LUMA_12x16] = xavs2_pixel_sad_x4_12x16_avx;
 
         INIT_SSD (avx);
+#endif
 
         pixf->sa8d  [LUMA_4x4  ] = xavs2_pixel_satd_4x4_avx;
         pixf->sa8d  [LUMA_8x8  ] = xavs2_pixel_sa8d_8x8_avx;
@@ -1531,16 +1549,18 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sa8d  [LUMA_16x32] = xavs2_pixel_sa8d_16x32_avx;
         pixf->sa8d  [LUMA_32x64] = xavs2_pixel_sa8d_32x64_avx;
         pixf->sa8d  [LUMA_64x64] = xavs2_pixel_sa8d_64x64_avx;
-
     }
+
 #if defined(__XOP__)
     if (cpuid & XAVS2_CPU_XOP) {
         INIT_SATD(xop);
+#if !HIGH_BIT_DEPTH
         pixf->ssd   [LUMA_16x16] = xavs2_pixel_ssd_16x16_xop;
         pixf->ssd   [LUMA_16x8 ] = xavs2_pixel_ssd_16x8_xop;
         pixf->ssd   [LUMA_8x16 ] = xavs2_pixel_ssd_8x16_xop;
         pixf->ssd   [LUMA_8x8  ] = xavs2_pixel_ssd_8x8_xop;
         pixf->ssd   [LUMA_8x4  ] = xavs2_pixel_ssd_8x4_xop;
+#endif
 
         //pixf->sa8d  [LUMA_4x4  ] = xavs2_pixel_satd_4x4_xop; // in x265, this one is broken
         pixf->sa8d  [LUMA_8x8  ] = xavs2_pixel_sa8d_8x8_xop;
@@ -1549,12 +1569,13 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sa8d  [LUMA_8x16 ] = xavs2_pixel_sa8d_8x16_xop;
         pixf->sa8d  [LUMA_16x32] = xavs2_pixel_sa8d_16x32_xop;
         pixf->sa8d  [LUMA_32x64] = xavs2_pixel_sa8d_32x64_xop;
-
     }
 #endif
+
 #if defined(__AVX2__)
 #if ARCH_X86_64
     if (cpuid & XAVS2_CPU_AVX2) {
+#if !HIGH_BIT_DEPTH
         pixf->sad   [LUMA_32x8 ] = xavs2_pixel_sad_32x8_avx2;
         pixf->sad   [LUMA_32x16] = xavs2_pixel_sad_32x16_avx2;
         pixf->sad   [LUMA_32x24] = xavs2_pixel_sad_32x24_avx2;
@@ -1575,6 +1596,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->ssd   [LUMA_32x32] = xavs2_pixel_ssd_32x32_avx2;
         pixf->ssd   [LUMA_16x16] = xavs2_pixel_ssd_16x16_avx2;
         pixf->ssd   [LUMA_16x8 ] = xavs2_pixel_ssd_16x8_avx2;
+#endif
 
         pixf->satd  [LUMA_16x16] = xavs2_pixel_satd_16x16_avx2;
         pixf->satd  [LUMA_16x8 ] = xavs2_pixel_satd_16x8_avx2;
@@ -1594,6 +1616,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->satd  [LUMA_16x4 ] = xavs2_pixel_satd_16x4_avx2;
         pixf->satd  [LUMA_16x12] = xavs2_pixel_satd_16x12_avx2;
 
+#if !HIGH_BIT_DEPTH
         pixf->sad_x3[LUMA_32x8 ] = xavs2_pixel_sad_x3_32x8_avx2;
         pixf->sad_x3[LUMA_32x16] = xavs2_pixel_sad_x3_32x16_avx2;
         pixf->sad_x3[LUMA_32x24] = xavs2_pixel_sad_x3_32x24_avx2;
@@ -1619,6 +1642,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->sad_x4[LUMA_64x32] = xavs2_pixel_sad_x4_64x32_avx2;
         pixf->sad_x4[LUMA_64x48] = xavs2_pixel_sad_x4_64x48_avx2;
         pixf->sad_x4[LUMA_64x64] = xavs2_pixel_sad_x4_64x64_avx2;
+#endif
 
         pixf->sa8d  [LUMA_8x8  ] = xavs2_pixel_sa8d_8x8_avx2;
         pixf->sa8d  [LUMA_16x16] = xavs2_pixel_sa8d_16x16_avx2;
@@ -1627,6 +1651,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
 #endif
 #endif
 
+#if !HIGH_BIT_DEPTH
     /* -------------------------------------------------------------
      * init AVG functions
      */
@@ -1693,13 +1718,13 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         pixf->average = xavs2_pixel_average_sse128;
     }
 
-#if defined(__AVX2__)
 #if _MSC_VER
     if (cpuid & XAVS2_CPU_AVX) {
         pixf->average = xavs2_pixel_average_avx;
     }
 #endif
 
+#if defined(__AVX2__)
     if (cpuid & XAVS2_CPU_AVX2) {
 #if ARCH_X86_64
         INIT_PIXEL_AVG(64, 64, avx2);
@@ -1719,6 +1744,7 @@ void xavs2_pixel_init(uint32_t cpuid, pixel_funcs_t* pixf)
         INIT_PIXEL_AVG(16,  4, avx2);
         INIT_PIXEL_AVG(16, 12, avx2);
     }
+#endif
 #endif
 #endif
 
