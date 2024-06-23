@@ -44,31 +44,42 @@
  * ===========================================================================
  */
 typedef struct slice_row_index_t {
-    int16_t lcu_y;       /* ÐÐ±àºÅ */
-    int8_t  slice_idx;   /* ÐÐËùÔÚµÄSliceË÷ÒýºÅ */
-    int8_t  row_type;    /* 0: Slice¿ªÊ¼Î»ÖÃµÄÐÐ£»1:ÆÕÍ¨£»2: Slice½áÊøÎ»ÖÃµÄÐÐ */
+    int16_t lcu_y;       /* è¡Œç¼–å· */
+    int8_t  slice_idx;   /* è¡Œæ‰€åœ¨çš„Sliceç´¢å¼•å· */
+    int8_t  row_type;    /* 0: Sliceå¼€å§‹ä½ç½®çš„è¡Œï¼›1:æ™®é€šï¼›2: Sliceç»“æŸä½ç½®çš„è¡Œ */
 } slice_row_index_t;
 
 extern slice_row_index_t g_slice_lcu_row_order[1024];
 
 /* ---------------------------------------------------------------------------
- * ³õÊ¼»¯Slice¼¶µÄbufferÖ¸Õë
+ * åˆå§‹åŒ–Sliceçº§çš„bufferæŒ‡é’ˆ
  */
 static ALWAYS_INLINE
-void slice_init_bufer(xavs2_t *h, slice_t *slice)
+void slice_init_bufer8(xavs2_t *h, slice_t *slice)
 {
     /* init slice buffers */
     h->ipredmode         = slice->slice_ipredmode;
-    h->intra_border[0]   = slice->slice_intra_border[0];
-    h->intra_border[1]   = slice->slice_intra_border[1];
-    h->intra_border[2]   = slice->slice_intra_border[2];
+    h->intra_border8[0]   = slice->slice_intra_border8[0];
+    h->intra_border8[1]   = slice->slice_intra_border8[1];
+    h->intra_border8[2]   = slice->slice_intra_border8[2];
     h->p_deblock_flag[0] = slice->slice_deblock_flag[0];
     h->p_deblock_flag[1] = slice->slice_deblock_flag[1];
 }
 
+static ALWAYS_INLINE
+void slice_init_bufer10(xavs2_t *h, slice_t *slice)
+{
+    /* init slice buffers */
+    h->ipredmode         = slice->slice_ipredmode;
+    h->intra_border10[0]   = slice->slice_intra_border10[0];
+    h->intra_border10[1]   = slice->slice_intra_border10[1];
+    h->intra_border10[2]   = slice->slice_intra_border10[2];
+    h->p_deblock_flag[0] = slice->slice_deblock_flag[0];
+    h->p_deblock_flag[1] = slice->slice_deblock_flag[1];
+}
 
 /* ---------------------------------------------------------------------------
- * µÈ´ýÒ»ÐÐLCU±àÂëÍêÖ¸¶¨ÊýÁ¿µÄLCU
+ * ç­‰å¾…ä¸€è¡ŒLCUç¼–ç å®ŒæŒ‡å®šæ•°é‡çš„LCU
  */
 static ALWAYS_INLINE
 void wait_lcu_row_coded(row_info_t *last_row, int wait_lcu_coded)
@@ -84,7 +95,7 @@ void wait_lcu_row_coded(row_info_t *last_row, int wait_lcu_coded)
 
 
 /* ---------------------------------------------------------------------------
- * ²éÑ¯Ò»ÐÐLCUÊÇ·ñÒÑ±àÂëÍê±Ï
+ * æŸ¥è¯¢ä¸€è¡ŒLCUæ˜¯å¦å·²ç¼–ç å®Œæ¯•
  */
 static ALWAYS_INLINE
 int is_lcu_row_finished(xavs2_t *h, xavs2_frame_t *frm, int lcu_row)
@@ -93,7 +104,7 @@ int is_lcu_row_finished(xavs2_t *h, xavs2_frame_t *frm, int lcu_row)
 }
 
 /* ---------------------------------------------------------------------------
- * ²éÑ¯Ò»ÐÐLCUÊÇ·ñÒÑ±àÂëÍê±Ï
+ * æŸ¥è¯¢ä¸€è¡ŒLCUæ˜¯å¦å·²ç¼–ç å®Œæ¯•
  */
 static ALWAYS_INLINE
 void set_lcu_row_finished(xavs2_t *h, xavs2_frame_t *frm, int lcu_row)
@@ -114,8 +125,8 @@ void xavs2e_release_row_task(row_info_t *row)
         xavs2_handler_t *h_mgr = h->h_top;
         int b_slice_boundary_done = FALSE;
 
-        /* Èç¹û´ËÊ±Slice±ß½çµÄÏàÁÚÐÐÒÑ´¦ÀíÍê£¬ÔòÖ±½Ó½øÐÐ²åÖµ£¬²»ÐèÒª¼ÓËø
-         * ·ñÔò£¬ÐèÒª¼ÓËøºó½øÐÐ´¦Àí£¬±ÜÃâ³öÏÖÎÊÌâ */
+        /* å¦‚æžœæ­¤æ—¶Sliceè¾¹ç•Œçš„ç›¸é‚»è¡Œå·²å¤„ç†å®Œï¼Œåˆ™ç›´æŽ¥è¿›è¡Œæ’å€¼ï¼Œä¸éœ€è¦åŠ é”
+         * å¦åˆ™ï¼Œéœ€è¦åŠ é”åŽè¿›è¡Œå¤„ç†ï¼Œé¿å…å‡ºçŽ°é—®é¢˜ */
         if (h->param->b_cross_slice_loop_filter == FALSE) {
             if (row->b_top_slice_border && row->row > 0) {
                 if (is_lcu_row_finished(h, fdec, row->row - 1)) {
@@ -131,7 +142,7 @@ void xavs2e_release_row_task(row_info_t *row)
                 }
             }
         } else {
-            /* TODO: ¶àSlice²¢ÐÐÊ±£¬¶ÔSlice±ß½çµÄ´¦Àí */
+            /* TODO: å¤šSliceå¹¶è¡Œæ—¶ï¼Œå¯¹Sliceè¾¹ç•Œçš„å¤„ç† */
             if (h->param->slice_num > 1) {
                 xavs2_log(NULL, XAVS2_LOG_ERROR, "CrossSliceLoopFilter not supported now!\n");
                 assert(0);
@@ -156,7 +167,7 @@ void xavs2e_release_row_task(row_info_t *row)
                 }
             }
         } else {
-            /* TODO: ¶àSlice²¢ÐÐÊ±£¬¶ÔSlice±ß½çµÄ´¦Àí */
+            /* TODO: å¤šSliceå¹¶è¡Œæ—¶ï¼Œå¯¹Sliceè¾¹ç•Œçš„å¤„ç† */
         }
         set_lcu_row_finished(h, fdec, row->row);
         xavs2_thread_mutex_unlock(&fdec->mutex);         /* unlock */
@@ -229,7 +240,7 @@ xavs2_t *xavs2e_alloc_row_task(xavs2_t *h)
                 memcpy(&h_row_coder->row_vars_1, &h->row_vars_1, (uint8_t *)&h->row_vars_2 - (uint8_t *)&h->row_vars_1);
 
                 /* make the state of the aec engine same as the one when the slice starts */
-                /* ÕâÀïh->aecµÄÎ»ÖÃ²»Í¬µ¼ÖÂÐÔÄÜ²»Ò»Ñù£¬µ«ÊÇÔÚLCUÐÐ±àÂëÊ±ÖØÐÂ×öÁËÍ¬²½±£Ö¤ÁËÒ»ÖÂÐÔ */
+                /* è¿™é‡Œh->aecçš„ä½ç½®ä¸åŒå¯¼è‡´æ€§èƒ½ä¸ä¸€æ ·ï¼Œä½†æ˜¯åœ¨LCUè¡Œç¼–ç æ—¶é‡æ–°åšäº†åŒæ­¥ä¿è¯äº†ä¸€è‡´æ€§ */
                 aec_copy_aec_state(&h_row_coder->aec, &h->aec);
                 /* unlock */
                 xavs2_thread_mutex_unlock(&h_mgr->mutex);
