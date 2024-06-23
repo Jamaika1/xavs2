@@ -300,7 +300,7 @@ int xavs2_threadpool_init(xavs2_threadpool_t **p_pool, int threads, xavs2_tfunc_
     if (xavs2_sync_job_list_init(&pool->uninit, pool->i_threads) ||
         xavs2_sync_job_list_init(&pool->run,    pool->i_threads) ||
         xavs2_sync_job_list_init(&pool->done,   pool->i_threads)) {
-        goto fail;
+        goto fail8;
     }
 
     for (i = 0; i < pool->i_threads; i++) {
@@ -313,13 +313,13 @@ int xavs2_threadpool_init(xavs2_threadpool_t **p_pool, int threads, xavs2_tfunc_
 
     for (i = 0; i < pool->i_threads; i++) {
         if (xavs2_create_thread(pool->thread_handle + i, (xavs2_tfunc_t)proc_xavs2_threadpool_thread, pool)) {
-            goto fail;
+            goto fail8;
         }
     }
 
     return 0;
 
-fail:
+fail8:
     return -1;
 }
 
