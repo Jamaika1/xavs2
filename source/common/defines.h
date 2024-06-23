@@ -186,11 +186,7 @@ enum xavs2_fast_algorithms_e {
  * quantization parameter range
  */
 #define MIN_QP                  0     /* min QP */
-#if HIGH_BIT_DEPTH
-#define MAX_QP                  79    /* max QP */
-#else
 #define MAX_QP                  63    /* max QP */
-#endif
 #define SHIFT_QP                11    /* shift QP */
 
 
@@ -306,7 +302,7 @@ enum xavs2_fast_algorithms_e {
 #define MAX_SLICES                8   /* max number of slices in one picture */
 #define MAX_PARALLEL_FRAMES       8   /* max number of parallel encoding frames */
 #define MAX_COI_VALUE   ((1<<8) - 1)  /* max COI value (unsigned char) */
-//#define PIXEL_MAX ((1<<BIT_DEPTH)-1)  /* max value of a pixel */
+//#define PIXEL_MAX ((1<<8)-1)  /* max value of a pixel */
 
 
 /* ---------------------------------------------------------------------------
