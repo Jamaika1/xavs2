@@ -152,7 +152,7 @@ void get_bskip_mv_spatial(cu_mode_t *p_cumode, const neighbor_inter_t *p_neighbo
         }
     }
 
-    /* ÏàÁÚ¿é²»´æÔÚË«ÏòÔ¤²â¿éÊ±£¬Ë«ÏòSkip/DirectÄ£Ê½µÄÌî³ä */
+    /* ç›¸é‚»å—ä¸å­˜åœ¨åŒå‘é¢„æµ‹å—æ—¶ï¼ŒåŒå‘Skip/Directæ¨¡å¼çš„å¡«å…… */
     if (bid_flag == 0 && fwd_flag != 0 && bw_flag != 0) {
         p_cumode->skip_mv_2nd[DS_B_BID] = p_cumode->skip_mv_2nd[DS_B_BWD];
         p_cumode->skip_mv_1st[DS_B_BID] = p_cumode->skip_mv_1st[DS_B_FWD];
@@ -160,16 +160,16 @@ void get_bskip_mv_spatial(cu_mode_t *p_cumode, const neighbor_inter_t *p_neighbo
     p_cumode->skip_ref_1st[DS_B_BID] = B_FWD;
     p_cumode->skip_ref_2nd[DS_B_BID] = B_BWD;
 
-    /* ÏàÁÚ¿é²»´æÔÚ¶Ô³ÆÔ¤²â¿éÊ±£¬¶Ô³ÆSkip/DirectÄ£Ê½µÄÌî³ä */
+    /* ç›¸é‚»å—ä¸å­˜åœ¨å¯¹ç§°é¢„æµ‹å—æ—¶ï¼Œå¯¹ç§°Skip/Directæ¨¡å¼çš„å¡«å…… */
     if (sym_flag == 0) {
-        if (bid_flag > 1) {  /* Èô´æÔÚË«ÏòÔ¤²â¿é£¬ÔòÊ¹ÓÃË«ÏòÔ¤²â¿éÉú³É */
+        if (bid_flag > 1) {  /* è‹¥å­˜åœ¨åŒå‘é¢„æµ‹å—ï¼Œåˆ™ä½¿ç”¨åŒå‘é¢„æµ‹å—ç”Ÿæˆ */
             p_cumode->skip_mv_2nd[DS_B_SYM] = p_neighbors[bid2].mv[1];
             p_cumode->skip_mv_1st[DS_B_SYM] = p_neighbors[bid2].mv[0];
-        } else if (bw_flag != 0) {  /* Èô´æÔÚºóÏòÔ¤²â¿é£¬ÔòÊ¹ÓÃºóÏòÔ¤²â¿éÉú³É */
+        } else if (bw_flag != 0) {  /* è‹¥å­˜åœ¨åŽå‘é¢„æµ‹å—ï¼Œåˆ™ä½¿ç”¨åŽå‘é¢„æµ‹å—ç”Ÿæˆ */
             p_cumode->skip_mv_2nd[DS_B_SYM]   =  p_cumode->skip_mv_2nd[DS_B_BWD];
             p_cumode->skip_mv_1st[DS_B_SYM].x = -p_cumode->skip_mv_2nd[DS_B_BWD].x;
             p_cumode->skip_mv_1st[DS_B_SYM].y = -p_cumode->skip_mv_2nd[DS_B_BWD].y;
-        } else if (fwd_flag != 0) {  /* Èô´æÔÚÇ°ÏòÔ¤²â¿é£¬ÔòÊ¹ÓÃÇ°ÏòÔ¤²â¿éÉú³É */
+        } else if (fwd_flag != 0) {  /* è‹¥å­˜åœ¨å‰å‘é¢„æµ‹å—ï¼Œåˆ™ä½¿ç”¨å‰å‘é¢„æµ‹å—ç”Ÿæˆ */
             p_cumode->skip_mv_2nd[DS_B_SYM].x = -p_cumode->skip_mv_1st[DS_B_FWD].x;
             p_cumode->skip_mv_2nd[DS_B_SYM].y = -p_cumode->skip_mv_1st[DS_B_FWD].y;
             p_cumode->skip_mv_1st[DS_B_SYM]   =  p_cumode->skip_mv_1st[DS_B_FWD];
@@ -177,16 +177,16 @@ void get_bskip_mv_spatial(cu_mode_t *p_cumode, const neighbor_inter_t *p_neighbo
     }
     p_cumode->skip_ref_1st[DS_B_SYM] = B_FWD;
     p_cumode->skip_ref_2nd[DS_B_SYM] = B_BWD;
-    /* ºóÏòÔ¤²â¿é²»´æÔÚÊ±ºóÏòSkip/DirectÄ£Ê½µÄÌî³ä */
-    if (bw_flag == 0 && bid_flag > 1) {  /* Èç¹û´æÔÚË«ÏòÔ¤²â¿é£¬ÔòÊ¹ÓÃË«ÏòÔ¤²â¿éÄæÐòµÄ×îºóÒ»¸öÔªËØ */
+    /* åŽå‘é¢„æµ‹å—ä¸å­˜åœ¨æ—¶åŽå‘Skip/Directæ¨¡å¼çš„å¡«å…… */
+    if (bw_flag == 0 && bid_flag > 1) {  /* å¦‚æžœå­˜åœ¨åŒå‘é¢„æµ‹å—ï¼Œåˆ™ä½¿ç”¨åŒå‘é¢„æµ‹å—é€†åºçš„æœ€åŽä¸€ä¸ªå…ƒç´  */
         p_cumode->skip_mv_2nd[DS_B_BWD] = p_neighbors[bid2].mv[1];
-    } else if (bw_flag == 0 && bid_flag != 0) {  /* Ö»ÓÐÒ»¸öË«ÏòÔ¤²â¿éÊ±£¬Ê¹ÓÃË«ÏòÁÐ±íµÄºóÏò */
+    } else if (bw_flag == 0 && bid_flag != 0) {  /* åªæœ‰ä¸€ä¸ªåŒå‘é¢„æµ‹å—æ—¶ï¼Œä½¿ç”¨åŒå‘åˆ—è¡¨çš„åŽå‘ */
         p_cumode->skip_mv_2nd[DS_B_BWD] = p_cumode->skip_mv_2nd[DS_B_BID];
     }
     p_cumode->skip_ref_1st[DS_B_BWD] = INVALID_REF;
     p_cumode->skip_ref_2nd[DS_B_BWD] = B_BWD;
 
-    /* Ç°ÏòÔ¤²â¿é²»´æÔÚÊ±Ç°ÏòSkip/DirectÄ£Ê½µÄÌî³ä£¬ÀàËÆºóÏòSkip/DirectÄ£Ê½ */
+    /* å‰å‘é¢„æµ‹å—ä¸å­˜åœ¨æ—¶å‰å‘Skip/Directæ¨¡å¼çš„å¡«å……ï¼Œç±»ä¼¼åŽå‘Skip/Directæ¨¡å¼ */
     if (fwd_flag == 0 && bid_flag > 1) {
         p_cumode->skip_mv_1st[DS_B_FWD] = p_neighbors[bid2].mv[0];
     } else if (fwd_flag == 0 && bid_flag != 0) {
@@ -757,8 +757,8 @@ int get_mv_predictors_bskip(xavs2_t *h, cu_t *p_cu)
         col_mv_pos  = (pic_block_y >> 4) * w_in_16x16 + (pic_block_x >> 4);
         col_blk_ref = col_ref[col_mv_pos];
         if (col_blk_ref == INVALID_REF) {
-            ///! 9.5.8.4.3 ÔË¶¯Ê¸Á¿µ¼³ö·½·¨2£ºÈç¹û±àÂë µ¥Ôª×ÓÀàÐÍÎª B_Skip_Bi£¬ÇÒÊ±ÓòPUµÄ²Î¿¼Ë÷ÒýÎª INVALID_REF
-            get_mvp_default(h, p_neighbors, &mv_1st, 0, &cur_cb, B_FWD);  // ÕâÀï´«µÝµÄref_idxÓ°Ïìp_me->pred_sad_space£¬µ«²»±»Ê¹ÓÃ
+            ///! 9.5.8.4.3 è¿åŠ¨çŸ¢é‡å¯¼å‡ºæ–¹æ³•2ï¼šå¦‚æžœç¼–ç  å•å…ƒå­ç±»åž‹ä¸º B_Skip_Biï¼Œä¸”æ—¶åŸŸPUçš„å‚è€ƒç´¢å¼•ä¸º INVALID_REF
+            get_mvp_default(h, p_neighbors, &mv_1st, 0, &cur_cb, B_FWD);  // è¿™é‡Œä¼ é€’çš„ref_idxå½±å“p_me->pred_sad_spaceï¼Œä½†ä¸è¢«ä½¿ç”¨
             get_mvp_default(h, p_neighbors, &mv_2nd, 1, &cur_cb, B_BWD);
         } else {
             int TRp = h->fref[B_BWD]->ref_dpoc[col_blk_ref];
@@ -879,7 +879,7 @@ int pred_inter_search_single(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_m
     int mv_mempos_x;
     int mv_mempos_y;
     mv_t mv;
-    int b_mv_valid;              // MVÊÇ·ñÓÐÐ§£º´óÐ¡È¡ÖµÊÇ·ñÔÚ±ê×¼¹æ¶¨µÄÓÐÐ§·¶Î§ÄÚ
+    int b_mv_valid;              // MVæ˜¯å¦æœ‰æ•ˆï¼šå¤§å°å–å€¼æ˜¯å¦åœ¨æ ‡å‡†è§„å®šçš„æœ‰æ•ˆèŒƒå›´å†…
     int pu_idx_x = p_cb->x != 0; // PU index in CU
     int pu_idx_y = p_cb->y != 0;
     int pu_idx = (pu_idx_y << 1) + pu_idx_x;
@@ -895,12 +895,16 @@ int pred_inter_search_single(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_m
     int max_ref = h->i_ref;
 
     *fwd_cost = MAX_DISTORTION;
-    mv_mempos_x = (pix_x + MIN_PU_SIZE - 1) >> MIN_PU_SIZE_IN_BIT;  // ¿¼ÂÇµ½8x8¿éµÄ·Ç¶Ô³Æ»®·Ö£¬ÐèÒª×öÒ»¸ö²¹³¥ÔÙÒÆÎ»
+    mv_mempos_x = (pix_x + MIN_PU_SIZE - 1) >> MIN_PU_SIZE_IN_BIT;  // è€ƒè™‘åˆ°8x8å—çš„éžå¯¹ç§°åˆ’åˆ†ï¼Œéœ€è¦åšä¸€ä¸ªè¡¥å¿å†ç§»ä½
     mv_mempos_y = (pix_y + MIN_PU_SIZE - 1) >> MIN_PU_SIZE_IN_BIT;
     all_min_costs = &h->all_mincost[mv_mempos_y * width_in_4x4 + mv_mempos_x];
 
     /* make p_fenc point to the start address of the current PU */
-    p_me->p_fenc  = h->lcu.p_fenc[0] + (pix_y - h->lcu.i_pix_y) * FENC_STRIDE + pix_x - h->lcu.i_pix_x;
+    if (h->param->input_sample_bit_depth == 8) {
+    p_me->p_fenc8  = h->lcu.p_fenc8[0] + (pix_y - h->lcu.i_pix_y) * FENC_STRIDE + pix_x - h->lcu.i_pix_x;
+    } else {
+    p_me->p_fenc10  = h->lcu.p_fenc10[0] + (pix_y - h->lcu.i_pix_y) * FENC_STRIDE + pix_x - h->lcu.i_pix_x;
+    }
     p_me->i_pixel = PART_INDEX(bsx, bsy);
     p_me->i_pix_x   = pix_x;
     p_me->i_pix_y   = pix_y;
@@ -938,7 +942,7 @@ int pred_inter_search_single(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_m
             get_mvp_default(h, p_neighbors, pred_mv, bwd_2nd, p_cb, ref_idx);
         }
 
-        // ÐèÔÚ MVP »ñÈ¡Ö®ºóÖ´ÐÐ£¬Á½Õß¶¼»áÉèÖÃ p_me ×´Ì¬
+        // éœ€åœ¨ MVP èŽ·å–ä¹‹åŽæ‰§è¡Œï¼Œä¸¤è€…éƒ½ä¼šè®¾ç½® p_me çŠ¶æ€
         p_me->i_ref_idx = (int16_t)ref_idx;
         if (h->param->me_method == XAVS2_ME_UMH) {
             fast_me_prepare_info(h, p_me, mode, ref_idx, pu_idx, all_min_costs[0]);
@@ -949,11 +953,11 @@ int pred_inter_search_single(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_m
         p_me->p_fref_1st = p_ref_frm;
         p_me->mvp.v  = pred_mv->v;
 
-        /* ÏÞÖÆMVPµÄÈ¡Öµ£¬Èç¹ûMVPÖµ¹ý´ó£¬Ôò²»×öME */
+        /* é™åˆ¶MVPçš„å–å€¼ï¼Œå¦‚æžœMVPå€¼è¿‡å¤§ï¼Œåˆ™ä¸åšME */
         b_mv_valid = check_mv_range(h, pred_mv, ref_idx, pix_x, pix_y, bsx, bsy);
         b_mv_valid &= check_mvd(h, pred_mv->x, pred_mv->y);
 
-        /* Ä¬ÈÏ±ØÐëËÑË÷µÄµãÎ»ÖÃ */
+        /* é»˜è®¤å¿…é¡»æœç´¢çš„ç‚¹ä½ç½® */
         i_mvc = 0;
         i_mvc = add_one_mv_candidate(p_me, mvc, i_mvc, p_me->mvp.x, p_me->mvp.y);
         i_mvc = add_one_mv_candidate(p_me, mvc, i_mvc, 0, 0);
@@ -961,7 +965,7 @@ int pred_inter_search_single(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_m
         if (b_mv_valid) {
             cost = xavs2_me_search(h, p_me, mvc, i_mvc);
         } else {
-            p_me->bmv = p_me->mvp;  // MVPÔ½½çÊ±£¬×îÓÅMVÉèÖÃ³ÉºÍMVPÒ»Ñù´óÐ¡
+            p_me->bmv = p_me->mvp;  // MVPè¶Šç•Œæ—¶ï¼Œæœ€ä¼˜MVè®¾ç½®æˆå’ŒMVPä¸€æ ·å¤§å°
             cost = MAX_DISTORTION;
         }
         mv = p_me->bmv;
@@ -1039,11 +1043,10 @@ void pred_inter_search_bi(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me, 
     mv_t mvp, mv;
     cu_parallel_t *p_enc = cu_get_enc_context(h, p_cu->cu_info.i_level);
     cu_mv_mode_t *p_mode_mv = cu_get_layer_mode(h, p_cu->cu_info.i_level)->mvs[mode];
-    pel_t *buf_pixel_temp = p_enc->buf_pixel_temp;
     int pu_size_shift = p_cu->cu_info.i_level - MIN_CU_SIZE_IN_BIT;
     dist_t cost, cost_bid;
     int m, n, i, j;
-    int b_mv_valid;                    // MVÊÇ·ñÓÐÐ§£º´óÐ¡È¡ÖµÊÇ·ñÔÚ±ê×¼¹æ¶¨µÄÓÐÐ§·¶Î§ÄÚ
+    int b_mv_valid;                    // MVæ˜¯å¦æœ‰æ•ˆï¼šå¤§å°å–å€¼æ˜¯å¦åœ¨æ ‡å‡†è§„å®šçš„æœ‰æ•ˆèŒƒå›´å†…
     int pu_idx_x = p_cb->x != 0;       // PU index in CU
     int pu_idx_y = p_cb->y != 0;
     int k = (pu_idx_y << 1) + pu_idx_x;
@@ -1080,8 +1083,10 @@ void pred_inter_search_bi(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me, 
     b_mv_valid &= check_mv_range_sym(h,  &mv, pix_x, pix_y, bsx, bsy, distance_fwd, distance_bwd);
     b_mv_valid &= check_mvd(h, mvp.x, mvp.y);  // avoid mv-bits calculation error
 
+    if (h->param->input_sample_bit_depth == 8) {
+    pel8_t *buf_pixel_temp = p_enc->buf_pixel_temp8;
     if (b_mv_valid) {
-        cost = xavs2_me_search_sym(h, p_me, buf_pixel_temp, &mv);
+        cost = xavs2_me_search_sym8(h, p_me, buf_pixel_temp, &mv);
     } else {
         cost = MAX_DISTORTION;
     }
@@ -1091,7 +1096,7 @@ void pred_inter_search_bi(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me, 
     b_mv_valid &= check_mvd(h, p_me->mvp1.x, p_me->mvp1.y);  // avoid mv-bits calculation error
     b_mv_valid &= check_mvd(h, p_me->mvp2.x, p_me->mvp2.y);
     if (b_mv_valid) {
-        cost_bid = xavs2_me_search_bid(h, p_me, buf_pixel_temp, &fwd_mv, &bwd_mv, p_enc);
+        cost_bid = xavs2_me_search_bid8(h, p_me, buf_pixel_temp, &fwd_mv, &bwd_mv, p_enc);
     } else {
         cost_bid = MAX_DISTORTION;
     }
@@ -1127,6 +1132,56 @@ void pred_inter_search_bi(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me, 
 
     *sym_mcost = cost;
     *bid_mcost = cost_bid;
+    } else {
+    pel10_t *buf_pixel_temp = p_enc->buf_pixel_temp10;
+    if (b_mv_valid) {
+        cost = xavs2_me_search_sym10(h, p_me, buf_pixel_temp, &mv);
+    } else {
+        cost = MAX_DISTORTION;
+    }
+
+    b_mv_valid  = check_mv_range(h, &fwd_mv, B_FWD, pix_x, pix_y, bsx, bsy);
+    b_mv_valid &= check_mv_range(h, &bwd_mv, B_BWD, pix_x, pix_y, bsx, bsy);
+    b_mv_valid &= check_mvd(h, p_me->mvp1.x, p_me->mvp1.y);  // avoid mv-bits calculation error
+    b_mv_valid &= check_mvd(h, p_me->mvp2.x, p_me->mvp2.y);
+    if (b_mv_valid) {
+        cost_bid = xavs2_me_search_bid10(h, p_me, buf_pixel_temp, &fwd_mv, &bwd_mv, p_enc);
+    } else {
+        cost_bid = MAX_DISTORTION;
+    }
+
+    // store motion vectors
+    m = XAVS2_MAX((bsx >> (MIN_PU_SIZE_IN_BIT + pu_size_shift)), 1);
+    n = XAVS2_MAX((bsy >> (MIN_PU_SIZE_IN_BIT + pu_size_shift)), 1);
+    for (j = 0; j < n; j++) {
+        for (i = 0; i < m; i++) {
+            k = ((pu_idx_y + j) << 1) + (pu_idx_x + i);
+            p_mode_mv[k].all_sym_mv     [0] = mv;
+            p_mode_mv[k].all_dual_mv_1st[0] = fwd_mv;
+            p_mode_mv[k].all_dual_mv_2nd[0] = bwd_mv;
+        }
+    }
+
+    if (!(check_mv_range(h, &fwd_mv, B_FWD, pix_x, pix_y, bsx, bsy) &&
+          check_mvd(h, (fwd_mv.x - p_me->mvp1.x), (fwd_mv.y - p_me->mvp1.y)))) {
+        cost_bid = MAX_DISTORTION;
+    }
+
+    if (!(check_mv_range(h, &bwd_mv, B_BWD, pix_x, pix_y, bsx, bsy) &&
+          check_mvd(h, (bwd_mv.x - p_me->mvp2.x), (bwd_mv.y - p_me->mvp2.y)))) {
+        cost_bid = MAX_DISTORTION;
+    }
+
+    if (!(check_mv_range_sym(h, &mv, pix_x, pix_y, bsx, bsy, distance_fwd, distance_bwd) &&
+          check_mvd(h, (mv.x - mvp.x), (mv.y - mvp.y)))) {
+        cost = MAX_DISTORTION;
+    }
+    p_me->bmvcost[PDIR_SYM] = p_me->mvcost[PDIR_SYM];
+    p_me->bmvcost[PDIR_BID] = p_me->mvcost[PDIR_BID];
+
+    *sym_mcost = cost;
+    *bid_mcost = cost_bid;
+    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1139,7 +1194,6 @@ void pred_inter_search_dual(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me
     mv_t fst_dual, snd_dual;
     cu_parallel_t *p_enc = cu_get_enc_context(h, p_cu->cu_info.i_level);
     cu_mv_mode_t *p_mode_mv = cu_get_layer_mode(h, p_cu->cu_info.i_level)->mvs[mode];
-    pel_t *buf_pixel_temp = p_enc->buf_pixel_temp;
     int pix_x = p_cu->i_pix_x + p_cb->x;
     int pix_y = p_cu->i_pix_y + p_cb->y;
     int pu_idx_x = p_cb->x != 0;           // PU index
@@ -1150,7 +1204,7 @@ void pred_inter_search_dual(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me
     int ref_idx;
     dist_t cost;
     int distance_fwd, distance_bwd;
-    int b_mv_valid;        // MVÊÇ·ñÓÐÐ§£º´óÐ¡È¡ÖµÊÇ·ñÔÚ±ê×¼¹æ¶¨µÄÓÐÐ§·¶Î§ÄÚ
+    int b_mv_valid;        // MVæ˜¯å¦æœ‰æ•ˆï¼šå¤§å°å–å€¼æ˜¯å¦åœ¨æ ‡å‡†è§„å®šçš„æœ‰æ•ˆèŒƒå›´å†…
     int m, n, i, j, k;
     int max_ref = h->i_ref;
 
@@ -1182,8 +1236,10 @@ void pred_inter_search_dual(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me
         b_mv_valid &= check_mvd(h, (fst_dual.x - p_me->mvp1.x), (fst_dual.y - p_me->mvp1.y));
         b_mv_valid &= check_mvd(h, p_me->mvp1.x, p_me->mvp1.y);
         b_mv_valid &= check_mvd(h, p_me->mvp.x, p_me->mvp.y);
+        if (h->param->input_sample_bit_depth == 8) {
+        pel8_t *buf_pixel_temp = p_enc->buf_pixel_temp8;
         if (b_mv_valid) {
-            cost = xavs2_me_search_sym(h, p_me, buf_pixel_temp, &fst_dual);
+            cost = xavs2_me_search_sym8(h, p_me, buf_pixel_temp, &fst_dual);
         } else {
             cost = MAX_DISTORTION;
         }
@@ -1214,6 +1270,42 @@ void pred_inter_search_dual(xavs2_t *h, cu_t *p_cu, cb_t *p_cb, xavs2_me_t *p_me
                 *dual_best_snd_ref = !ref_idx;
                 p_me->bmvcost[PDIR_DUAL] = p_me->mvcost[PDIR_SYM];
             }
+        }
+        } else {
+        pel10_t *buf_pixel_temp = p_enc->buf_pixel_temp10;
+        if (b_mv_valid) {
+            cost = xavs2_me_search_sym10(h, p_me, buf_pixel_temp, &fst_dual);
+        } else {
+            cost = MAX_DISTORTION;
+        }
+
+        /* store motion vectors and reference frame (for motion vector prediction) */
+        snd_dual.v = MAKEDWORD(scale_mv_skip  (   fst_dual.x, distance_bwd, distance_fwd),
+                               scale_mv_skip_y(h, fst_dual.y, distance_bwd, distance_fwd));
+
+        m = XAVS2_MAX((bsx >> (MIN_PU_SIZE_IN_BIT + pu_size_shift)), 1);
+        n = XAVS2_MAX((bsy >> (MIN_PU_SIZE_IN_BIT + pu_size_shift)), 1);
+        for (j = 0; j < n; j++) {
+            for (i = 0; i < m; i++) {
+                k = ((pu_idx_y + j) << 1) + (pu_idx_x + i);
+                p_mode_mv[k].all_dual_mv_1st[ref_idx] = fst_dual;
+                p_mode_mv[k].all_dual_mv_2nd[ref_idx] = snd_dual;
+            }
+        }
+
+        b_mv_valid &= check_mv_range_sym(h, &fst_dual, pix_x, pix_y, bsx, bsy, distance_fwd, distance_bwd);
+        b_mv_valid &= check_mvd(h, (fst_dual.x - p_me->mvp1.x), (fst_dual.y - p_me->mvp1.y));
+        if (!b_mv_valid) {
+            cost = MAX_DISTORTION;
+        } else {
+            cost += REF_COST(ref_idx);
+            if (cost < *dual_mcost) {
+                *dual_mcost = cost;
+                *dual_best_fst_ref = ref_idx;
+                *dual_best_snd_ref = !ref_idx;
+                p_me->bmvcost[PDIR_DUAL] = p_me->mvcost[PDIR_SYM];
+            }
+        }
         }
     }
 }
