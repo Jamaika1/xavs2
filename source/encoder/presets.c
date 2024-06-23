@@ -53,7 +53,7 @@
  * ===========================================================================
  */
 /* ---------------------------------------------------------------------------
- * Ö¡ÄÚÁÁ¶È¿éµÄRDOÄ£Ê½ÊıÁ¿£¬¶ÔÓ¦²»Í¬presetµµ´Î
+ * å¸§å†…äº®åº¦å—çš„RDOæ¨¡å¼æ•°é‡ï¼Œå¯¹åº”ä¸åŒpresetæ¡£æ¬¡
  */
 static const uint8_t INTRA_FULL_RDO_NUM[][MAX_CU_SIZE_IN_BIT + 1] = {
     { 0, 0, 1, 1, 1, 1, 1 },         /* 0:  1x1, 2x2, 4x4, 8x8, 16x16, 32x32, 64x64 */
@@ -69,13 +69,13 @@ static const uint8_t INTRA_FULL_RDO_NUM[][MAX_CU_SIZE_IN_BIT + 1] = {
 };
 
 /* ---------------------------------------------------------------------------
- * Ö¡ÄÚÉ«¶È¿é RDO µÄ×î´óÄ£Ê½ÊıÁ¿ (²»Í¬presetµµ´Î)
+ * å¸§å†…è‰²åº¦å— RDO çš„æœ€å¤§æ¨¡å¼æ•°é‡ (ä¸åŒpresetæ¡£æ¬¡)
  */
 static const int8_t tab_num_rdo_chroma_intra_mode[] = {
     1, 2, 2, 2, 3, 3, 4, 4, 5, 5
 };
 
-/* Ö¡ÄÚRMDËÑË÷µÄãĞÖµ£¬²½³¤Îª2ºÍ1ËÑË÷µÄ½Ç¶ÈÊıÁ¿ */
+/* å¸§å†…RMDæœç´¢çš„é˜ˆå€¼ï¼Œæ­¥é•¿ä¸º2å’Œ1æœç´¢çš„è§’åº¦æ•°é‡ */
 static const int8_t tab_num_angle_dist2[] = {
     0, 0, 4, 4, 4, 4, 5, 5, 6, 6
 };
@@ -84,14 +84,14 @@ static const int8_t tab_num_angle_dist1[] = {
 };
 
 /* ---------------------------------------------------------------------------
- * È«Áã¿é¼ì²âÊ±µÄÅĞ¶¨ãĞÖµ±¶ÂÊ
+ * å…¨é›¶å—æ£€æµ‹æ—¶çš„åˆ¤å®šé˜ˆå€¼å€ç‡
  */
 static const float tab_th_zero_block_factor[] = {
     6, 6, 6, 6, 6, 6, 5, 5, 5, 5
 };
 
 /* ---------------------------------------------------------------------------
- * QSFDËã·¨µÄãĞÖµ¼ÆËãÏµÊı£¨²»Í¬preset£©
+ * QSFDç®—æ³•çš„é˜ˆå€¼è®¡ç®—ç³»æ•°ï¼ˆä¸åŒpresetï¼‰
  */
 const static double tab_qsfd_s_presets[][10] = {
     /* preset_level:
@@ -103,21 +103,23 @@ const static double tab_qsfd_cu_size_weight[4] = {
     0.25, 1.0, 3.0, 7.5  /* 8x8, 16x16, 32x32, 64x64 */
 };
 
-double tab_qsfd_thres[MAX_QP][2][CTU_DEPTH];
+//extern double tab_qsfd_thres[MAX_QP][2][CTU_DEPTH];
 
 /*--------------------------------------------------------------------------
  */
 static INLINE
 void algorithm_init_thresholds(xavs2_param_t *p_param)
 {
+    double tab_qsfd_thres[MAX_QP + (p_param->sample_bit_depth - 8) * 8][2][CTU_DEPTH];
     int i_preset_level = p_param->preset_level;
     //trade-off encoding time and performance
     const double s_inter = tab_qsfd_s_presets[0][i_preset_level];
     const double s_intra = tab_qsfd_s_presets[1][i_preset_level];
     int i;
 
+    int max_qp = MAX_QP + (p_param->sample_bit_depth - 8) * 8;
     /* QSFD threasholds */
-    for (i = 0; i < MAX_QP; i++) {
+    for (i = 0; i < max_qp; i++) {
         double qstep = 32768.0 / tab_Q_TAB[i];
         double th_base = 350 * pow(qstep, 0.9);
         double th__8 = th_base * tab_qsfd_cu_size_weight[0];
@@ -140,7 +142,7 @@ void algorithm_init_thresholds(xavs2_param_t *p_param)
         tab_qsfd_thres[i][1][3] = th_64 * s_intra * 1.0;
     }
 
-    /* È«Áã¿é¼ì²â */
+    /* å…¨é›¶å—æ£€æµ‹ */
     p_param->factor_zero_block = tab_th_zero_block_factor[i_preset_level];
 }
 
@@ -164,7 +166,7 @@ void parse_preset_level(xavs2_param_t *p_param, int i_preset_level)
         p_param->num_max_ref = XAVS2_MIN(i_preset_level, 4);
     }
 
-    /* --------------------------- CU½á¹¹ ---------------------------
+    /* --------------------------- CUç»“æ„ ---------------------------
     | preset          |  0  |  1  |  2  |   3 |   4 |   5 |   6  |   7  |   8  |  9   |
     +=================+=====+=====+=====+=====+=====+=====+======+======+======+======+
     | ctu             | 32  | 32  | 64  |  64 |  64 |  64 |  64  |  64  |  64  | 64   |
@@ -172,7 +174,7 @@ void parse_preset_level(xavs2_param_t *p_param, int i_preset_level)
     */
     p_param->lcu_bit_level = XAVS2_MIN(p_param->lcu_bit_level, 5 + (i_preset_level > 1));
 
-    /* --------------------------- Ô¤²â ---------------------------
+    /* --------------------------- é¢„æµ‹ ---------------------------
     */
     p_param->inter_2pu       = i_preset_level > 1;
     p_param->enable_amp      = i_preset_level > 5;  // NSQT
@@ -183,17 +185,17 @@ void parse_preset_level(xavs2_param_t *p_param, int i_preset_level)
     p_param->enable_dhp      = i_preset_level > 7 && p_param->enable_f_frame;
     p_param->enable_dmh      = i_preset_level > 6 && p_param->enable_f_frame;
 
-    /* --------------------------- ±ä»» --------------------------- */
+    /* --------------------------- å˜æ¢ --------------------------- */
     p_param->enable_sdip       = i_preset_level > 5;
     p_param->enable_nsqt       = i_preset_level > 5;
     p_param->enable_secT       = i_preset_level > -1;
     p_param->b_fast_2lelvel_tu = i_preset_level < 4;
 
-    /* --------------------------- Á¿»¯ ---------------------------
+    /* --------------------------- é‡åŒ– ---------------------------
      * Level: All for preset 9, Off for preset 0~2 */
     p_param->i_rdoq_level = i_preset_level > 8 ? RDOQ_ALL : i_preset_level > 5 ? RDOQ_CU_LEVEL : RDOQ_OFF;
 
-    /* --------------------------- RDOµµ´Î ---------------------------
+    /* --------------------------- RDOæ¡£æ¬¡ ---------------------------
     */
     if (i_preset_level < 0) {
         p_param->i_rd_level = RDO_OFF;
@@ -205,7 +207,7 @@ void parse_preset_level(xavs2_param_t *p_param, int i_preset_level)
         p_param->i_rd_level = RDO_ALL;
     }
 
-    /* --------------------------- ìØ±àÂë ---------------------------
+    /* --------------------------- ç†µç¼–ç  ---------------------------
      */
     if (i_preset_level <= 3) {
         p_param->rdo_bit_est_method = 2;
@@ -215,13 +217,13 @@ void parse_preset_level(xavs2_param_t *p_param, int i_preset_level)
         p_param->rdo_bit_est_method = 0;
     }
 
-    /* --------------------------- ÂË²¨ ---------------------------
+    /* --------------------------- æ»¤æ³¢ ---------------------------
     */
     p_param->enable_alf = p_param->enable_alf && i_preset_level > 4;
     p_param->enable_sao = p_param->enable_sao && i_preset_level > 1;
-    p_param->b_fast_sao = i_preset_level < 5;  // µµ´Î4ÒÔÏÂ¿ªÆô¿ìËÙSAO±àÂë¾ö²ß
+    p_param->b_fast_sao = i_preset_level < 5;  // æ¡£æ¬¡4ä»¥ä¸‹å¼€å¯å¿«é€ŸSAOç¼–ç å†³ç­–
 
-    /* --------------------------- ÆäËû ---------------------------
+    /* --------------------------- å…¶ä»– ---------------------------
     */
     p_param->enable_hadamard = i_preset_level > 0;
     p_param->enable_tdrdo    = i_preset_level > 4 && p_param->enable_tdrdo;
@@ -329,8 +331,8 @@ void encoder_set_fast_algorithms(xavs2_t *h)
      * 1, switch on some algorithms with little efficiency loss
      */
 
-    /* ÊÇ·ñĞèÒª·ÖÏñËØÔË¶¯ËÑË÷
-     * ²Î¿¼Ö¡ÊıÁ¿´óÓÚ1¸öÊ±£¬»á³öÏÖMVµÄËõ·Å¶øµ¼ÖÂMVÏñËØ¾«¶È´ïµ½1/4
+    /* æ˜¯å¦éœ€è¦åˆ†åƒç´ è¿åŠ¨æœç´¢
+     * å‚è€ƒå¸§æ•°é‡å¤§äº1ä¸ªæ—¶ï¼Œä¼šå‡ºç°MVçš„ç¼©æ”¾è€Œå¯¼è‡´MVåƒç´ ç²¾åº¦è¾¾åˆ°1/4
      */
     if (i_preset_level < 2) {
         h->use_fractional_me = 1;
@@ -355,16 +357,24 @@ void encoder_set_fast_algorithms(xavs2_t *h)
     } else {
         memcpy(h->tab_num_intra_rdo, INTRA_FULL_RDO_NUM[i_preset_level >> 0], sizeof(h->tab_num_intra_rdo));
     }
-    /* RMDËã·¨µÄËÑË÷½Ç¶ÈÊıÁ¿ */
+    /* RMDç®—æ³•çš„æœç´¢è§’åº¦æ•°é‡ */
     h->num_intra_rmd_dist2  = tab_num_angle_dist2[i_preset_level];
     h->num_intra_rmd_dist1  = tab_num_angle_dist1[i_preset_level];
     h->num_rdo_intra_chroma = tab_num_rdo_chroma_intra_mode[i_preset_level];
 
-    /* Ö¡ÄÚÔ¤²âÄ£Ê½ */
+    /* å¸§å†…é¢„æµ‹æ¨¡å¼ */
+    if (h->param->input_sample_bit_depth == 8) {
     if (IS_ALG_ENABLE(OPT_FAST_INTRA_MODE)) {
-        h->get_intra_candidates_luma = rdo_get_pred_intra_luma_rmd;
+        h->get_intra_candidates_luma8 = rdo_get_pred_intra_luma8_rmd;
     } else {
-        h->get_intra_candidates_luma = rdo_get_pred_intra_luma;
+        h->get_intra_candidates_luma8 = rdo_get_pred_intra_luma8;
+    }
+    } else {
+    if (IS_ALG_ENABLE(OPT_FAST_INTRA_MODE)) {
+        h->get_intra_candidates_luma10 = rdo_get_pred_intra_luma10_rmd;
+    } else {
+        h->get_intra_candidates_luma10 = rdo_get_pred_intra_luma10;
+    }
     }
     if (IS_ALG_ENABLE(OPT_FAST_RDO_INTRA_C)) {
         h->get_intra_candidates_chroma = rdo_get_pred_intra_chroma_fast;
