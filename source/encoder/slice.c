@@ -65,7 +65,7 @@ extern int g_bit_count;         /* global bit    count for trace */
 
 
 /* ---------------------------------------------------------------------------
- * ³õÊ¼»¯LCUÐÐµÄ±àÂëË³Ðò
+ * åˆå§‹åŒ–LCUè¡Œçš„ç¼–ç é¡ºåº
  */
 void slice_lcu_row_order_init(xavs2_t *h)
 {
@@ -119,7 +119,7 @@ void slice_lcu_row_order_init(xavs2_t *h)
                 p_slice = h->slices[idx_slice];
             }
         }
-    }   // Ä¬ÈÏÐÐ¼¶Ë³Ðò
+    }   // é»˜è®¤è¡Œçº§é¡ºåº
 }
 
 /* ---------------------------------------------------------------------------
@@ -388,7 +388,11 @@ void *xavs2_lcu_row_write(void *arg)
 
     h->lcu.get_skip_mvs = g_funcs.get_skip_mv_predictors[h->i_type];
     if (h->param->slice_num > 1) {
-        slice_init_bufer(h, slice);
+        if (h->param->input_sample_bit_depth == 8) {
+        slice_init_bufer8(h, slice);
+        } else {
+        slice_init_bufer10(h, slice);
+        }
     }
 
     /* loop over all LCUs in current lcu row ------------------------
@@ -588,7 +592,11 @@ void xavs2_slice_write_start(xavs2_t *h)
     aec_start(h, p_aec, slice->bs.p_start + PSEUDO_CODE_SIZE, slice->bs.p_end, 0);
 
     /* init slice buffers */
-    slice_init_bufer(h, slice);
+    if (h->param->input_sample_bit_depth == 8) {
+    slice_init_bufer8(h, slice);
+    } else {
+    slice_init_bufer10(h, slice);
+    }
 
     /* prediction mode is set to -1 outside the frame,
      * indicating that no prediction can be made from this part */
